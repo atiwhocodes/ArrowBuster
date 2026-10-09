@@ -7,7 +7,7 @@ Build and review portrait mobile UI so it is **one-thumb, readable, safe-area-co
 
 ## When to invoke
 - Building or changing any screen/panel in `Scripts/Runtime/UI` or `Prefabs/UI`.
-- At M3 (polished HUD + Win/Fail), M5 (Home, World map v1), M8 (full meta UI, consent, store), M9 (accessibility pass).
+- At M3 (polished HUD + Win/Fail), M6 (Home, World map, Bow Forge, full meta UI, settings), M7 (consent, store/IAP and rewarded-offer UI incl. "Bonus Arrow Used — 1★ Max", D-084), M8 (accessibility pass).
 - When a playtest note mentions mis-taps, unreadable text or confusion about the next action.
 
 **Do NOT invoke** for in-world readability of level objects (that's [`level-design-and-validation.md`](level-design-and-validation.md)) or for ad SDK screens (vendor UI; see [`ads-iap-and-consent-review.md`](ads-iap-and-consent-review.md)).
@@ -33,7 +33,7 @@ Build and review portrait mobile UI so it is **one-thumb, readable, safe-area-co
    - Fail → Retry is 1 tap;
    - Pause → Restart/Map/Settings;
    - back button (Android hardware back) handled by `UIRouter` on every screen;
-   - the interstitial never inserts itself between Fail and Retry (D-025).
+   - the interstitial never inserts itself between Fail and Retry (D-093).
 6. **Animation:** `UiTween` with unscaled time (works during hit-stop/pause); entry ≤ 250 ms; star reveal ≤ 1.2 s total and skippable by tap; Reduced Motion setting → crossfades only.
 7. **Accessibility:**
    - text ≥ 28 px at reference (body) and ≥ 36 px for numbers in the HUD;
@@ -83,7 +83,7 @@ Build and review portrait mobile UI so it is **one-thumb, readable, safe-area-co
 Agent: ab-ui-ux
 Skill: docs/skills/ui-ux-mobile-review.md
 Ticket: AB-023 Graybox HUD (level, objective icons, quiver, restart, pause) + Win/Fail/Pause panels graybox + SafeAreaFitter
-Spec: mvp.md §8; docs/planning/05_ART_AUDIO_UX.md (HUD layout, UI state flow); D-012, D-024
+Spec: mvp.md §8; docs/planning/05_ART_AUDIO_UX.md (HUD layout, UI state flow); D-012, D-084
 Listens to: GameEvents.LevelStarted, ObjectiveCleared, ArrowFired, SoftLockPrompt, LevelWon, LevelFailed, GameplayStateChanged
 Deliverables: Prefabs/UI/UI_Hud.prefab, UI_WinPanel.prefab, UI_FailPanel.prefab, UI_PausePanel.prefab; Scripts/Runtime/UI/{HudView,ObjectiveIconsView,QuiverView,WinPanel,FailPanel,PausePanel,SafeAreaFitter,UIRouter}.cs;
 docs/qa/ui-reviews/2026-10-xx_hud-graybox.md with Device Simulator screenshots (iPhone 11, iPhone 15 Pro, Pixel punch-hole, iPad).

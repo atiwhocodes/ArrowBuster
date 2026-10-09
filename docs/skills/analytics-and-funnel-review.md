@@ -8,8 +8,8 @@ Two jobs:
 2. **Review:** read funnels and level metrics to diagnose difficulty and pacing against the mvp §13 KPI targets (L1 completion ≥ 95%, W1 completion ≥ 45% of L5 reachers, median retries 1–3, investigate ≥ 20% quit-before-first-shot or ≥ 8 median retries).
 
 ## When to invoke
-- AB-024 (DebugAnalyticsService + loop events), each milestone that adds events (M5 progression, M8 monetisation/meta/vendor), and before any closed test or soft launch.
-- Weekly during the closed test / soft launch for funnel reviews.
+- AB-024 (DebugAnalyticsService + loop events), each milestone that adds events (M6 progression/meta, M7 monetisation + Firebase vendor), and before any closed test or soft launch.
+- Weekly during the UK closed test and the Canada/Australia soft launch for funnel reviews (D-098).
 
 **Do NOT invoke** to add A/B tests before soft-launch baselines exist (post-MVP only), or to optimise ad density before core completion is healthy (mvp §13).
 
@@ -18,7 +18,7 @@ Two jobs:
   `level_started`, `arrow_fired`, `object_triggered`, `level_completed`, `level_failed`, `level_restarted`, `rewarded_offer_shown`, `rewarded_offer_accepted`, `world_unlocked`, `cosmetic_equipped`, `iap_completed`.
 - Common params: `world_id`, `level_id`, `global_level`, `attempt_number`, `arrow_type`, `arrows_start`, `arrows_used`, `result`, `session_id`.
 - `AnalyticsEvents` constants + param builders (`Scripts/Runtime/Services/AnalyticsEvents.cs`).
-- For reviews: an export or dashboard from the chosen vendor (D-035), or `DebugAnalyticsService` CSVs from playtests.
+- For reviews: an export or dashboard from Firebase Analytics (D-090), or `DebugAnalyticsService` CSVs from playtests.
 
 ## Step-by-step workflow
 
@@ -35,8 +35,9 @@ Two jobs:
    - `read_console` filtered by `[Analytics]`, or open the CSV at `Application.persistentDataPath/analytics_debug.csv`;
    - check each row against the dictionary: name, params present, values plausible, fired exactly once.
 6. **Automate:** `Tests/PlayMode/GameFlowSmokeTests` installs a `RecordingAnalyticsService` and asserts the exact event sequence for scripted flows: start → fire×N → complete; start → fail → restart; rewarded offer shown/accepted.
-7. **Vendor verification (M8+):**
-   - Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.attila.arrowbuster`; iOS `-FIRDebugEnabled` launch argument), or the vendor's equivalent live-debug tool;
+7. **Vendor verification (M7+, Firebase; collection only after consent in UK/EEA, D-096):**
+   - Firebase DebugView (`adb shell setprop debug.firebase.analytics.app com.attila.arrowbuster`; iOS `-FIRDebugEnabled` launch argument);
+   - with consent denied (UMP debug geography = EEA), confirm no Analytics events and no Crashlytics reports are sent;
    - confirm events arrive with params; check param count/length limits (*verify at time of use*).
 
 ### B. Funnel and level review
@@ -72,7 +73,7 @@ Two jobs:
 - [ ] Each event fires exactly once per trigger (no double-fire on the second editor Play).
 - [ ] `attempt_number`, `session_id`, `global_level` correct across restarts and app backgrounding.
 - [ ] Smoke test asserts the sequences; green.
-- [ ] Vendor DebugView verified on Android and iOS (M8+).
+- [ ] Firebase DebugView verified on Android and iOS (M7+); consent-denied path sends nothing (D-096).
 - [ ] Funnel review lists flagged levels with owners and actions.
 
 ## Common failure modes
@@ -90,7 +91,7 @@ Two jobs:
 Agent: ab-monetisation-analytics
 Skill: docs/skills/analytics-and-funnel-review.md (section A)
 Ticket: AB-024 IAnalyticsService + DebugAnalyticsService + loop events
-Spec: mvp.md §13; docs/planning/06_META_MONETISATION_ANALYTICS.md event dictionary; D-035
+Spec: mvp.md §13; docs/planning/06_META_MONETISATION_ANALYTICS.md event dictionary; D-090
 Deliverables: Services/IAnalyticsService.cs, DebugAnalyticsService.cs (console + CSV at persistentDataPath/analytics_debug.csv),
 AnalyticsEvents.cs (constants + builders), AnalyticsBridge.cs listening to GameEvents for level_started, arrow_fired, object_triggered,
 level_completed, level_failed, level_restarted; Tests/PlayMode/GameFlowSmokeTests.cs sequence assertions;

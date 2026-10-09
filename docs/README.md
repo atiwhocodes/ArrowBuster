@@ -19,7 +19,7 @@ North star: *"I saw the trick, made one clean bow shot, and the whole scene came
 | Slash commands (to install) | [`claude-commands/`](claude-commands/) | Copy to `.claude/commands/` to enable `/next` and `/new-level` |
 | Per-level intended solutions | `docs/levels/W<w>_L<nn>.md` | Created during level production (template in `04` §14) |
 | QA artefacts | `docs/qa/` | Test runs, bug log, playtest notes (formats in `07`) |
-| Asset licence register | `docs/art/ASSET_LICENSES.md` | Created by ART at the first third-party import (D-042) |
+| Asset licence register | `docs/art/ASSET_LICENSES.md` | Created by ART at the first third-party import (D-089) |
 
 ### Planning set
 
@@ -33,7 +33,7 @@ North star: *"I saw the trick, made one clean bow shot, and the whole scene came
 | 05 | [Art, Audio & UX](planning/05_ART_AUDIO_UX.md) | Style and originality guardrails, asset lists, import rules, VFX/SFX/music/haptics, screens, HUD, accessibility |
 | 06 | [Meta, Monetisation & Analytics](planning/06_META_MONETISATION_ANALYTICS.md) | Progression, economy, cosmetics, daily, save schema, ads/IAP rules, consent, event dictionary, KPIs, remote config |
 | 07 | [QA, Performance & Release](planning/07_QA_PERFORMANCE_RELEASE.md) | Test suites, solvability, perf plan, device matrix, store checklists, closed test, soft-launch criteria, release gates |
-| 08 | [Production Roadmap](planning/08_PRODUCTION_ROADMAP.md) | Milestones M0–M10, critical path, 10-week plan, realistic solo plan, cut list, post-MVP backlog |
+| 08 | [Production Roadmap](planning/08_PRODUCTION_ROADMAP.md) | Milestones M0–M10 (owner execution order, D-102), critical path, compressed 10-week reference, realistic solo plan, cut list, post-MVP backlog |
 | 09 | [Backlog](planning/09_BACKLOG.md) | Epics, stories, labels, DoR/DoD, **first 25 tickets AB-001…AB-025** |
 | 10 | [Decision Log](planning/10_DECISION_LOG.md) | Every architecture and scope decision (D-001…). `Proposed` ones await owner confirmation. |
 | 11 | [Vertical Slice](planning/11_VERTICAL_SLICE.md) | The 5-level fun proof, its tickets, asset list and go/no-go playtest |
@@ -59,7 +59,7 @@ North star: *"I saw the trick, made one clean bow shot, and the whole scene came
 
 ## 4. Branches and worktrees
 
-*Prerequisite:* ticket **AB-001** (git is not initialised yet; needs owner approval). Full workflow: [`skills/git-worktree-and-integration.md`](skills/git-worktree-and-integration.md).
+Git is initialised (AB-001 done): private repo **github.com/atiwhocodes/ArrowBuster**, branch `main`, LFS + UnityYAMLMerge configured. Full workflow: [`skills/git-worktree-and-integration.md`](skills/git-worktree-and-integration.md).
 
 ```powershell
 # one-time (AB-001)
@@ -90,15 +90,26 @@ Rules: `main` is always green and only INT merges into it (one squash commit per
 | Device | `Arrow Buster ▸ Build ▸ Android Dev` (from M3), then follow [`skills/qa-regression-and-device-test.md`](skills/qa-regression-and-device-test.md) |
 | Performance | [`skills/mobile-performance-profiling.md`](skills/mobile-performance-profiling.md) against the budgets in `01` §11 |
 
-## 6. Recommended implementation order
+## 6. Recommended implementation order (owner-approved execution order, D-102)
 
-1. **Read** `mvp.md`, then `00` → `01` → `11` (vertical slice), then this README's §3.
-2. **Answer the open decisions** marked `Proposed` in `10_DECISION_LOG.md` (the key ones are listed in `00` §8).
-3. **M1 — Graybox core feel:** AB-001 → AB-015 + AB-047 (BuildScript/Android APK). Gate **G-M1**: arrow feel + physics stability (PG-1…PG-6).
-4. **M2 — Core loop:** AB-016 → AB-025 + AB-046 (5 more graybox levels).
-5. **M3 — Vertical slice:** AB-026 → AB-045 (defined in `11`). Gate **G0**: VS go/no-go playtest (VS-G1…VS-G8).
-6. **M4–M7 — Worlds:** systems first, then graybox all 20 levels of a world, then art.
-7. **M8 — Meta and monetisation** (interfaces have existed since M2; vendor SDKs are chosen at the gate).
-8. **M9–M10 — Optimisation, QA, closed test, submission.**
+Read `mvp.md`, then `00` → `01` → `11` (vertical slice), then this README's §3. Owner decisions are logged as D-080…D-103 in `10_DECISION_LOG.md`.
+
+| Step | What | Milestone / gate |
+|---|---|---|
+| 1 | Git baseline, Unity YAML merge, first commit — **done** (AB-001, github.com/atiwhocodes/ArrowBuster) | M0 |
+| 2 | Project settings, layers, physics settings, test assemblies, folders — **next: AB-002** | M1 (AB-002 → AB-015, AB-047; gate **G-M1**, PG-1…PG-6) |
+| 3 | Build the five-level vertical slice **only** | M2 (AB-016 → AB-025) + M3 (AB-026 → AB-045, AB-158) |
+| 4 | 5–10 **external** casual-player tests — before special arrows, maps, cosmetics, ads or the 60 levels | M3 (AB-045) |
+| 5 | Lock bow feel, trajectory accuracy, arrow collision reliability, restart time, physics stability | M3 — gate **G0** Vertical Slice & Feel Lock (VS-G1…VS-G8) |
+| 6 | Reusable material and interactive-object systems (all 5 materials, 6 objectives, 8 props, 4 special arrows, level tooling) | M4 — gate **G1** Systems Complete |
+| 7 | Graybox all 60 levels with reusable prefabs + LevelData (incl. AB-046) | M5 |
+| 8 | Validate every intended solution on actual target devices | M5 — gate **G2** Content Graybox Complete |
+| 9 | Final world art, sound, VFX, UI polish, meta and cosmetics (3 skins + 2 trails) | M6 — gate **G3** Content & Art Complete |
+| 10 | Ads (LevelPlay), IAP, consent, Firebase analytics/crash/remote config — only once the core game is stable; privacy policy hosted first | M7 — gate **G4** Feature Complete |
+| — | Optimisation, balance, QA, accessibility, store assets, name clearance | M8 — gate **G5** Release Candidate |
+| 11 | UK closed test → submission; then Canada + Australia soft launch | M9 (gate **G-Release**) → M10 |
+| 12 | Only after soft-launch data: balance, ad frequency, pricing, conversion | post-MVP |
+
+Owner calendar items (project weeks, independent of milestones): week 1 verify the Google Play account testing requirement (D-099); week 3 Mac + Apple Developer account ready for iOS device builds (D-100); week 5 Apple/Google developer accounts + store IAP products created (D-100).
 
 Skills index: [feature planning](skills/unity-feature-planning.md) · [gameplay implementation](skills/unity-gameplay-implementation.md) · [physics validation](skills/unity-physics-validation.md) · [performance profiling](skills/mobile-performance-profiling.md) · [level design & validation](skills/level-design-and-validation.md) · [UI/UX review](skills/ui-ux-mobile-review.md) · [asset pipeline](skills/asset-pipeline-and-imports.md) · [audio/VFX/haptics](skills/audio-vfx-haptics-integration.md) · [analytics & funnels](skills/analytics-and-funnel-review.md) · [ads/IAP/consent](skills/ads-iap-and-consent-review.md) · [QA regression & devices](skills/qa-regression-and-device-test.md) · [release readiness](skills/release-readiness.md) · [git worktrees & integration](skills/git-worktree-and-integration.md) · [balance & playtest](skills/gameplay-balance-playtest.md)

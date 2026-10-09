@@ -2,7 +2,7 @@
 
 > **Source of truth:** [`/mvp.md`](../../mvp.md) (section refs below are written `§N`). This document interprets it; it never overrides it.
 > When this analysis and `mvp.md` disagree, `mvp.md` wins unless a decision in [`10_DECISION_LOG.md`](10_DECISION_LOG.md) explicitly resolves the conflict.
-> Status: **Draft v1 — 2026-10-09.** Owner: Product Owner / Game Design Lead (`PO`).
+> Status: **v2 — owner-approved 2026-10-09** (all open questions resolved; see §8 and D-080…D-104). Owner: Product Owner / Game Design Lead (`PO`).
 
 ---
 
@@ -60,22 +60,22 @@ A precision fantasy archer who **reads a structure, finds its weak point and win
 | Arrows | Oak, Heavyhead, Split, Fire, Bounce — level-curated quivers, no player loadout |
 | Materials | Straw/wicker, Timber, Stone, Ice crystal, Metal (MaterialProfile-driven) |
 | Required objectives (6) | Red crest target, Supply crate, Hanging lantern, Cursed orb, Training dummy, Banner rope |
-| Interactive props (≥8 of 9) | Rope/chain, Balloon cluster, Oil jar, Powder barrel, Rolling boulder, Wind fan, Rotating/moving shield, Portal ring; *(Spring plate is listed in §4 but never scheduled in §6 — see Q-07)* |
+| Interactive props (8) | Rope/chain, Balloon cluster, Oil jar, Powder barrel, Rolling boulder, Wind fan, Rotating/moving shield, Portal ring. *(Spring plate is **cut**, D-086; moving ice platforms are **cut**, D-104.)* |
 | Protected/hazards | Royal vase, Sleeping fox, Royal relic (L60), Water pit, Spike bed, Pit/out-of-bounds, Shielded target (a physical-cover pattern, not a new system) |
 | Content | 60 levels, 3 worlds × 20, a set piece every 5th level, boss puzzles at L20/40/60, 2 tutorial levels per new mechanic |
-| Meta | World map (vertical path, 20 nodes per world), 15/20 unlock rule, stars, coins, cosmetics (bow skins, trails, quiver badges), basic daily challenge, Bullseye medal collection |
-| UX | Splash, Home, World map, Gameplay HUD, Win, Fail, Bow Forge, Settings (music, SFX, haptics, reduced particles, colour-assist outlines, restore purchases, privacy) |
+| Meta | World map (vertical path, 20 nodes per world), 15/20 unlock rule, stars, coins, cosmetics — **exactly 3 bow skins (Oak Ranger, Moonwood, Royal Amethyst) + 2 trails (Gold Spark, Leaf Swirl)**; quiver badges only if low-cost and non-blocking (D-101, D-104) — basic daily challenge (cut-first, D-094), Bullseye medal collection |
+| UX | Static splash (D-101), Home, World map, Gameplay HUD, Win, Fail, Bow Forge, Settings (music, SFX, haptics, reduced particles, colour-assist outlines, restore purchases, privacy) |
 | Feedback | Material SFX, impact VFX, haptics (draw threshold / impact / success), hit-stop, music per world |
-| Business | Rewarded +1 arrow (fair rules), rewarded 2× coins, capped interstitials, Remove Ads IAP, cosmetic starter pack IAP |
-| Platform | Analytics, crash reporting, remote config, consent/privacy (GDPR/UMP, ATT), local JSON save, iOS + Android builds, 60 FPS iPhone 11, 30 FPS low-end fallback |
+| Business | Rewarded +1 arrow (1★ cap, disclosed before the ad — D-084), rewarded 2× coins, capped interstitials (D-093), Remove Ads IAP (£/USD 3.99), Cosmetic Starter Pack IAP (£/USD 2.99) — D-091; cosmetics never affect gameplay (D-104) |
+| Platform | Firebase Analytics + Crashlytics + Remote Config, Unity LevelPlay ads, Unity IAP — all behind interfaces (D-090); consent-aware init with UK/EEA consent gating of analytics, ad personalisation and crash reporting (D-096; UMP + ATT); local JSON save; iOS + Android builds; 60 FPS iPhone 11, 30 FPS low-end fallback |
 
-### 5.2 Should-have (in MVP, but first to cut — full order in `08` §Cut list)
+### 5.2 Cut and cut-first (owner decisions D-086, D-101, D-104 — full order in `08` §Cut list)
 
-- "Choice levels" from L31 (§5 already marks them optional).
-- Spring plate prop.
-- Moving ice platforms (L53–55) — can become static slides.
-- Animated branded splash (a static splash is fine).
-- Five bow skins and four trails — the minimum viable set is 3 skins and 2 trails.
+**Cut from the MVP:** Spring Plates · choice-loadout levels · moving ice platforms (L53–55 use static ice slides + moving shields) · animated branded splash (static splash only) · more than 3 bow skins / 2 trails (Ember, Frostglass, Cyan Streak, Ember Ash are post-MVP).
+
+**Cut-first (build only if the vertical slice is excellent and the project is genuinely ahead of schedule):** Daily Challenge if it risks the 60-level campaign · quiver badges if not low-cost · any cloud save, leaderboard, achievement, push-notification, seasonal or multiplayer system (already post-MVP).
+
+The MVP lives or dies on: **bow feel, fair trajectory, reliable physics, readable structures, satisfying collapses, level variety and rapid restart.**
 
 ### 5.3 Post-MVP (explicitly deferred)
 
@@ -98,50 +98,56 @@ Full definition: [`11_VERTICAL_SLICE.md`](11_VERTICAL_SLICE.md). In summary: one
 | A-01 | Team is one developer plus AI coding agents. Art may be partly contracted. | The prompt says "small indie team… solo/indie"; repo history matches. |
 | A-02 | English only at launch, with all UI strings behind keys (localisation-ready). | §8 mentions no languages. |
 | A-03 | iPhone and iPad (universal) plus Android phones. Tablets get a pillarboxed play area with extended scenery. | `targetDevice: 2` in ProjectSettings. |
-| A-04 | Levels use world-local numbers (`W2_L08`) **and** a global index 1–60. The §5 unlock table uses world-local numbers. | §5 "World 2, level 8". |
+| A-04 | Levels use world-local IDs (`W2_L10`) **and** a global index 1–60. | D-047; the §5 table now lists both (D-082). |
 | A-05 | "Unlock" for special arrows means **first curated appearance plus a collection showcase**. Players never hold special arrows outside levels. | §5 loadout rule. |
 | A-06 | No backend; all economy is client-side. Tampering risk is accepted because nothing purchasable affects fairness. | §12. |
 | A-07 | Rated 13+, not child-directed. No Families/COPPA program. Still use a non-personalised-ads fallback. | §0 audience 13+. |
-| A-08 | Licensed stock **SFX sources** may be used only if heavily processed and logged in an asset-licence register. Identity assets (bow, characters, props, UI, logo, music) are custom. | The originality rule is strict for identity. Pending owner confirmation (Q-10). |
-| A-09 | Unity 6000.6.5f1 (current editor) stays for development. Upgrading to the newest Unity 6 **LTS** stream is evaluated as a timeboxed spike before M9 (see Q-01). | CLAUDE.md fixes the version; LTS status needs verification. |
+| A-08 | Licensed fonts and processed licensed SFX are allowed, logged in `docs/art/ASSET_LICENSES.md`. Brand-defining visuals and music are original. AI-generated assets are concepts/placeholders only. | **Decided** (D-089). |
+| A-09 | Unity 6000.6.5f1 is **locked for the whole MVP**; no upgrade spike. | **Decided** (D-080). |
 | A-10 | Physics: 3D PhysX bodies constrained to the XY plane (MVP §12, CLAUDE.md). The arrow is a **kinematic swept projectile**, not a dynamic rigidbody. | Decision D-005. |
 
-## 8. Open questions (Q-xx) — need an owner decision; each has a recommended default
+## 8. Owner decisions (Q-xx) — all resolved 2026-10-09
 
-| ID | Question | Recommended default (used by all plans until answered) |
-|---|---|---|
-| Q-01 | Ship on 6000.6.x or move to the latest Unity 6 LTS before release? | Develop on 6000.6.5f1. Run an upgrade spike at the start of M9 and adopt LTS if it is green. |
-| Q-02 | Final product name — "Arrow Buster" vs "ArrowBuster"? Trademark/store-name search? | Use "Arrow Buster" (matches ProjectSetup and GDD). Do a store/trademark search before M10. |
-| Q-03 | §5 unlock levels conflict with the §6 map beats (Heavyhead 15 vs 13–15; Split W2L8=28 vs 30–32; Bounce W3L10=50 vs 47–49; Fire W2L18=38 vs "36–39 combine fire"). | **Use the §6 map beats.** First appearances: Heavyhead L13, Split L30, Fire L36, Bounce L47. (D-014) |
-| Q-04 | Can the player fire the next arrow while physics is still resolving? | **Yes**, after a 0.35 s re-nock cooldown. Win/fail evaluation is continuous. (D-016) |
-| Q-05 | Do clears that used a rewarded bonus arrow earn 2–3★? | **No — capped at 1★.** The level still counts as cleared. (D-024) |
-| Q-06 | Does the trajectory preview show wind, portal exits and Bounce ricochets? | **Yes to all three, within preview length.** Hidden forces are unfair. Difficulty comes from a shorter preview, not deception. (D-017) |
-| Q-07 | Spring plate is listed but never scheduled. | Keep it as a Should-have and place it in W2 L33–35 (counterweights/boulders) only if M6 is on schedule. Otherwise cut — 8 props remain. (D-021) |
-| Q-08 | "Counterweights" (L33–35): true pulleys? | **No pulleys.** Use seesaw levers (hinge) and rope-hung weights. (D-022) |
-| Q-09 | Split Arrow trigger: impact or timer? | **Timed split** at a fixed flight time (shown in the preview). If it impacts before the split, it splits at impact into a forward fan. (D-019) |
-| Q-10 | May licensed stock assets (SFX libraries, fonts) be used at all? | Fonts: an OFL/commercial licence is OK. SFX: licensed sources OK if processed. Everything else custom. (A-08) |
-| Q-11 | Ad mediation / analytics / crash vendor? | Decide at the M8 gate using the criteria in `01` §5. Default lean: **AppLovin MAX or Unity LevelPlay** for mediation, plus **Firebase** (Analytics + Crashlytics + Remote Config). Interfaces are built in M2 regardless. |
-| Q-12 | IAP prices? | Remove Ads at USD 3.99 tier; Starter Pack at USD 2.99 tier. Remote-configurable display only; store prices set in the consoles. |
-| Q-13 | Does the powder-barrel blast push protected objects, or only not damage them? | **No damage and no blast force on protected objects.** Debris thrown by the blast is cosmetic and cannot hit them. Structure pieces thrown by the blast *can* — that is the player's responsibility. (D-020) |
-| Q-14 | The interstitial "first 10 minutes" — per session or per install? | **Per install, cumulative active playtime ≥ 10 min**, plus ≥ 3 completed levels since the last interstitial, plus a ≥ 120 s cooldown, plus never after a fail. All values are remote-configurable. (D-025) |
-| Q-15 | Daily challenge source levels when the player has few completions? | Unlocks after completing L10. It picks 3 completed levels by date-seeded hash; quiver = gold par of each level. (D-027) |
-| Q-16 | Does the "Royal Violet" bow skin conflict with "purple = hazard/protected"? | The bow is never in the play field, so this is acceptable. Rename to "Royal Amethyst" only if testers confuse it. Low priority. |
-| Q-17 | Legal basis for running crash reporting before/without consent in EEA/UK? | Crash reporting without identifiers under legitimate interest, disclosed in the privacy policy. **Needs legal/OWNER confirmation before M8** (`06` §9). |
-| Q-18 | Who writes and hosts the privacy policy (URL needed for both stores and in Settings)? | OWNER provides a hosted policy by M8, built from the data inventory in `07` §13. |
-| Q-19 | Soft-launch markets? | Pick 1–2 English-speaking, lower-CPI markets after the closed test (decided at G-Release). Affects consent regions and remote-config defaults. |
-| Q-20 | Google Play account type — does the new-personal-account closed-testing requirement apply? | Verify by M5. If it applies, start the Play closed track by M8 (D-079). |
-| Q-21 | May AI-generated art/audio be used, and under which tool licence? | Not in shipped assets until OWNER signs off per tool (D-042). Concept/reference use only. |
-| Q-22 | When is a Mac (and Apple Developer account) available for iOS builds? | Ideally from M3 for the VS device check; **mandatory by M8** (ATT, privacy manifests, IAP sandbox). Store accounts and IAP products by M5 (D-072). |
+All 22 open questions were answered by the OWNER on 2026-10-09. Full entries: [`10_DECISION_LOG.md`](10_DECISION_LOG.md) D-080…D-104.
+
+| ID | Question | Owner decision | Decision |
+|---|---|---|---|
+| Q-01 | Unity version for the MVP | **Unity 6000.6.5f1 locked for the whole MVP.** No upgrade spike; upgrade only post-launch or for a release-blocking platform issue. | D-080 |
+| Q-02 | Product name | Public/UI/store: **Arrow Buster**. Technical identifiers: **`ArrowBuster`** (lowercase where platform convention requires, e.g. `com.attila.arrowbuster`). Legal/store/domain clearance before store assets (M8). | D-081 |
+| Q-03 | Special-arrow first appearances | **Heavyhead Global L13 / W1_L13 · Split Global L30 / W2_L10 · Fire Global L36 / W2_L16 · Bounce Global L47 / W3_L07.** mvp.md §5 updated. | D-082 |
+| Q-04 | Fire while physics resolves? | Yes, after a **0.35 s re-nock cooldown**; firing is disabled once all objectives are cleared and in Won/Failed. | D-083 |
+| Q-05 | Bonus-arrow clear stars | **Capped at 1★**; counts as completed. "Bonus Arrow Used — 1★ Max" is shown before the ad. | D-084 |
+| Q-06 | Preview content | Shows **wind influence, portal exit paths and the first bounce.** Never hide path-changing mechanics. | D-085 |
+| Q-07 | Spring plate | **Cut** from the launch MVP. | D-086 |
+| Q-08 | Pulleys | **No pulleys**: rope-hung weights, hinge seesaws, dropping loads, rolling boulders. | D-087 |
+| Q-09 | Split Arrow trigger | **Timed split** with a preview marker and a pre-split glow pulse; impact before the split → forward fan. | D-088 |
+| Q-10 | Licensed assets | Licensed fonts and processed licensed SFX allowed (recorded). Brand-defining visuals and music original. | D-089 |
+| Q-11 | Vendors | **Firebase** (Analytics, Crashlytics, Remote Config) + **Unity LevelPlay** (ads) + Unity IAP, all behind `IAnalyticsService`, `ICrashReportingService`, `IRemoteConfigService`, `IAdsService`, `IIapService`; mocks until M7. | D-090 |
+| Q-12 | IAP prices | **Remove Ads £3.99 / USD 3.99** (interstitials only). **Cosmetic Starter Pack £2.99 / USD 2.99** = Royal Amethyst + Gold Spark + 500 coins; positioned as convenience, never exclusive. | D-091, D-104 |
+| Q-13 | Blasts vs protected objects | No direct damage or force; structure pieces moved by the blast can still break them. | D-092 |
+| Q-14 | Interstitials | ≥ 10 min cumulative active play per install, ≥ 3 completed levels since the last one, ≥ 120 s cooldown; **never** after a fail, during a level, during onboarding, after a purchase, after a rewarded ad, or on app resume. Remote-configurable. | D-093 |
+| Q-15 | Daily Challenge | Unlocks after Global L10; 3 already-completed levels by local date seed; gold-par quiver; no leaderboard/streak/backend/push. Cut-first. | D-094 |
+| Q-16 | "Royal Violet" | Renamed **Royal Amethyst**. | D-095 |
+| Q-17 | Crash reporting before consent | **Consent-gated** in UK/EEA together with analytics and ad personalisation (consent-aware SDK init). Final legal/privacy review before launch. | D-096 |
+| Q-18 | Privacy policy | OWNER hosts it **before SDK integration — at the start of M7 at the latest.** | D-097 |
+| Q-19 | Markets | **UK internal test first, then the closed test; soft launch in Canada and Australia** after the closed test. | D-098, D-104 |
+| Q-20 | Google Play testing rule | OWNER verifies in **project week 1**; start recruiting eligible testers early if it applies. | D-099 |
+| Q-21 | AI-generated assets | **Concepts and temporary placeholders only**, unless the licence, commercial rights and originality review are documented. | D-089 |
+| Q-22 | Mac / Apple account | **Mac + Apple Developer account by project week 3.** Apple/Google developer accounts + store IAP products by **project week 5**. | D-100 |
+
+Additional owner confirmations (D-104): Royal Amethyst is both in the Starter Pack **and** purchasable for 2,500 coins; no cosmetic is described as exclusive, premium-only, paid-only or limited; cosmetics never change aim assist, damage, quiver, stars, progression or any gameplay outcome; Spring Plates and moving ice platforms are **cut** (AB-093, AB-108); delivery follows four phases (`08` §0).
+
+**Remaining open items** (not blocking implementation): see [`10_DECISION_LOG.md`](10_DECISION_LOG.md) entries still marked `Proposed` — they stay in force as working defaults and are confirmed at the gate named in each entry.
 
 ## 9. Scope risks
 
 | ID | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
-| S-01 | **60 polished levels in 10 weeks** is unrealistic for one dev — content and art are the critical path. | High | High | Template-driven level production + validator + solvability bot. Graybox all 60 before art. Realistic plan in `08` (≈22–26 weeks). Cut list. |
+| S-01 | **60 polished levels in 10 weeks** is unrealistic for one dev — content and art are the critical path. | High | High | Template-driven level production + validator + solvability bot. Graybox all 60 before art. Realistic plan in `08` (≈31 weeks to submission, D-102). Cut list. |
 | S-02 | **Three bespoke 3D environment art kits** plus a hero bow, characters, VFX and UI. | High | High | Low-poly, gradient-atlas style (one 256 px palette texture per world). Modular kit of ~25 pieces per world. Lock art direction at the VS gate. |
-| S-03 | 9 props + 5 arrows + 5 materials create a combinatorial interaction matrix (fire × straw × oil × balloon × wind...). | High | Medium | Interaction matrix in `03` §9 with explicit "no interaction" cells. Each cell gets a test level in `Tests/PlayMode`. |
+| S-03 | 8 props + 5 arrows + 5 materials create a combinatorial interaction matrix (fire × straw × oil × balloon × wind...). | High | Medium | Interaction matrix in `03` §9 with explicit "no interaction" cells. Each cell gets a test level in `Tests/PlayMode`. |
 | S-04 | Monetisation/consent/SDK integration routinely eats 1–2 weeks (EDM4U, CocoaPods, privacy manifests). | Medium | High | Interfaces + mock services from M2. SDK spike in M7. Pick one mediation stack only. |
-| S-05 | Hidden mechanics not in the prop list: moving ice platforms, counterweights, shielded targets, "choice levels", Bullseye. | Medium | Medium | Each mapped onto an existing generic component (KinematicMover, HingeJoint lever, physical cover, LevelData flag, BullseyeMarker). See `03`. |
+| S-05 | Hidden mechanics not in the prop list: moving ice platforms (now cut, D-104), counterweights, shielded targets, "choice levels", Bullseye. | Medium | Medium | Each mapped onto an existing generic component (KinematicMover, HingeJoint lever, physical cover, LevelData flag, BullseyeMarker). See `03`. |
 | S-06 | Daily challenge requires date handling and level-reuse UX. | Medium | Low | Offline local-date seed, 3 levels, no streaks in MVP. |
 | S-07 | Set-piece/boss levels (L20/40/60) are larger and are physics-perf outliers. | Medium | Medium | A per-level body budget is enforced by the validator (≤ 60 dynamic gameplay bodies). Set pieces are profiled on the low tier. |
 
@@ -157,7 +163,7 @@ Full definition: [`11_VERTICAL_SLICE.md`](11_VERTICAL_SLICE.md). In summary: one
 | T-06 | **Chain-reaction blow-ups** (explosion + stack + barrel chain). | Clamped impulses. Explosion force with falloff and capped upward modifier. Barrel chain delay 0.15 s. Debris never collides with gameplay bodies. (Physics/Interactive) |
 | T-07 | **Enter Play Mode with domain + scene reload disabled** (`EditorSettings` options = 3): static state leaks between plays. | Every static (events, registries, service locator) resets in `[RuntimeInitializeOnLoadMethod(SubsystemRegistration)]`. Enforced in code review. (Architect) |
 | T-08 | **Mobile perf** with 3D shadows, physics and particles at 60 FPS on iPhone 11 / 30 FPS on low-end Android. | Budgets in `01` §11 and `07`. Quality tiers. Debris cap 40/20. Single directional light. Fake depth of field in the art. (Platform) |
-| T-09 | **Ad/consent SDK build breakage** (Gradle/EDM4U/CocoaPods, privacy manifests). | SDK spike branch in M7. Android-first verification. Mac build check every milestone from M8. (Monetisation/Platform) |
+| T-09 | **Ad/consent SDK build breakage** (Gradle/EDM4U/CocoaPods, privacy manifests). | Vendors fixed early (Firebase + LevelPlay + Unity IAP, D-090); optional isolated compile spike late in M6; integration in M7 behind `ArrowBuster.Integrations`. iOS device builds from M3 (Mac by week 3, D-100). (Monetisation/Platform) |
 | T-10 | **AI agents editing shared YAML** (scenes, prefabs, TagManager) concurrently cause corrupt merges. | Single-owner file locks, minimal scene content, prefab-first workflow, UnityYAMLMerge driver configured. (Integrator) |
 
 ## 11. Product risks
@@ -182,13 +188,15 @@ Full definition: [`11_VERTICAL_SLICE.md`](11_VERTICAL_SLICE.md). In summary: one
 | Level format | `LevelData` ScriptableObject (rules) + layout prefab (geometry); JSON only for saves (D-010) |
 | Level restart | Re-instantiate the layout prefab inside the Gameplay scene, no scene reload (D-011) |
 | UI tech | uGUI + TextMeshPro; UI Toolkit only for editor tooling (D-012) |
-| Fire-next-arrow timing | Allowed during resolution after a 0.35 s cooldown (D-016) |
+| Fire-next-arrow timing | Allowed during resolution after a 0.35 s cooldown; disabled once objectives are cleared or the level is won/failed (D-083) |
 | Fail confirmation | After the last arrow resolves: wait for 2 s calm (§3 soft-lock rule), hard-capped at 5 s (D-015) |
 | Coin values | First clear 20 + 10/★; new-star replay 10/★; plain replay 5; daily 100 (D-026) |
 | Addressables | Not in MVP (D-013) |
 | Tweening | Small in-house `UiTween` first; LitMotion is the approved fallback (D-031) |
 | Haptics | In-house thin native bridge (iOS UIImpactFeedbackGenerator / Android VibrationEffect) (D-032) |
 | Docs location | `docs/` (lowercase); `docs/GDD.md` becomes a pointer to `/mvp.md` (D-001, D-002) |
+| Vendors | Firebase (Analytics, Crashlytics, Remote Config) + Unity LevelPlay + Unity IAP behind interfaces (D-090) |
+| Locked tech direction | Unity 6000.6.5f1 · URP · 2.5D PhysX · kinematic swept arrow · LevelData + prefab · local JSON · uGUI/TMP · no Addressables (D-103) |
 
 ## 13. Repository audit snapshot (2026-10-09)
 
@@ -199,8 +207,8 @@ Full definition: [`11_VERTICAL_SLICE.md`](11_VERTICAL_SLICE.md). In summary: one
 | Code debt | `LevelData` uses public fields (CLAUDE.md wants `[SerializeField] private`). `ObjectiveKind`/`ProtectedKind` enums are closed sets (fine). No PlayMode test asmdef. | Migrate during AB-016. Add `ArrowBuster.Tests.PlayMode` in AB-002. |
 | Physics settings | Defaults: fixed Δt 0.02, solver 6/1, enhanced determinism off, no custom layers | AB-002 applies D-006 and the layer table in `03`. |
 | Editor settings | Force Text serialization ✔. Enter Play Mode options: domain **and** scene reload disabled | Keep (fast iteration) but enforce static-reset rules (T-07). |
-| URP Mobile | Forward, render scale 0.8, MSAA off, HDR on, soft shadows off, shadow distance 50 | Tune per tier in M9 (HDR off on Low, shadow distance ≈ 25). |
+| URP Mobile | Forward, render scale 0.8, MSAA off, HDR on, soft shadows off, shadow distance 50 | Tune per tier in M8 (HDR off on Low, shadow distance ≈ 25). |
 | Template leftovers | `Assets/Scenes/SampleScene.unity`, `Assets/TutorialInfo/`, `Assets/Readme.asset`, `Assets/InputSystem_Actions.inputactions` (default map), `Settings/PC_*`, `SampleSceneProfile` | Delete in AB-002 (keep `PC_RPAsset` only if editor-only quality is wanted). Remove the template input asset; bow input polls `Pointer.current` via `BowInputReader` (D-007). |
-| Version control | **No git repo.** `.gitignore` and `.gitattributes` (LFS + unityyamlmerge) exist. Git 2.55 and LFS 3.7 are installed. | AB-001: `git init`, `git lfs install`, configure the UnityYAMLMerge driver, first commit (needs owner approval). |
+| Version control | **Done (AB-001):** git + LFS + UnityYAMLMerge driver; baseline commit `7a06460` pushed to the private repo `github.com/atiwhocodes/ArrowBuster` (`main`). | — |
 | Docs | `Docs/GDD.md` was an identical copy of `mvp.md` (name spelling only). `Docs/claude-commands/` holds 2 slash commands (not installed). | Folder renamed to `docs/`. GDD now points to `mvp.md`. Commands updated; install them into `.claude/commands/` on request. |
 | Claude agents | No `.claude/` folder | Subagent definitions created in `.claude/agents/` (see `docs/agents/AGENT_SYSTEM.md`). |

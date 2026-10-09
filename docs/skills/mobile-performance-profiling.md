@@ -6,7 +6,7 @@
 Measure and fix CPU, GPU, memory, GC, load-time and battery/thermal costs **on real devices**, against the budgets in [`01`](../planning/01_TECHNICAL_ARCHITECTURE.md) §11. Targets: 60 FPS on Mid (iPhone 11), 30 FPS on Low, restart ≤ 300 ms Mid (hard limit 1 s, mvp §12).
 
 ## When to invoke
-- Milestone gates G-M1 (PG-5 physics number), G0 (VS device build), G1 (M5), M6 exit, G2 (M7, heaviest set pieces), G4 (M9 full pass) — names per D-078.
+- Milestone gates G-M1 (PG-5 physics number), G0 (VS device builds, Android + iOS from project week 3, D-100), G2 (M5: on-device validation of all 60 graybox levels, heaviest set pieces), G3 (M6, final art), G5 (M8 full pass) — names per D-102.
 - After adding a new world art kit, VFX family, shader, or a level flagged as a "set piece" (every 5th level).
 - When the DevOverlay or a tester reports a frame drop, a hitch, heat, or a slow restart.
 
@@ -37,8 +37,8 @@ Measure and fix CPU, GPU, memory, GC, load-time and battery/thermal costs **on r
    - Physics → body count (validator), sleeping, colliders (prefer boxes/capsules over mesh colliders), debris cap, explosion overlap frequency.
    - Scripts → per-frame allocs, `GetComponent` in loops, registry iteration, trajectory preview recomputed every frame even when the aim didn't change.
    - Rendering → overdraw from VFX/transparent water/ice, shadow casters (disable on small props), SRP Batcher compatibility (Frame Debugger), texture sizes.
-   - Memory → the Memory Profiler package (M9) snapshot; look for duplicate textures, audio loaded as decompressed-on-load for long clips, leaked level instances.
-8. **Thermal soak** (M9): play 20 minutes on the Low device; record FPS at 0/10/20 min. If sustained FPS drops below 27 on Low, cut particle density / render scale for the Low tier.
+   - Memory → the Memory Profiler package (M8) snapshot; look for duplicate textures, audio loaded as decompressed-on-load for long clips, leaked level instances.
+8. **Thermal soak** (M8): play 20 minutes on the Low device; record FPS at 0/10/20 min. If sustained FPS drops below 27 on Low, cut particle density / render scale for the Low tier.
 9. **Tier validation:** force each tier via the DevOverlay and confirm visual parity of gameplay-relevant information (objective outlines, protected indicators must survive Low).
 10. **Record** results and open tickets for each over-budget item (label `PLAT` + the owning role, priority by severity).
 
@@ -54,7 +54,7 @@ Measure and fix CPU, GPU, memory, GC, load-time and battery/thermal costs **on r
 - [ ] All five scenarios captured on at least one Mid and one Low device.
 - [ ] Restart time measured with markers (p95 of 5).
 - [ ] GC alloc per frame = 0 B during aiming and flight.
-- [ ] Thermal soak done (M9).
+- [ ] Thermal soak done (M8).
 - [ ] Gameplay readability preserved on the Low tier.
 - [ ] Report written; regressions ticketed.
 
@@ -67,14 +67,14 @@ Measure and fix CPU, GPU, memory, GC, load-time and battery/thermal costs **on r
 | Physics spike during collapse | Mesh colliders, too many awake bodies, debris colliding with gameplay | Primitive colliders; Debris layer matrix (D-008); cap bodies |
 | Memory grows per restart | Layout instance or event subscriptions leaked | Verify destroy in `LevelLoader`; unsubscribe on disable; static reset |
 | Profiler won't connect on Android | Port not forwarded, or not a development build | `adb forward ...`; rebuild with Development + Autoconnect |
-| IL2CPP release behaves differently from the dev build | Code stripping removed reflection-used types | `link.xml` for reflected types; test the release config before M10 |
+| IL2CPP release behaves differently from the dev build | Code stripping removed reflection-used types | `link.xml` for reflected types; test the release config before the M9 closed test |
 | Overheating on Low | Uncapped 60 FPS on the Low tier; heavy bloom | Enforce 30 FPS Low; bloom only on High |
 
 ## Example task prompt for a sub-agent
 ```text
 Agent: ab-mobile-platform
 Skill: docs/skills/mobile-performance-profiling.md
-Ticket: AB-139 (M9) Device-matrix profiling pass — set pieces first (L40, L60, L55)
+Ticket: AB-139 (M8) Device-matrix profiling pass — set pieces first (L40, L60, L55)
 Inputs: Android-Dev build from main@<sha>; devices: Pixel 6a (Mid), Galaxy A13 (Low); iPhone 11 via the Mac
 Deliverables: docs/qa/perf/2026-xx-xx_M9_perf-report.md with scenarios a–e for each level/device; tickets for anything over the 01 §11 budgets.
 Boundaries: measure + diagnose only; fixes go to the owning role's tickets unless it's PLAT-owned (quality settings, URP tier assets).

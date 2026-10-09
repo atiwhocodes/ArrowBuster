@@ -1,7 +1,7 @@
 # 07 — QA, Performance & Release
 
 > Owners: QA & Playtest Lead (`QA`) for test strategy, regression and gates; Mobile Performance & Platform Engineer (`PLAT`) for performance, devices and store builds; `MON` for monetisation/privacy checks; `INT` enforces gates at merge time.
-> Source: [`/mvp.md`](../../mvp.md) §3, §7, §12, §13, §15. Budgets: [`01_TECHNICAL_ARCHITECTURE.md`](01_TECHNICAL_ARCHITECTURE.md) §11. Monetisation rules: [`06_META_MONETISATION_ANALYTICS.md`](06_META_MONETISATION_ANALYTICS.md). Status: Draft v1 — 2026-10-09.
+> Source: [`/mvp.md`](../../mvp.md) §3, §7, §12, §13, §15. Budgets: [`01_TECHNICAL_ARCHITECTURE.md`](01_TECHNICAL_ARCHITECTURE.md) §11. Monetisation rules: [`06_META_MONETISATION_ANALYTICS.md`](06_META_MONETISATION_ANALYTICS.md). Status: Draft v2 — 2026-10-09 (owner decisions applied: D-080, D-083–D-085, D-090, D-093, D-096–D-100, D-102 milestone structure and gate names).
 
 **QA principle:** every gameplay outcome a player relies on is either **unit-tested** (pure logic), **bot-tested** (physics/level solvability in PlayMode), or **device-verified** (feel, perf, platform). Nothing ships on "it worked in the editor once".
 
@@ -12,22 +12,23 @@
 | Test class | System under test | Key cases |
 |---|---|---|
 | `BallisticSolverTests` | `BallisticSolver` | Zero-gravity straight line. Apex time = v·sinθ/g within 1e-4. Symmetric range on flat ground. Step determinism (same input → bit-identical output over 300 steps). Wind acceleration adds the expected drift. dt invariance within tolerance for 1/60 vs 1/120 (documents the error). Portal transform: position/velocity rotated correctly. Bounce reflection: angle in = angle out, speed × restitution. |
-| `ArrowPreviewParityTests` (EditMode part) | Preview sampler vs flight integrator | Same initial `ArrowFlightState` → preview points equal flight positions ≤ 1 mm over 3 s, with and without a wind sampler. Split marker at `splitTime`. |
+| `ArrowPreviewParityTests` (EditMode part) | Preview sampler vs flight integrator (D-085) | Same initial `ArrowFlightState` → preview points equal flight positions ≤ 1 mm over 3 s, with and without a wind sampler. Split marker at `splitTime` (D-088). Portal exit path continues from the paired ring. **First bounce:** when the resolver predicts a ricochet at the first hit (Bounce on metal; shallow-angle metal ricochet), the reflected segment matches the flight. |
 | `DrawModelTests` | `DrawModel` / `AimState` (D-018) | Drag down → aim up. Power clamps 0–1. Power = length / (0.22 × screen height). Below `minFirePower` → `Cancel`. Angle clamped to 8°–172°. Press over UI ignored. Secondary pointer ignored. Resolution independence (720p vs 1440p give the same `AimState` for the same normalised drag). |
 | `QuiverModelTests` | `QuiverModel` | Consumes in authored order (D-023). `Next` preview. Empty after N shots. Bonus arrow append. `Changed` event count. Total = sum of entries. |
-| `StarRulesTests` | `StarRules` (D-024) | arrowsUsed ≤ par → 3. par+1 → 2. par+2 → 1. Bonus arrow → 1 regardless. Best stars never decrease (with ProgressionService). |
+| `StarRulesTests` | `StarRules` (D-084) | arrowsUsed ≤ par → 3. par+1 → 2. par+2 → 1. Bonus arrow → 1 regardless. Best stars never decrease (with ProgressionService). |
 | `LevelDataTests` (exists, extend) | `LevelData` | Existing star/total/global index tests. goldPar ≤ total arrows. Schema v2 fields default sanely. `levelId` format `W#_L##`. |
 | `SettleMonitorTests` | `SettleMonitor` state machine with a fake clock + fake bodies (D-015) | Win after 0.75 s calm. Win at cap 3 s with jitter. Out-of-arrows fail after 2 s calm. Fail at cap 5 s. Objective cleared during the fail wait → win. Protected lost during the win settle → fail. Ambient/kinematic bodies ignored. Soft-lock toast once per shot. |
-| `GameplayStateMachineTests` | `GameplayController` transitions (logic extracted to a plain class) | Ready → Drawing → Ready (cooldown 0.35 s, D-016). Pause blocks input and clock. No fire while `Won`/`Failed`. Restart from any state → `Loading`. |
+| `GameplayStateMachineTests` | `GameplayController` transitions (logic extracted to a plain class) | Ready → Drawing → Ready (re-nock cooldown 0.35 s while physics still resolves, D-083). Pause blocks input and clock. **No firing once all objectives are cleared (win pending) or in `Won`/`Failed`** (D-083), and an in-progress draw is cancelled without spending an arrow. Restart from any state → `Loading`. |
 | `ObjectiveClearRuleTests` | `ObjectiveClearRule` evaluator (D-037) | Per kind: CursedOrb ignores impacts/blasts and clears on an arrow hit. Dummy tilt > 70° for 0.3 s clears; 0.2 s doesn't. Crate below the clear line clears. BannerRope clears on cut and on burn. |
 | `ProtectedRulesTests` | `ProtectedObject` rules (D-038) | Vase: arrow hit fails; impulse ≥ fragile fails; below → ok. Fox: displacement > 0.6 m fails; tilt > 45° fails; kill zone fails. |
 | `ArrowImpactResolverTests` | Outcome rules (pure part) | Per material × arrow type × incidence angle → outcome table (embed/deflect/ricochet/pass/cut/pop). Impulse clamped to `maxArrowImpulse`. Bounce arrow ricochets once on metal only. Heavyhead never embeds in straw (pierce) — per `03` table. |
-| `ExplosionSolverTests` | `ExplosionSolver` | Falloff curve. Protected layer excluded (D-020). Upward modifier capped. Chain delay 0.15 s ordering deterministic. |
-| `AdPolicyTests` | `AdPolicy` | 18 cases listed in `06` §7.3 |
+| `ExplosionSolverTests` | `ExplosionSolver` | Falloff curve. Protected layer excluded from damage **and** force (D-092). Upward modifier capped. Chain delay 0.15 s ordering deterministic. |
+| `AdPolicyTests` | `AdPolicy` | 21 cases listed in `06` §7.3 (incl. never after purchase / rewarded ad / onboarding / app resume, D-093; 1★ disclosure flag, D-084) |
+| `ConsentInitOrderTests` | Boot init order with mock `IConsentService` (D-096) | Consent region + no consent → analytics adapter, `ICrashReportingService` collection and personalised ads all disabled; consent granted → enabled; non-consent region → enabled by default; offline first launch → treated as denied (D-067). |
 | `EconomyServiceTests` | `EconomyService` + `EconomyConfig` | First-clear 20 + 10×★. Replay deltas. Plain replay 5. Bullseye once. `TrySpend` fails on insufficient balance and does not change the balance. Clamp at max. Events fire with source/sink. |
 | `ProgressionServiceTests` | Unlocks (`06` §1) | Linear unlock. World 2 at 15/20 clears (14 → locked). Best values monotonic. `world_unlocked` raised once. |
-| `InventoryServiceTests` | Cosmetics | Default owned/equipped. World completion grants the skin, or 300 coins if already owned. Starter pack grants items + coins once (`starterPackCoinsGranted`). Badges not purchasable. |
-| `DailyChallengeServiceTests` | D-027 | Same date + installId → same 3 levels. Only cleared levels. < 3 cleared handled. Locked before L10. Reward once per day. Date rollover. |
+| `InventoryServiceTests` | Cosmetics (launch set, D-101) | Default Oak Ranger owned/equipped. World 1 completion grants Moonwood, or 300 coins if already owned (D-064). World 2/3 completion grants the badge + 300 coins. Starter pack grants Royal Amethyst + Gold Spark + 500 coins once (`starterPackCoinsGranted`, D-091). Badges not purchasable. Deferred cosmetics (Ember, Frostglass, Cyan Streak, Ember Ash) are absent from the catalogue. |
+| `DailyChallengeServiceTests` | D-094 | Same date + installId → same 3 levels. Only cleared levels. < 3 cleared handled. Locked before L10. Reward once per day. Date rollover. |
 | `SaveMigratorTests` | `SaveMigrator` | Each fixture `save_v<N>.json` migrates to the latest. Unknown future version is not overwritten. Corrupt file → `.bak` → fresh. |
 | `JsonSaveServiceTests` | Atomic write | Write → read round-trip equality. Simulated crash between tmp write and replace leaves a valid file. Debounce collapses bursts. |
 | `RemoteConfigClampTests` | `RemoteConfigDefaults` | Every whitelisted key has a default + range. Out-of-range values clamp. Unknown keys are ignored. |
@@ -44,7 +45,7 @@
 | `PhysicsSettingsTests` · `PrefabLibraryTests` | Project settings and the prefab library | Layers 6–16, matrix (`03` §2), Δt 1/60, solver 8/2. Every library prefab has `PlanarBody` + `MaterialBody` + the correct layer. |
 | `ReachabilityTests` | `BallisticSolver` coverage | An Oak arrow can reach every 0.25 m cell of the structure zone (y 4–15, \|x\| ≤ 4.5) on a 1° × 0.01-power aim grid (`02` §4). |
 
-**Rule:** a new pure-logic class lands with its test class in the same PR. Coverage target: ≥ 80% line coverage on `Core`, `Gameplay` (logic classes), `Progression`, `Services/AdPolicy` (Code Coverage package optional, M9).
+**Rule:** a new pure-logic class lands with its test class in the same PR. Coverage target: ≥ 80% line coverage on `Core`, `Gameplay` (logic classes), `Progression`, `Services/AdPolicy` (Code Coverage package optional, M8).
 
 ## 2. PlayMode-test candidates (`Tests/PlayMode/`)
 
@@ -52,7 +53,7 @@
 |---|---|---|
 | `LevelSolvabilityTests` | Every level's intended solution wins within par, **robustly** | For each `LevelData` in `LevelCatalog`: load the level via `LevelLoader`, replay `IntendedShot`s with the jitter grid (§5), apply the §5.1 pass criteria (all samples `LevelWon`; nominal + ≥ 7/9 samples per shot with `arrowsUsed ≤ goldPar`). Time-scaled to 4× where physics allows (`Time.timeScale` only, fixed Δt unchanged). Parameterised `[TestCaseSource]` per level. Tag `[Category("Solvability")]`. |
 | `LevelIdleStabilityTests` | Layouts don't move, break or clear when untouched | Load each level, simulate 3 s with no input: max body displacement < 1 cm, no `ObjectBroken`, no `ObjectiveCleared`, no `ProtectedLost`, all bodies asleep at the end. |
-| `ArrowPreviewParityTests` (PlayMode part) | The preview predicts the real in-scene flight including collisions | Sandbox scene with walls/rope/portal/wind: fire 20 scripted shots. Compare the predicted impact point with the actual one: ≤ 2 cm (static targets). |
+| `ArrowPreviewParityTests` (PlayMode part) | The preview predicts the real in-scene flight including collisions (D-085) | Sandbox scene with walls/rope/portal/wind/metal plates: fire 20 scripted shots per case. Compare the predicted impact point with the actual one: ≤ 2 cm (static targets). Cases: wind-bent arc, portal exit path, **first bounce** (Bounce arrow on metal + shallow-angle ricochet), Split marker/child arcs. |
 | `InteractionMatrixTests` | Every cell of `03`'s interaction matrix behaves as specified | One micro-scene per cell (arrow type × material/prop): e.g. Fire × Rope → burns in `burnTime ± 1 frame`; Bounce × Metal → single ricochet; Split × Balloon → pops; Heavyhead × Stone → pushes, no embed; Oak × Ice → shatter at HP 0. Explicit "no interaction" cells are asserted too (e.g. Fire × Stone → nothing). |
 | `RestartPerfTests` | §12 restart < 1 s (target 300 ms) | Load the heaviest layouts (L20/L40/L60), measure `LevelLoader.Load` wall time over 10 restarts in the editor and in a dev player build via the Unity Test Framework player run; assert p95 < 300 ms (Mid) and record the GC alloc. |
 | `GameFlowSmokeTests` | Boot → Home → Map → Gameplay → Win → Next → Fail → Retry → Home | Mock services. Simulated taps through `UIRouter`. Asserts no errors in the log and correct scene/state sequence. |
@@ -64,7 +65,7 @@
 | `DeterminismReplayTests` | Same inputs → same outcome on this platform | Replay each VS level's intended solution 5×. The final state hash (positions rounded to 1 mm, broken set, cleared set) must be identical. |
 | `StaticResetTests` | No leaks across Enter Play Mode without domain reload | Enter/exit play twice programmatically. Event subscriber counts and registries return to zero. |
 | `ArrowTunnellingTests` | No missed hits at any speed | 1,000 automated shots at 0.1 m planks and 0.06 m rope colliders across the full power range → 100% hit registration (M1 acceptance). |
-| `PreviewBlockingTests` | The preview never draws through solids (D-040) | Preview against plank/crate/stone stops at the first hit; it passes through rope and portal triggers. |
+| `PreviewBlockingTests` | The preview never draws through solids (D-085) | Preview against plank/crate/stone stops at the first non-ricochet hit; when the first hit is a predicted ricochet it draws the reflected segment, then stops at the next hit; it passes through rope triggers and continues through portals. |
 | `ArrowEmbedTests` · `ArrowPoolTests` · `PoolLeakTests` | Arrow lifecycle and pooling | Embed per material/angle (`03` matrix). Pool size stable after prewarm. 0 orphaned arrows after `LevelLoader.Load`. |
 | `BowInputTests` | `BowInputReader` with `InputTestFixture` + simulated `Touchscreen` | A press over UI doesn't start a draw. A second touch is ignored. Release below `minFirePower` cancels without spending an arrow. |
 | `CameraFramerTests` | `CameraFramer` (D-041) | At 9:16, 9:19.5, 9:21, 3:4, 2:3 the play-area corners project inside the safe area. |
@@ -80,7 +81,7 @@ Running: Test Runner, or MCP `run_tests` (`EditMode`, `PlayMode`). CI runs both 
 | **Feature smoke** | Every merged feature | Run the feature's acceptance criteria from its ticket on the editor + one Android device | PR handoff report |
 | **Level playthrough** | New/changed level | A tester who has not seen the solution plays it cold: time to first shot, attempts, did they find the intended trick, stars. Then the designer plays the intended solution 3× on device. | `docs/levels/W#_L##.md` "Test log" |
 | **Regression checklist** | Every milestone gate + every release candidate | `docs/qa/REGRESSION_CHECKLIST.md` (core loop, each object type, UI flows, settings, save, ads/IAP mocks) | `docs/qa/test-runs/<date>_<build>.md` |
-| **Feel review** | M1 gate, M3 gate, M5 gate | 5+ testers. Script: no instructions; observe the draw gesture, misfires, hesitation; ask for 3 words describing the shot; preference test of Spec vs Snappy (D-036) | `docs/qa/playtests/<date>_<topic>.md` |
+| **Feel review** | G-M1, **G0 (5–10 external casual players, D-102 step 4 — before any special arrows, maps, cosmetics, ads or extra levels)**, G2 (graybox content) and G3 | 5+ testers. Script: no instructions; observe the draw gesture, misfires, hesitation; ask for 3 words describing the shot; preference test of Spec vs Snappy (D-036) | `docs/qa/playtests/<date>_<topic>.md` |
 | **Exploratory session** | Weekly (60 min, charter-based) | Charters: "break the physics", "cheese levels with fewer arrows", "spam restart/pause", "interrupt everything" | Bug log |
 | **Device pass** | Each gate | Device matrix subset (§6) | Test-run file |
 
@@ -109,16 +110,16 @@ Any change to `DynamicsManager`, `MaterialProfile` assets, `ArrowDefinition` ass
 - **Power jitter δp** = **±3%** of power (absolute 0.03 on the 0–1 scale).
 - **Grid:** 9 samples per shot = nominal, ±δθ, ±δp, and the 4 corners. For multi-shot solutions, each shot is jittered independently in a 9-sample sweep while the others stay nominal (9 × shots runs).
 - **Pass criteria:** all samples win; the nominal run and ≥ 7/9 samples per shot achieve ≤ goldPar arrows (3★). The level designer must widen the window (move/resize the weak point) if fewer pass.
-- **Timing levels** (moving shields/platforms): the shot release time is jittered ±0.1 s as a third axis.
+- **Timing levels** (moving shields; moving ice platforms are cut, D-104): the shot release time is jittered ±0.1 s as a third axis.
 
 ### 5.2 Three-layer verification
 | Layer | Who / what | When | Pass |
 |---|---|---|---|
 | 1. Bot (editor) | `LevelSolvabilityTests` | Every level change, nightly, gates | §5.1 |
-| 2. Bot (device) | Dev-build `IntendedSolutionRunner` (DevOverlay ▸ "Run intended solution", `AB_DEV`) replays the same shots on device and logs win/arrows | Each gate on 1 iOS + 1 Android (Low tier) | Same outcome as the editor for every level. A mismatch → physics ticket. |
-| 3. Human | A tester plays every level on device at least once per world gate (§3) | W1/W2/W3 gates, M9 | Clears without help; time and attempts logged |
+| 2. Bot (device) | Dev-build `IntendedSolutionRunner` (DevOverlay ▸ "Run intended solution", `AB_DEV`) replays the same shots on device and logs win/arrows | From G0 on 1 iOS (Mac + Apple account by project week 3, D-100) + 1 Android (Low tier). **At G2: all 60 levels on both devices** (D-102 step 8). Re-run at G3 after the art pass. | Same outcome as the editor for every level. A mismatch → physics ticket. |
+| 3. Human | A tester plays every level on device at least once (§3) | G2 (graybox, all 60), G3 (final art), M8 regression | Clears without help; time and attempts logged |
 
-The level is marked `Status = Final` in `LevelData` only when all 3 layers pass (see `04` delivery tracker).
+A level reaches `Status = Graybox` sign-off at G2 when all 3 layers pass on graybox art, and `Status = Final` at G3 only when all 3 layers pass again after its art pass (see `04` delivery tracker).
 
 ## 6. Device matrix
 
@@ -139,7 +140,9 @@ The level is marked `Status = Final` in `LevelData` only when all 3 layers pass 
 | Tall | Android | 21:9 device (e.g. Xperia) | any | extra-tall framing | P2 |
 | Foldable | Android | Galaxy Z Flip/Fold (optional) | any | aspect change at runtime | P3 |
 
-Cloud device farms (Firebase Test Lab / AWS Device Farm) are optional for the P2/P3 rows at M9. *Verify cost and Unity support before use.*
+**iOS from M3:** Mac access and an Apple Developer account are ready by project week 3 (D-100), so the P0 iOS rows are tested from the vertical slice on (perf, safe areas, haptics, touch feel, ATT flow, build issues) — not first at M7/M8.
+
+Cloud device farms (Firebase Test Lab / AWS Device Farm) are optional for the P2/P3 rows at M8. *Verify cost and Unity support before use.*
 
 ## 7. Mobile performance test plan
 
@@ -183,7 +186,8 @@ Cloud device farms (Firebase Test Lab / AWS Device Farm) are optional for the P2
 | Orientation/lock | Rotate the device, enable rotation lock, split screen (Android), Slide Over (iPad) | Portrait locked. Split screen either disallowed or handled without crash. |
 | Storage full | Fill the device storage, then clear a level | Save failure is logged non-fatal. No crash. Toast "Couldn't save progress" (dev wording TBD). |
 | Clock change | Change the date forward/back | The daily regenerates. No crash. No negative timers. |
-| Crash reporter verification | Dev menu "Force crash" / "Force non-fatal" (closed-test builds) | Appears in the vendor dashboard symbolicated (IL2CPP symbols uploaded) |
+| Crash reporter verification | Dev menu "Force crash" / "Force non-fatal" (closed-test builds), with crash consent granted | Appears in the Crashlytics dashboard symbolicated (IL2CPP symbols uploaded) |
+| Crash consent gating (D-096) | UMP debug geography = EEA/UK, consent **denied** → force a non-fatal and a crash | No report reaches Crashlytics (collection disabled). After granting consent in Settings ▸ Privacy, a forced non-fatal appears. |
 
 **Closed test KPI:** crash-free sessions ≥ 99.5%. ANR rate (Android vitals) below the Play "bad behaviour" threshold — *verify the current threshold values in Play Console*.
 
@@ -207,18 +211,22 @@ Cloud device farms (Firebase Test Lab / AWS Device Farm) are optional for the P2
 
 | Check | Method | Pass |
 |---|---|---|
-| No interstitial before 10 min lifetime play | Fresh install, play fast (clear ≥ 6 levels in < 10 min) | Zero `interstitial_shown`. `interstitial_suppressed(reason=grace)` in the dev CSV. |
+| No interstitial before 10 min cumulative active play | Fresh install, play fast (clear ≥ 6 levels in < 10 min) | Zero `interstitial_shown`. `interstitial_suppressed(reason=grace)` in the dev CSV. |
 | Never after a fail | Fail → Retry → Win → Next; and Fail → Home | No interstitial on fail transitions. Only the Win → Next/Home trigger is eligible. |
 | ≥ 3 levels between | Clear 3, 4, 5... levels after the grace period | Intervals respected; also the 120 s cooldown |
+| Never during onboarding (D-093) | Fast player past 10 min still inside global L1–L5 | Zero interstitials; `reason=onboarding` |
+| Never after a rewarded ad (D-093) | Watch the 2× coins video on a Win panel, then Next (all other conditions met) | No interstitial on that transition; `reason=after_rewarded` |
+| Never after a purchase (D-093) | Buy the Starter Pack (sandbox), then clear levels in the same session | No interstitial for the rest of the session; `reason=after_purchase` |
+| Never on app resume (D-093) | Background the app on the Win panel, resume, tap Next | No interstitial; `reason=app_resume` |
 | Remove Ads | Buy `remove_ads` in the sandbox → play 10 levels | Zero interstitials. Rewarded offers still appear and work. |
 | Rewarded +1 arrow rules | Scripted states: protected lost, 2 remaining without flag, daily challenge, L1–3, ad not loaded, second fail in the same attempt | Offer hidden in each case. Shown only per `06` §7.1. |
-| Bonus-arrow star cap | Clear with the bonus arrow | 1★ (or previous best kept). `bonus_arrow_used = true`. |
+| Bonus-arrow star cap (D-084) | Before accepting: inspect the Fail-panel offer. Then clear with the bonus arrow | **"Bonus Arrow Used — 1★ Max"** is visible before the ad starts. Result 1★ (or previous best kept), level counted as cleared. `bonus_arrow_used = true`. |
 | 2× coins never blocks Next | Tap Next while the ad loads/plays | Next always works. Base coins already credited. |
 | Test ads only in dev | Dev/closed-test builds configured with test ad units / test devices | No live ads served to internal testers. `BuildConfig.adsTestMode` verified in each build profile. **Release build check** fails if test mode is on in Release, or live units in Dev. |
 | IAP sandbox | iOS sandbox tester + Play licence testers | Purchase, cancel, failure, pending (Android), interrupted purchase (kill app mid-purchase) → grant on next launch |
-| Restore | Reinstall → Settings ▸ Restore | `remove_ads` + starter cosmetics restored. Starter coins granted once per install (`06` §8). |
-| Price display | Different store countries/currencies in the sandbox | Localised price strings. No hard-coded prices. |
-| Consent gating | EEA test (UMP debug geography) and non-EEA; deny all / accept all | No analytics/ads init before resolution. Denied → non-personalised ads, analytics adapter disabled. Settings ▸ Privacy choices reopens the form. |
+| Restore | Reinstall → Settings ▸ Restore | `remove_ads` + starter cosmetics (Royal Amethyst, Gold Spark) restored. Starter coins (500) granted once per install (`06` §8). |
+| Price display | Different store countries/currencies in the sandbox | Localised price strings; UK shows £3.99 / £2.99 and US $3.99 / $2.99 (D-091). No hard-coded prices. |
+| Consent gating (D-096) | EEA/UK test (UMP debug geography) and non-EEA; deny all / accept all | No analytics/crash/ads init before resolution. Denied → non-personalised ads, **Firebase Analytics collection disabled (no events in DebugView), Crashlytics collection disabled** (see §8). Granted → all enabled. Settings ▸ Privacy choices reopens the form and applies changes immediately. |
 | ATT | iOS: Allow / Ask Not to Track | Ads work in both cases. No IDFA when denied. |
 | Analytics dictionary | QA plays the FTUE + a fail + a win + a purchase with `DebugAnalyticsService` | CSV events/params exactly match `06` §11 (scripted diff check) |
 
@@ -228,7 +236,7 @@ Principle: **the game is 100% playable offline.** Network-dependent features deg
 
 | Scenario | Expected behaviour |
 |---|---|
-| First launch fully offline | Consent update fails → conservative defaults (`06` §9). Remote config uses `RemoteConfigDefaults`. Analytics queued/disabled. Ads not loaded → no offers shown. Game playable. Consent retried on the next online launch. |
+| First launch fully offline | Consent update fails → conservative defaults (`06` §9; analytics + Crashlytics collection off, D-067/D-096). Remote config uses `RemoteConfigDefaults`. Analytics queued/disabled. Ads not loaded → no offers shown. Game playable. Consent retried on the next online launch. |
 | Offline mid-session | No change to gameplay. Rewarded offers hidden (not ready). Interstitials skipped. |
 | Slow network at boot (3G/lossy, 2 s+ latency) | Boot never waits > 3 s for consent or > 2 s for remote config (timeouts). Home appears ≤ 6 s on Low. |
 | Ad starts loading, network drops | Load fails silently. `rewarded_offer_failed` logged only if the player tapped. No spinner deadlock. |
@@ -243,13 +251,13 @@ Test tools: device airplane mode, iOS Network Link Conditioner, Android emulator
 ## 12. Store-submission checklist
 
 ### 12.1 Shared
-- [ ] App name / title, subtitle, short and long description — **original copy**; trademark search done (Q-02)
+- [ ] App name "Arrow Buster" (technical IDs `ArrowBuster`, D-081): legal/trademark, store-name and domain clearance done **before store-submission assets are produced (M8)**; subtitle, short and long description — **original copy**
 - [ ] App icon original (1024×1024 master)
 - [ ] Screenshots and preview video captured from real gameplay; **reviewed against the reference game for originality** (P-05)
 - [ ] Privacy policy URL live (`06` §9); support URL/email
 - [ ] Age rating questionnaire (IARC for Google; Apple age rating) — no gambling, mild cartoon "fantasy violence" (arrows vs. objects/dummies) to be answered honestly
 - [ ] Ads declared ("Contains ads") and IAPs configured with matching product IDs (`remove_ads`, `starter_pack`)
-- [ ] Release build: `AB_DEV`/`AB_CHEATS` off, `BuildConfig = Release`, test ads off, placeholders banned (D-042 build check), `LevelValidator` clean, solvability suite green
+- [ ] Release build: `AB_DEV`/`AB_CHEATS` off, `BuildConfig = Release`, test ads off, placeholders banned (D-056 build check; no AI-generated placeholders, D-089), `LevelValidator` clean, solvability suite green
 - [ ] Version name/code incremented (`BuildVersioning`)
 
 ### 12.2 Apple App Store
@@ -258,56 +266,56 @@ Test tools: device airplane mode, iOS Network Link Conditioner, Android emulator
 - [ ] `PrivacyInfo.xcprivacy`: our app manifest + each SDK's manifest present (required-reason APIs declared) — **verify every SDK ships one**
 - [ ] App Privacy "nutrition labels" filled from §13 data inventory
 - [ ] `NSUserTrackingUsageDescription` (if ATT is used), e.g. *"Your data will be used to show you more relevant ads. Arrow Buster works the same either way."* — final wording by OWNER
-- [ ] `SKAdNetworkItems` from the chosen ad network list in Info.plist — **verify the current list from the vendor**
+- [ ] `SKAdNetworkItems` from Unity LevelPlay's network list (D-090) in Info.plist — **verify the current list from the vendor**
 - [ ] Restore Purchases button present (Settings)
 - [ ] Screenshots: 6.9" iPhone (1320×2868 portrait) or 6.5" (1284×2778 / 1242×2688) set; iPad 13" (2064×2752) if universal — **verify the currently required sizes in App Store Connect**
 - [ ] TestFlight external beta review passed before submission
 - [ ] Export compliance (encryption): standard HTTPS only → exempt; answer accordingly
 
 ### 12.3 Google Play
-- [ ] **Target API level** meets the current Play requirement for new apps/updates — **verify in Play Console at M10** (`AndroidTargetSdkVersion` is "Auto" = highest installed; confirm the SDK installed matches the requirement)
+- [ ] **Target API level** meets the current Play requirement for new apps/updates — **verify in Play Console at M9** (`AndroidTargetSdkVersion` is "Auto" = highest installed; confirm the SDK installed matches the requirement)
 - [ ] AAB signed with the upload key (keystore outside the repo); Play App Signing enabled
 - [ ] 64-bit only (ARM64, already set). 16 KB page-size compatibility for native libs — **verify Unity and the SDKs comply with current Play requirements**
 - [ ] Data safety form from the §13 inventory; Ads declaration; content rating (IARC); target audience 13+ (not designed for children)
 - [ ] Advertising ID permission (`com.google.android.gms.permission.AD_ID`) declared consistently with the ads SDK and the data-safety answers
 - [ ] `VIBRATE` permission (haptics, D-032); no other dangerous permissions
 - [ ] Store listing graphics: icon 512×512, feature graphic 1024×500, phone screenshots (portrait, min 320 px / max 3840 px per side, 9:16 recommended) — **verify current specs**
-- [ ] Closed testing track run with ≥ the tester count/duration Play currently requires for new personal developer accounts before production access — **verify the current rule** at M5 (AB-162); if it applies, start the track in M8 (AB-166, D-079)
+- [ ] Closed testing track run with ≥ the tester count/duration Play currently requires for new personal developer accounts before production access — **account type and rule verified in project week 1** (D-099, AB-162); if it applies, recruit eligible testers early and start the track as early as possible (AB-166)
 - [ ] Pre-launch report reviewed (crashes, accessibility, security warnings)
 
 ## 13. Privacy-policy data inventory
 
-To be finalised after vendor selection (M8). Rows marked *TBD vendor* are placeholders.
+Vendors are chosen (D-090). The inventory is finalised during M7 integration; the hosted privacy policy built from it must exist **before SDK integration begins — at the latest at the start of M7** (D-097).
 
 | Source / SDK | Data | Purpose | Linked to user? | Tracking (ATT sense)? | Collected when |
 |---|---|---|---|---|---|
 | Arrow Buster (local save) | Progress, coins, settings, consent flags, install GUID | Gameplay | Stored on device only | No | Always (not transmitted) |
-| Analytics (*TBD vendor*, e.g. Firebase/GA4) | App-instance ID, gameplay events (`06` §11), device model/OS, app version, coarse location (from IP), session data | Product analytics, balancing | Pseudonymous ID | No (unless linked with ad IDs — avoid) | After consent where required |
-| Crash reporting (*TBD*, e.g. Crashlytics) | Crash stack traces, device state, OS, installation UUID, breadcrumbs (event names, level id) | Stability | Pseudonymous | No | Legal basis TBD by OWNER (`06` §9) |
-| Remote config (*TBD*) | Installation ID, app version, country | Config delivery | Pseudonymous | No | Boot |
-| Ad mediation + networks (*TBD*) | IDFA (if ATT granted)/GAID (subject to consent), IP, device info, ad interactions, coarse location | Ad serving, frequency capping, attribution | Yes (ad ID) | Yes if personalised | After consent |
+| Analytics: **Firebase Analytics (GA4)** | App-instance ID, gameplay events (`06` §11), device model/OS, app version, coarse location (from IP), session data | Product analytics, balancing | Pseudonymous ID | No (unless linked with ad IDs — avoid) | After consent where required |
+| Crash reporting: **Firebase Crashlytics** | Crash stack traces, device state, OS, installation UUID, breadcrumbs (event names, level id) | Stability | Pseudonymous | No | **After consent in UK/EEA (D-096)**; on by default elsewhere. Final legal/privacy review before launch. |
+| Remote config: **Firebase Remote Config** | Installation ID, app version, country | Config delivery | Pseudonymous | No | Boot (*verify with the legal review whether this is technically essential or consent-gated*) |
+| Ad mediation: **Unity LevelPlay** + its networks | IDFA (if ATT granted)/GAID (subject to consent), IP, device info, ad interactions, coarse location | Ad serving, frequency capping, attribution | Yes (ad ID) | Yes if personalised | After consent |
 | Google UMP | Consent string (TCF), region | Consent management | — | No | First launch / Settings |
 | App Store / Google Play (via Unity IAP) | Purchase history, receipts | Purchases and restore | Store account (handled by stores) | No | On purchase |
-| Unity Engine runtime | *Verify* whether any Unity services telemetry is enabled (e.g. Unity Analytics module is disabled in Services settings) | — | — | — | Verify at M8 |
+| Unity Engine runtime | *Verify* whether any Unity services telemetry is enabled (e.g. Unity Analytics module is disabled in Services settings) | — | — | — | Verify at M7 |
 
 **Retention and deletion:** each vendor's retention settings are configured to the minimum useful (e.g. 14 months for analytics) — *verify the available options*. Deletion requests go through the support email; the policy explains that local data is removed by uninstalling.
 
-## 14. Beta / closed-test plan (M10; the Play closed track may start in M8 per D-079)
+## 14. Beta / closed-test plan — **UK closed test (M9, D-098)**; the Play closed track may start earlier per D-099
 
 | Item | Plan |
 |---|---|
 | Channels | iOS **TestFlight** (internal → external group). Google Play **internal testing** → **closed testing** track. |
 | Build | Closed-test configuration: `AB_DEV` on (DevOverlay hidden by default, opened by a 5-tap gesture), test ads, crash reporting on, analytics to a **separate test property/project** |
-| Cohort | 20–40 testers outside the dev circle (friends-of-friends, casual puzzle players, mix of iOS/Android, ≥ 30% on Low-tier Android). Meet Play's minimum closed-test requirement (§12.3). |
+| Cohort | 20–40 **UK-based** testers outside the dev circle (friends-of-friends, casual puzzle players, mix of iOS/Android, ≥ 30% on Low-tier Android) — the UK is the easiest market for the owner to observe directly (D-098). Meet Play's minimum closed-test requirement (§12.3); start recruiting in project week 1 if it applies (D-099). |
 | Duration | 14 days minimum (or Play's required duration if longer) |
 | Instructions | "Play naturally, no instructions." A feedback link in Settings (form). In-game survey after L10 and after W1 clear (2–3 questions). |
 | Survey | Fun (1–5), clarity of goals (1–5), fairness of physics (1–5), favourite/least favourite level, would-recommend (0–10), ads felt (too many / fine / didn't notice) |
 | Success metrics | Crash-free sessions ≥ 99.5%. L1 completion ≥ 95%. ≥ 80% of testers who start W1 complete it without help (§15). Median retries per normal level 1–3. No level with ≥ 20% quit before first shot. Fairness score ≥ 4.0/5. Zero S1 bugs open. |
-| Outputs | `docs/qa/closed-test/<date>_report.md` + prioritised fix list → funnel fixes in M10 |
+| Outputs | `docs/qa/closed-test/<date>_report.md` + prioritised fix list → funnel fixes in M9 before submission |
 
-## 15. Soft-launch success/failure criteria (post-M10)
+## 15. Soft-launch success/failure criteria (M10 — Canada and Australia)
 
-Soft launch in 1–3 test markets (e.g. markets chosen for English proficiency and cost — OWNER decision). Minimum sample before deciding: ~1,000 installs per platform, or 14 days.
+Soft launch in **Canada and Australia** (English-only, D-098), after the UK closed test. Minimum sample before deciding: ~1,000 installs per platform, or 14 days. Privacy-law review for both markets (PIPEDA, Quebec Law 25, Australian Privacy Act) is done before launch (`06` §9). Balance, ad-frequency, pricing and conversion optimisation happen only after this data (D-102 step 12).
 
 | Metric | Scale (proceed to wider launch) | Iterate (fix and re-test 2–4 weeks) | Kill / rethink |
 |---|---|---|---|
@@ -329,13 +337,15 @@ Each gate is a checklist that **INT** signs off in `docs/qa/gates/<gate>.md`, wi
 
 | Gate | Milestone | Checklist |
 |---|---|---|
-| **G-M1 Feel & Physics** | End of M1 | **Physics spike gates PG-1…PG-6 met ([`03` §1.1](03_PHYSICS_AND_OBJECTS.md), D-004).** **Preview parity test green.** Feel playtest ≥ 5 testers. Spec vs Snappy chosen (D-036). Android device build runs ≥ 55 FPS on the Mid device in the crate sandbox. |
-| **G0 Vertical Slice** | End of M3 | **5 VS levels pass solvability layers 1–3.** **VS playtest go/no-go thresholds VS-G1…VS-G8 met per the decision rules in [`11` §8.1](11_VERTICAL_SLICE.md#81-go--no-go-thresholds)** (5–10 casual players, no instructions, §16). HUD/Win/Fail polished. SFX/VFX/haptics present. Analytics CSV matches the dictionary for loop events. Restart < 1 s on device. 60 FPS Mid / 30 FPS Low on VS levels. **Go/no-go decision recorded in the decision log.** |
-| **G1 World 1** | End of M5 | **L1–20 Final status (3-layer solvability).** First shot < 15 s on a fresh install. W1 playtest: ≥ 80% complete W1 without help (§15). Save/progression tests green. Art direction locked (documented). No S1/S2 open. |
-| **G2 Content Complete** | End of M7 | **All 60 levels at `Final` status (`04` §1) with green bot solvability (layers 1–2)**; W2/W3 art in. The M9 balance pass may still retune quivers/par. Interaction matrix tests green. SDK spike build boots on Android + iOS. Perf P2 on Low ≥ 28 FPS for set pieces. |
-| **G3 Feature Complete** | End of M8 | **All MVP features in (§14 must-ship list `00` §5.1).** Ads/IAP/consent/analytics/crash/RC functional with test ads/sandbox. Monetisation checks (§10) pass. Save schema frozen at v1 (or migrations tested). |
-| **G4 Release Candidate** | End of M9 | **Full regression pass. All 60 levels Final. Perf budgets met on P0 devices. Accessibility checks pass. Crash-free ≥ 99.5% in internal soak.** Zero S1/S2 open. LTS decision made (D-043). Store checklist drafted. |
-| **G-Release Submission** | M10 | **Closed-test success metrics (§14) met or waived with OWNER sign-off.** Store checklist §12 complete. Privacy policy live and inventory §13 final. Release build checks (test ads off, placeholders banned, cheats off). OWNER final approval. |
+| **G-M1 Feel & Physics** | End of M1 | **Physics spike gates PG-1…PG-6 met ([`03` §1.1](03_PHYSICS_AND_OBJECTS.md), D-004).** **Preview parity test green.** **`ArrowTunnellingTests` 100% hit registration.** Feel playtest ≥ 5 testers. Spec vs Snappy chosen (D-036). Android device build runs ≥ 55 FPS on the Mid device in the crate sandbox. OWNER: Google Play account type and testing requirement verified in project week 1 (D-099). |
+| **G0 Vertical Slice & Feel Lock** | End of M3 | **5 VS levels pass solvability layers 1–3 on Android and iOS** (iOS device builds from project week 3, D-100). **External VS playtest: 5–10 casual players, no instructions; thresholds VS-G1…VS-G8 met per the decision rules in [`11` §8.1](11_VERTICAL_SLICE.md#81-go--no-go-thresholds)** (§16). **Feel lock (D-102 step 5), values recorded in the decision log:** bow feel (draw mapping D-018 + flight preset D-036 accepted), trajectory accuracy (`ArrowPreviewParityTests` ≤ 2 cm), arrow collision reliability (`ArrowTunnellingTests` 100%), restart time (p95 < 1 s on device, target 300 ms), physics stability (PG-1…PG-6 + `DeterminismReplayTests` green on VS levels). HUD/Win/Fail polished. SFX/VFX/haptics present. Analytics CSV matches the dictionary for loop events. 60 FPS Mid / 30 FPS Low on VS levels. Store accounts + IAP products created by project week 5 (D-100). **No special arrows, maps, cosmetics, ads or extra levels before this gate passes (D-102).** **Go/no-go decision recorded in the decision log.** |
+| **G1 Systems Complete** | End of M4 | **All 5 materials (+ Earth), 6 objectives, 3 protected objects, 8 props, hazards and the Heavyhead/Split/Fire/Bounce arrows implemented on graybox prefabs; spring plate absent (D-086).** **`InteractionMatrixTests` green incl. the explicit no-interaction cells.** **Preview parity green for wind, portal exit, first bounce and Split marker (D-085, D-088).** Level tooling works end-to-end: editor window, `LevelValidator`, catalog builder, bot v2, `IntendedSolutionRunner`. Perf P3 (explosion chain) within budget on Low. No S1/S2 open. |
+| **G2 Content Graybox Complete** | End of M5 | **60/60 levels at `Graybox` status, `LevelValidator` 0 errors, bot layer 1 green on the §5.1 grid.** **Device validation (D-102 step 8): `IntendedSolutionRunner` reproduces every intended solution on 1 iOS + 1 Low-tier Android — 60/60.** Human cold playthrough of every level on device (layer 3, graybox). Difficulty curve reviewed against `04`. Perf P2 on Low ≥ 28 FPS for set pieces. No S1/S2 open. |
+| **G3 Content & Art Complete** | End of M6 | **60/60 levels at `Final` status (`04` §1) — all 3 solvability layers re-run after the art pass.** 3 world art kits, VFX, SFX and original music integrated. Meta functional: Home, world map + 15/20 unlock, stars, coins, launch cosmetic set (3 skins + 2 trails, D-101), Bow Forge, Bullseye collection, Daily Challenge (or formally cut, D-094). W1 playtest: ≥ 80% complete W1 without help (§15). First shot < 15 s on a fresh install. Save/progression tests green. Art direction final (OR-2). The M8 balance pass may still retune quivers/par. |
+| **G4 Feature Complete** | End of M7 | **Privacy policy was hosted before M7 SDK work began (D-097).** **All MVP features in (§14 must-ship list, `00` §5.1).** **Unity LevelPlay (rewarded + interstitial), Unity IAP (remove_ads, starter_pack, restore), UMP + ATT consent, Firebase Analytics/Crashlytics/Remote Config functional with test ads/sandbox (D-090).** **Monetisation checks (§10) pass, incl. consent gating (D-096) and interstitial rules (D-093).** Save schema frozen at v1 (or migrations tested). |
+| **G5 Release Candidate** | End of M8 | **Full regression pass. All 60 levels Final. Perf budgets met on P0 devices. Accessibility checks pass. Crash-free ≥ 99.5% in internal soak.** Zero S1/S2 open. Store assets produced and OR-3 originality review passed. Name/legal/store/domain clearance done (D-081). Store checklist drafted. Unity stays on 6000.6.5f1 (D-080 — no upgrade spike). |
+| **G-Release Submission** | End of M9 | **UK closed-test success metrics (§14) met or waived with OWNER sign-off.** Store checklist §12 complete. Privacy policy live and inventory §13 final. Release build checks (test ads off, placeholders banned, cheats off). OWNER final approval. |
+| **Soft-launch decision** | M10 | §15 criteria in Canada/Australia → Scale / Iterate / Kill. Optimisation work (balance, ad frequency, pricing, conversion) starts only after this read-out (D-102 step 12). |
 
 ## 17. Bug severity, priority and triage
 
@@ -350,7 +360,7 @@ Each gate is a checklist that **INT** signs off in `docs/qa/gates/<gate>.md`, wi
 |---|---|
 | **P0** | Fix now. Blocks the current gate/build. |
 | **P1** | Fix within the current milestone |
-| **P2** | Fix before release (G4) |
+| **P2** | Fix before release (G5) |
 | **P3** | Backlog / post-MVP |
 
 **Triage process:** QA logs bugs in `docs/qa/BUG_LOG.md` (or GitHub Issues once the repo is on GitHub, labels `bug`, `S1–S4`, `P0–P3`, role ID). Template: ID `BUG-###`, title, build, device/OS, steps, expected, actual, frequency (x/10), evidence (video/log/profiler capture), severity, suggested owner. Triage runs twice a week (QA + PO + INT): assign the owner role, priority and milestone. S1 = same-day triage. Physics bugs need a minimal repro sandbox scene (`Scenes/Sandbox/Sandbox_QA_BUG###.unity`) or a recorded shot (`IntendedShot` list) so the bot can reproduce them. A fixed bug is verified by QA on the original device class before it is closed. Regressions get a test added.

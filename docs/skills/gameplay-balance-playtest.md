@@ -13,9 +13,9 @@ Run structured playtests and balance passes that answer the product questions:
 Then turn observations into specific tuning (`GameplayTuning`, `AD_*`, `MP_*`, `LevelData.quiver`/`goldPar`/`trajectoryPreviewScale`) or level rework. The targets are mvp §10 (first shot < 15 s, first chain reaction by L3, first 3★ by L4, W1 finale in ~20–30 min) and §15 (≥ 80% complete W1 without help).
 
 ## When to invoke
-- **M1 feel gate — G-M1** (AB-014): "Spec" vs "Snappy" flight presets (D-036), draw mapping (D-018), preview behaviour (D-040).
-- **M3 Vertical Slice gate — G0:** 5–10 casual players on VS-01..05; go/no-go against thresholds VS-G1…VS-G8 and the decision rules in `11` §8.1 (AB-045).
-- **M5** World 1 playtest (L1–20); M6/M7 per-world tests; **M9** full balance pass of all 60; the closed test (M10).
+- **M1 feel gate — G-M1** (AB-014): "Spec" vs "Snappy" flight presets (D-036), draw mapping (D-018), preview behaviour (D-085).
+- **M3 Vertical Slice & Feel Lock gate — G0:** 5–10 **external** casual players on VS-01..05, before any special arrows, maps, cosmetics, ads or the 60 levels (D-102); go/no-go against thresholds VS-G1…VS-G8 and the decision rules in `11` §8.1 (AB-045).
+- **M5** internal playtests of the 60 graybox levels + device validation (G2); **M8** full balance pass of all 60; the UK closed test (M9); post-soft-launch tuning only after Canada/Australia data (M10+, D-102 step 12).
 
 **Do NOT invoke** to validate solvability mechanically (use the solvability bot in [`unity-physics-validation.md`](unity-physics-validation.md)) or for monetisation tuning before completion KPIs are healthy.
 
@@ -72,7 +72,7 @@ Then turn observations into specific tuning (`GameplayTuning`, `AD_*`, `MP_*`, `
    4. global tuning (affects all levels — re-record intended shots afterwards!).
 4. **Global tuning changes** (`GameplayTuning`, `AD_*`, `MP_*`) need CORE/PHYS + PO agreement, a re-run of the solvability bot on **all** levels, and a decision entry if they alter D-036/D-018/D-040.
 
-### D. Balance rules (apply in the M9 full pass)
+### D. Balance rules (apply in the M8 full pass)
 - Quiver/par per mvp §7: tutorial 3 / par 1; normal 4 / par 2; set piece 5 / par 3. Boss levels per §6 (L20 ≤ 4 arrows, L40 5 arrows).
 - 1★ must be reachable by a novice with the full quiver; 3★ needs the trick, not pixel precision (aim window 8–12% of screen width).
 - Difficulty curve: rated 1–5 per level (04); no two consecutive levels rated ≥ 4 except before a boss; a "breather" level (≤ 2) after each set piece.
@@ -82,7 +82,7 @@ Then turn observations into specific tuning (`GameplayTuning`, `AD_*`, `MP_*`, `
 ## Output artefacts
 - `docs/qa/playtests/YYYY-MM-DD_<milestone>_playtest.md`: hypotheses, testers (anonymised: T1..Tn, age band, play habits), the per-level table, quotes, ratings, flags, decisions, follow-up tickets.
 - Tuning/level tickets `AB-###` (labels `LEVEL`/`CORE`/`PHYS`, milestone).
-- At gates: a go/no-go statement by PO (G-M1, G0 VS gate, G1 World 1 gate — names per D-078, checklists in `07` §16).
+- At gates: a go/no-go statement by PO (G-M1, G0 Vertical Slice & Feel Lock, G2 Content Graybox Complete — names per D-102, checklists in `07` §16).
 
 ## Quality checklist
 - [ ] Hypotheses written before the sessions.
@@ -100,7 +100,7 @@ Then turn observations into specific tuning (`GameplayTuning`, `AD_*`, `MP_*`, `
 | "Everyone loved it" but metrics show quits | Developers/friends as testers; coaching | Recruit outside the circle; silent observation |
 | Players push forward instead of pulling back | Draw affordance unclear | L1 ghost-hand animation; bow string stretch visual; consider a D-018 variant |
 | Tuning fix breaks 20 other levels | Global value changed for one level's problem | Fix locally first (layout/quiver); global changes need a full bot re-run |
-| 3★ trivial everywhere | Preview too generous (D-040 impact marker) | Shorten `trajectoryPreviewScale` after L15; tighten par |
+| 3★ trivial everywhere | Preview too generous (D-085 impact marker) | Shorten `trajectoryPreviewScale` after L15; tighten par |
 | Testers blame physics as "random" | Hidden forces, debris confusion, jittering bodies | Readability pass; verify determinism; D-008 debris rules |
 | Conclusions from 2 testers | Too small a sample | ≥ 5 per hypothesis; mark low-confidence findings |
 

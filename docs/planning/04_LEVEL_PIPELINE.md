@@ -1,7 +1,7 @@
 # 04 — Level Pipeline
 
 > Owner: Content / Level Design Engineer (`LEVEL`). Design authority: `PO`. Status: Draft v1 — 2026-10-09.
-> Sources: [`/mvp.md`](../../mvp.md) §3–7, §10; names from [`01_TECHNICAL_ARCHITECTURE.md`](01_TECHNICAL_ARCHITECTURE.md); decisions in [`10_DECISION_LOG.md`](10_DECISION_LOG.md) (notably D-010, D-011, D-014, D-023, D-024, D-037–D-040, D-045–D-047, D-050).
+> Sources: [`/mvp.md`](../../mvp.md) §3–7, §10; names from [`01_TECHNICAL_ARCHITECTURE.md`](01_TECHNICAL_ARCHITECTURE.md); decisions in [`10_DECISION_LOG.md`](10_DECISION_LOG.md) (notably D-010, D-011, D-023, D-037–D-039, D-045–D-047, D-050, and the owner decisions D-082 (arrow appearances), D-084 (bonus-arrow 1★), D-085 (preview), D-086 (spring plates cut), D-101 (cut-first list), D-102 (execution order)).
 > Related docs: physics rules → [`03_PHYSICS_AND_OBJECTS.md`](03_PHYSICS_AND_OBJECTS.md); vertical slice levels → [`11_VERTICAL_SLICE.md`](11_VERTICAL_SLICE.md); QA solvability suite → [`07_QA_PERFORMANCE_RELEASE.md`](07_QA_PERFORMANCE_RELEASE.md); skill → [`../skills/level-design-and-validation.md`](../skills/level-design-and-validation.md).
 
 ---
@@ -10,7 +10,7 @@
 
 1. **A level is data plus a prefab, never code** (D-010). If a level seems to need a script, either it needs a new reusable component (request it from `PROPS`/`PHYS` through a ticket) or the design is wrong.
 2. **Every level has a recorded intended solution** (`IntendedShot` list). The automated solvability bot replays it with aim jitter. A level that fails the bot is not done.
-3. **Graybox all levels of a world before art.** Art comes in as prefab-variant swaps that never change colliders or mass (`01` §12).
+3. **Graybox all 60 levels and validate them on device before any art pass** (D-102: M5 graybox + device validation, M6 art). Art comes in as prefab-variant swaps that never change colliders or mass (`01` §12).
 4. **One new idea per level, two tutorial levels per new object** (§4, §6): first an obvious use, then a combination with something already known.
 5. **No repeated layout or solution pattern within 10 levels** (§6, P-03). Enforced by the `solutionArchetype` + `mechanicTags` warnings (rule W-04).
 6. **Fair over clever.** The intended aim window is ≥ 8% of screen width at target distance (§7). Never require a pixel-perfect shot for 3★.
@@ -22,7 +22,7 @@
 `LevelData` (`Scripts/Runtime/Levels/LevelData.cs`) evolves from the M0 version in **AB-016**:
 - Public fields become `[SerializeField] private` fields with read-only properties.
 - Renamed fields carry `[FormerlySerializedAs("<oldName>")]` so the existing `W1_L01` asset keeps its data.
-- `StarsFor()` moves to `StarRules.Compute()` (D-024). A `StarsFor` wrapper is kept so `LevelDataTests` still compiles. It is marked `[Obsolete]` and removed in M4.
+- `StarsFor()` moves to `StarRules.Compute()` (D-084). A `StarsFor` wrapper is kept so `LevelDataTests` still compiles. It is marked `[Obsolete]` and removed in M4.
 
 ### 2.1 Field table
 
@@ -48,7 +48,7 @@
 | 12 | `_isTutorial` | `bool` | false | W-08 | Marks the 2 intro levels of each mechanic |
 | 13 | `_tutorialPrompt` (was `tutorialPrompt` string; FormerlySerializedAs + migration copies text into `textKey`) | `TutorialPromptData` | none | V-13 if `textKey` is set | Optional callout (see §7) |
 | 14 | `_showGhostHand` | `bool` | false (true only on W1_L01) | — | Onboarding drag animation until the first draw |
-| 15 | `_revealsArrow` + `_revealArrowType` | `bool` + `ArrowType` | false | Must match D-014 levels (V-11) | Shows the arrow reveal card before the first draw |
+| 15 | `_revealsArrow` + `_revealArrowType` | `bool` + `ArrowType` | false | Must match the D-082 levels (V-11) | Shows the arrow reveal card before the first draw |
 | 16 | `_trajectoryPreviewScale` | `float` [0.4..1] (M0 code has `Range(0.3,1)`; AB-016 raises the floor, D-073) | 1 | **Must be 1.0 for global 1–15** (V-14) | Multiplies `GameplayTuning.previewBaseSeconds` |
 | **Intended solution** |
 | 17 | `_intendedShots` | `List<IntendedShot>` | empty | Required at status ≥ Graybox; count = par; types follow quiver order (V-12) | Solvability bot input; QA reference |
@@ -96,7 +96,7 @@
 public enum LevelStatus { Draft, Graybox, Art, Final }
 public enum MechanicTag { Crest, SupplyCrate, Lantern, CursedOrb, Dummy, BannerRope, Rope, Chain,
     Straw, Timber, Stone, Ice, Metal, PowderBarrel, Balloon, OilJar, FireZone, Boulder, Lever,
-    SpringPlate, Shield, WindFan, Portal, MovingPlatform, RoyalVase, SleepingFox, RoyalRelic,
+    Shield, WindFan, Portal, IceSlide, RoyalVase, SleepingFox, RoyalRelic,   // SpringPlate & MovingPlatform cut (D-086, D-101)
     WaterPit, SpikeBed, Pit, ShieldedTarget, Heavyhead, Split, Fire, Bounce }
 public enum SolutionArchetype { DirectHit, WeakSupport, RopeDrop, Restraint, ChainBlast,
     OrderOfOperations, DelayedReaction, TimingShot, MultiTarget, Sweep, Lever, WindCurve,
@@ -221,7 +221,7 @@ Every `Objective` instance also has a designer flag **`requiresSpentProp`** (def
 Protected: `Prot_RoyalVase`, `Prot_SleepingFox`, `Prot_RoyalRelic` (rules D-038). A **shielded target** is a pattern, not a type: a `CrestTarget` covered by a movable `Struct_*` piece. It is first used at L14.
 
 ### 6.3 Star-par rules
-- **3★:** `arrowsUsed ≤ goldPar`. **2★:** `arrowsUsed == goldPar + 1`. **1★:** any other clear, and **any clear that used a rewarded bonus arrow** (D-024).
+- **3★:** `arrowsUsed ≤ goldPar`. **2★:** `arrowsUsed == goldPar + 1`. **1★:** any other clear, and **any clear that used a rewarded bonus arrow** (D-084; the cap is disclosed on the offer before the ad, `06` §7.1).
 - `goldPar` = the number of arrows in the **intended solution** (the cleverest fair solution, not a lucky one).
 - Quiver buffer = `TotalArrows − goldPar`:
 
@@ -247,7 +247,7 @@ Protected: `Prot_RoyalVase`, `Prot_SleepingFox`, `Prot_RoyalRelic` (rules D-038)
 |---|---|---|
 | Ghost hand | `_showGhostHand` (W1_L01 only) | Loops a drag-back gesture from the bow until the first `DrawStarted`. Returns after 8 s idle while Ready. |
 | Callout | `_tutorialPrompt` (≤ 1 per level) | Text ≤ 32 characters (e.g. "Aim for the rope"). Points at a `TutorialAnchor` (`Marker_TutorialAnchor` prefab with `id`). Never covers the anchor's target. Used **only** in `_isTutorial` levels (§3). |
-| Arrow reveal card | `_revealsArrow` (L13, L30, L36, L47) | One-tap card: arrow icon + one-line verb ("Heavyhead: hits hard, flies low"). Shown before the first draw. |
+| Arrow reveal card | `_revealsArrow` (L13 W1_L13, L30 W2_L10, L36 W2_L16, L47 W3_L07 — D-082) | One-tap card: arrow icon + one-line verb ("Heavyhead: hits hard, flies low"). Shown before the first draw. |
 | Level-start banner | automatic from `_protectedSummary` / objective summary | "Break the targets" / "Protect the vase" for 1.2 s. Not a tutorial; all levels. |
 | Miss hint | `trigger = AfterMisses` | Optional on tutorial levels: shows the callout after N misses (default 2) if it was dismissed. |
 
@@ -304,7 +304,7 @@ Severity: **E** = Error (blocks status ≥ Graybox and builds), **W** = Warning 
 | V-08 | E | Every child of `Gameplay`/`Environment` is a prefab instance from `Prefabs/{Structures,Objectives,Protected,Props,Hazards}` or `Env_*`/`Marker_*`. No unpacked instances, no missing prefabs. No mesh/collider/mass/material overrides. |
 | V-09 | E | Layers match the prefab category (`Obj_*` → Objective, `Prot_*` → Protected, `Prop_*` → Prop (rope collider → Rope, portal trigger → Portal), `Struct_*` → Structure, `Env_*` → Environment, `Haz_*` → KillZone) (D-048). |
 | V-10 | E | No initial penetration > 0.005 m between gameplay colliders (`Physics.ComputePenetration`). |
-| V-11 | E | Special arrows appear in the quiver only at or after their first appearance (Heavyhead ≥ L13, Split ≥ L30, Fire ≥ L36, Bounce ≥ L47, D-014). `_revealsArrow` is true exactly on those four levels. |
+| V-11 | E | Special arrows appear in the quiver only at or after their first appearance (Heavyhead ≥ L13 / W1_L13, Split ≥ L30 / W2_L10, Fire ≥ L36 / W2_L16, Bounce ≥ L47 / W3_L07 — D-082, locked). `_revealsArrow` is true exactly on those four levels. |
 | V-12 | E (≥ Graybox) | `_intendedShots.Count == goldPar`. The shot arrow types equal the quiver order prefix. `delayAfterPrevious` ≥ 0.35 s. Angles are in the 8°–172° cone. Power is in 0.15–1. |
 | V-13 | E | If `_tutorialPrompt.textKey` is set: the key exists in `UIStrings`, the text is ≤ 32 characters, and `anchorId` resolves (or is empty). |
 | V-14 | E | `GlobalIndex ≤ 15` ⇒ `_trajectoryPreviewScale == 1`. Otherwise ≥ 0.4 (D-073; never removed, §3). |
@@ -375,12 +375,12 @@ Legend: **Q** = quiver **in firing order** (D-023; O = Oak, H = Heavyhead, S = S
 |---:|---|---|---|---|---|---:|---|---|---|
 | 1 | W1_L01 | 1–3 Direct hits | **New:** Crest, Oak, preview, Timber (static stump) | Crest ×1 | 3O | 1 | tutorial | VS-01 | Not started |
 | 2 | W1_L02 | 1–3 | Crest (2nd use: two heights) | Crest ×2 | 3O | 2 | tutorial | | Not started |
-| 3 | W1_L03 | 1–3 | **New:** Training dummy; first chain (post topples onto the dummy) *(M2 graybox uses stand-ins, AB-046; upgraded in AB-064)* | Dummy ×1 | 3O | 1 | tutorial | | Not started |
+| 3 | W1_L03 | 1–3 | **New:** Training dummy; first chain (post topples onto the dummy) | Dummy ×1 | 3O | 1 | tutorial | | Not started |
 | 4 | W1_L04 | 4–6 Crate towers | **New:** Timber crate tower / weak-support collapse (skill, no new object) | Crest ×2 | 3O | 1 | tutorial | VS-02 | Not started |
 | 5 | W1_L05 | 4–6 | **New:** Supply crate, Water pit (clear route) | Supply crate ×3 | 4O | 2 | ★ | | Not started |
-| 6 | W1_L06 | 4–6 | **New:** Straw; Supply crate (2nd) + Dummy *(M2 graybox uses stand-ins, AB-046; upgraded in AB-064)* | Supply ×2, Dummy ×1 | 4O | 2 | tutorial | | Not started |
+| 6 | W1_L06 | 4–6 | **New:** Straw; Supply crate (2nd) + Dummy | Supply ×2, Dummy ×1 | 4O | 2 | tutorial | | Not started |
 | 7 | W1_L07 | 7–9 Ropes | **New:** Rope (hanging load) | Crest ×2 | 2O | 1 | tutorial | VS-03 | Not started |
-| 8 | W1_L08 | 7–9 | **New:** Hanging lantern; Rope (2nd); Water pit (2nd: a cut lantern drops into water = cleared) *(M2 graybox uses stand-ins, AB-046; upgraded in AB-064)* | Lantern ×2 | 3O | 1 | tutorial | | Not started |
+| 8 | W1_L08 | 7–9 | **New:** Hanging lantern; Rope (2nd); Water pit (2nd: a cut lantern drops into water = cleared) | Lantern ×2 | 3O | 1 | tutorial | | Not started |
 | 9 | W1_L09 | 7–9 | **New:** Banner rope; Lantern (2nd); Straw (2nd: bales under the banners) | Banner rope ×2, Lantern ×1 | 4O | 2 | tutorial | | Not started |
 | 10 | W1_L10 | 10–12 Protected | **New:** Royal vase; Stone (static pedestal only) | Crest ×1 | 3O | 1 | ★ tutorial | VS-04 | Not started |
 | 11 | W1_L11 | 10–12 | **New:** Cursed orb; Vase (2nd); Banner rope (2nd) | Orb ×1, Banner rope ×1 | 4O | 2 | tutorial | | Not started |
@@ -411,7 +411,7 @@ Legend: **Q** = quiver **in firing order** (D-023; O = Oak, H = Heavyhead, S = S
 | 31 | W2_L11 | 30–32 | Split (2nd) pops a balloon trio | Supply ×1, Crest ×1 | 1S+2O | 1 | tutorial | Not started |
 | 32 | W2_L12 | 30–32 | Split + rotating shield | Lantern ×3 | 1O+2S | 2 | | Not started |
 | 33 | W2_L13 | 33–35 Boulders | **New:** Rolling boulder (rope-held), lane sweep | Crest ×3 | 3O | 1 | tutorial | Not started |
-| 34 | W2_L14 | 33–35 | **New:** Lever/counterweight (D-022); boulder (2nd) [opt. SpringPlate variant, D-021] | Supply ×2 | 3O | 1 | tutorial | Not started |
+| 34 | W2_L14 | 33–35 | **New:** Lever/counterweight (hinge seesaw + rope-hung weight, D-087); boulder (2nd) | Supply ×2 | 3O | 1 | tutorial | Not started |
 | 35 | W2_L15 | 33–35 | Boulder + lever + Split | Crest ×2, Dummy ×2 | 2O+1S+2O | 3 | ★ | Not started |
 | 36 | W2_L16 | 36–39 Fire combos | **New:** Fire Arrow (reveal): straw wick behind shield → rope burns | Banner rope ×1, Crest ×1 | 1F+1O | 1 | tutorial | Not started |
 | 37 | W2_L17 | 36–39 | Fire (2nd) + balloons | Supply ×2 | 1O+1F+1O | 2 | tutorial | Not started |
@@ -435,14 +435,16 @@ Legend: **Q** = quiver **in firing order** (D-023; O = Oak, H = Heavyhead, S = S
 | 50 | W3_L10 | 50–52 Portals | **New:** Portal pair (entry → exit visible) | Crest ×1 | 2O | 1 | ★ tutorial | Not started |
 | 51 | W3_L11 | 50–52 | Portal (2nd) + ice slide | Supply ×2 | 3O | 1 | tutorial | Not started |
 | 52 | W3_L12 | 50–52 | Portal + Bounce | Crest ×2 | 1O+1B+1O | 2 | | Not started |
-| 53 | W3_L13 | 53–55 Moving ice | **New:** Moving ice platform (KinematicMover) | Crest ×1 | 3O | 1 | tutorial | Not started |
-| 54 | W3_L14 | 53–55 | Moving platform (2nd) + wind | Lantern ×1, Dummy ×1 | 3O | 2 | tutorial | Not started |
-| 55 | W3_L15 | 53–55 | Platforms + portal set piece | Crest ×3 | 2O+1B+2O | 3 | ★ | Not started |
+| 53 | W3_L13 | 53–55 Ice slides & timing (static, D-101) | **New:** Ice slide — a static tilted ice ramp; knock a crate onto it so it slides into the target | Crest ×1 | 3O | 1 | tutorial | Not started |
+| 54 | W3_L14 | 53–55 | Ice slide (2nd) + rotating shield timing + wind | Lantern ×1, Dummy ×1 | 3O | 2 | tutorial | Not started |
+| 55 | W3_L15 | 53–55 | Ice slides + portal set piece | Crest ×3 | 2O+1B+2O | 3 | ★ | Not started |
 | 56 | W3_L16 | 56–59 Multi-system | Alternative solutions: the Heavyhead can open either the stone base or the lever; the Split finishes either route | Supply ×3 | 1H+1S+2O | 2 | | Not started |
 | 57 | W3_L17 | 56–59 | Fox + portal + balloons (Bounce bank into the portal) | Crest ×2, Orb ×1 | 1O+1B+2O | 2 | | Not started |
 | 58 | W3_L18 | 56–59 | **New (variant):** Royal relic (vase rules) + Split + rope | Lantern ×2, Crest ×1 | 1O+1S+2O | 2 | | Not started |
 | 59 | W3_L19 | 56–59 | Fire + oil + wind + relic | Banner rope ×1, Crest ×2 | 1O+1F+2O | 2 | | Not started |
 | 60 | W3_L20 | Finale | Break the frost seal (`Obj_CursedOrb_FrostSeal`) with a bank shot through a portal, then collapse the tower without hitting the royal relic (§6) | Orb ×1, Crest ×2 | 1B+1H+3O | 3 | ★ ⚔ | Not started |
+
+**Status milestones (D-102):** VS levels (W1_L01/04/07/10/16) reach **Final** in M3. All 60 levels reach **Graybox** in **M5** (gate G2 Content Graybox Complete: bot + on-device intended-solution validation green for 60/60). **Art → Final** for all remaining levels happens in **M6** (gate G3 Content & Art Complete). No level beyond the five VS levels is authored before the G0 GO.
 
 **Tracker upkeep:** `LEVEL` updates the Status column (Not started → Draft → Graybox → Art → Final) in the same change as the asset. `LevelCatalogBuilder` regenerates `docs/levels/_tracker_snapshot.md` with validation and bot results for cross-checking.
 
@@ -479,13 +481,13 @@ Each "New" entry gets two tutorial levels (obvious → combined) and then appear
 | **Split** | Arrow | **L30** | L31 | L32, L35 | L40 |
 | Rolling boulder | Prop | L33 | L34 | L35 | L40 |
 | Lever (counterweight) | Prop | L34 | L35 | L56 | — |
-| Spring plate *(should-have, D-021)* | Prop | L34 (variant) | L35 | — | — |
 | **Fire** | Arrow | **L36** | L37 | L38, L39 | L40 |
 | Ice | Material | L41 | L42 | L43, L51 | L60 |
 | Wind fan | Prop | L44 | L45 | L46, L54 | — |
 | **Bounce** | Arrow | **L47** | L48 | L49, L52 | L60 |
 | Portal pair | Prop | L50 | L51 | L52, L55 | L60 |
-| Moving ice platform | Prop (KinematicMover) | L53 | L54 | L55 | — |
+| Ice slide (static ramp) | Pattern (Ice + `Env_Ramp_3x1` ice variant) | L53 | L54 | L55 | L60 |
+| ~~Spring plate~~ · ~~Moving ice platform~~ | **Cut** (D-086, D-101) | — | — | — | — |
 | Royal relic | Protected (vase variant) | L58 | L59 | — | L60 |
 
 **Checks against `mvp.md`:**
@@ -500,7 +502,7 @@ Each "New" entry gets two tutorial levels (obvious → combined) and then appear
 
 ## 13. Difficulty curve
 
-Sawtooth per block: an intro level dips in difficulty, the combined level rises, a set piece spikes moderately, and the level after a boss is gentle. Targets (verified in playtests in M5/M9 and at soft launch via analytics):
+Sawtooth per block: an intro level dips in difficulty, the combined level rises, a set piece spikes moderately, and the level after a boss is gentle. Targets (verified in internal graybox playtests in M5 and the balance pass in M8 and at soft launch via analytics):
 
 | Metric | W1 L1–9 | W1 L10–20 | W2 | W3 | Boss levels |
 |---|---|---|---|---|---|
@@ -551,32 +553,32 @@ Objectives: SupplyCrate ×3      Protected: —       Bullseye: yes (marker on l
 
 ## 15. Reusable prefab catalogue (level-designer palette)
 
-Naming follows `01` §8; `Env_*`, `Marker_*` and `Lvl_Pattern_*` were added there by D-052 (static blocking, authoring markers, pattern starters). The `Env_<Shape>_<Size>` blocking pieces below are **world-agnostic graybox** prefabs; their art variants take the world code prefix (`Env_GW_Ledge_4x0.5`, D-052). "Needed by" = the milestone in which the prefab must exist in graybox form. Art variants follow in the world's art milestone (M3 for VS pieces, M5/M6/M7 otherwise): `Struct_`/`Obj_`/`Prop_`/`Prot_` variants use the `_Greenwood`/`_Sunscar`/`_Frostspire` suffix (`01` §12); `Env_` variants use the world-code prefix (D-052). Asset IDs in this table match `05` §4.
+Naming follows `01` §8; `Env_*`, `Marker_*` and `Lvl_Pattern_*` were added there by D-052 (static blocking, authoring markers, pattern starters). The `Env_<Shape>_<Size>` blocking pieces below are **world-agnostic graybox** prefabs; their art variants take the world code prefix (`Env_GW_Ledge_4x0.5`, D-052). "Needed by" = the milestone in which the prefab must exist in graybox form (D-102: the VS set in M1–M3, **every other system prefab in M4 Systems Complete**, so all 60 levels can be grayboxed in M5). Art variants follow in **M6** (M3 for the VS pieces): `Struct_`/`Obj_`/`Prop_`/`Prot_` variants use the `_Greenwood`/`_Sunscar`/`_Frostspire` suffix (`01` §12); `Env_` variants use the world-code prefix (D-052). Asset IDs in this table match `05` §4.
 
 | Category | Prefab | Key components | Layer | Needed by | Owner |
 |---|---|---|---|---|---|
 | Template | `Lvl_Template_Base` | `LevelLayout`, group roots, `Env_Ground_12x1`, `Haz_Pit` | — | M2 | LEVEL |
-| Pattern | `Lvl_Pattern_WeakLeg`, `_HangingLoad`, `_SafeCargo`, `_BoulderRun`, `_SkyDrop`, `_BurningBridge`, `_MirrorGate`, `_RiftShot` | Composition only (from §7 templates) | — | M4 (first 3), M6, M7 | LEVEL |
-| Environment | `Env_Ground_12x1`, `Env_Ledge_2x0.5`, `Env_Ledge_4x0.5`, `Env_Ledge_6x0.5`, `Env_Pillar_0.5x4`, `Env_Beam_6x0.4`, `Env_Stump`, `Env_Awning_6`, `Env_Perch_1.5`, `Env_Ramp_3x1` | Static colliders; `Ground` tag on walkable tops | Environment | M2 (Ramp: M7 ice slides) | LEVEL + ART |
-| Structure — timber | `Struct_Crate_Timber_1x1`, `Struct_Crate_Timber_2x1`, `Struct_Post_Timber_0.5x2`, `Struct_Plank_Timber_4x0.25`, `Struct_Beam_Timber_3x0.5`, `Struct_Peg_Timber`, `Struct_Bridge_Timber` (rope-held drawbridge, P1) | `PlanarBody`, `MaterialBody(MP_Timber)`, `Breakable` | Structure | M1 (peg: M6) | PHYS |
-| Structure — straw | `Struct_Bale_Straw_1x1`, `Struct_Screen_Straw_1x2` | + `Burnable` (M6) | Structure | M4 | PHYS |
+| Pattern | `Lvl_Pattern_WeakLeg`, `_HangingLoad`, `_SafeCargo`, `_BoulderRun`, `_SkyDrop`, `_BurningBridge`, `_MirrorGate`, `_RiftShot` | Composition only (from §7 templates) | — | M4 (all; used from M5) | LEVEL |
+| Environment | `Env_Ground_12x1`, `Env_Ledge_2x0.5`, `Env_Ledge_4x0.5`, `Env_Ledge_6x0.5`, `Env_Pillar_0.5x4`, `Env_Beam_6x0.4`, `Env_Stump`, `Env_Awning_6`, `Env_Perch_1.5`, `Env_Ramp_3x1` | Static colliders; `Ground` tag on walkable tops | Environment | M2 (Ramp + ice-slide variant `Env_Ramp_Ice_3x1`: M4, D-101) | LEVEL + ART |
+| Structure — timber | `Struct_Crate_Timber_1x1`, `Struct_Crate_Timber_2x1`, `Struct_Post_Timber_0.5x2`, `Struct_Plank_Timber_4x0.25`, `Struct_Beam_Timber_3x0.5`, `Struct_Peg_Timber`, `Struct_Bridge_Timber` (rope-held drawbridge, P1) | `PlanarBody`, `MaterialBody(MP_Timber)`, `Breakable` | Structure | M1 (peg: M4) | PHYS |
+| Structure — straw | `Struct_Bale_Straw_1x1`, `Struct_Screen_Straw_1x2` | + `Burnable` (M4) | Structure | M4 | PHYS |
 | Structure — stone | `Struct_Block_Stone_1x1`, `Struct_Beam_Stone_3x0.5`, `Struct_Cover_Stone_1.5x1` (shielded-target cover) | `MaterialBody(MP_Stone)` | Structure | M4 | PHYS |
-| Structure — ice | `Struct_Block_Ice_1x1`, `Struct_Slab_Ice_2x0.5` | `MaterialBody(MP_Ice)`, low friction | Structure | M7 | PHYS |
-| Structure — metal | `Struct_Plate_Metal_2x0.25`, `Struct_Plate_Metal_Marked` (Bounce bank plate) | `MaterialBody(MP_Metal)`, unbreakable | Structure | M6 (marked: M7) | PHYS |
-| Structure — lever | `Struct_Lever_Timber_4x0.5` (plank + `HingeJoint` to a static pivot, D-022) | | Structure | M6 | PROPS |
-| Objective | `Obj_CrestTarget`, `Obj_SupplyCrate_1x1`, `Obj_SupplyCrate_2x1`, `Obj_HangingLantern`, `Obj_CursedOrb`, `Obj_CursedOrb_FrostSeal`, `Obj_TrainingDummy`, `Obj_BannerRope` | `Objective` (+ `ObjectiveClearRule`) | Objective (rope collider: Rope) | M2 (crest, crate) · M4 (lantern, orb, dummy, banner) · M7 (frost seal) | PROPS |
-| Protected | `Prot_RoyalVase`, `Prot_SleepingFox`, `Prot_RoyalRelic` | `ProtectedObject`, `ProtectedOutline` | Protected | M2 (vase) · M4 (fox) · M7 (relic) | PROPS |
-| Prop | `Prop_Rope`, `Prop_Rope_Chain` | `RopeCuttable`, `RopeView`, `Burnable` | Rope | M2 (chain: M6) | PROPS |
+| Structure — ice | `Struct_Block_Ice_1x1`, `Struct_Slab_Ice_2x0.5` | `MaterialBody(MP_Ice)`, low friction | Structure | M4 | PHYS |
+| Structure — metal | `Struct_Plate_Metal_2x0.25`, `Struct_Plate_Metal_Marked` (Bounce bank plate) | `MaterialBody(MP_Metal)`, unbreakable | Structure | M4 | PHYS |
+| Structure — lever | `Struct_Lever_Timber_4x0.5` (plank + `HingeJoint` to a static pivot, D-022) | | Structure | M4 | PROPS |
+| Objective | `Obj_CrestTarget`, `Obj_SupplyCrate_1x1`, `Obj_SupplyCrate_2x1`, `Obj_HangingLantern`, `Obj_CursedOrb`, `Obj_CursedOrb_FrostSeal`, `Obj_TrainingDummy`, `Obj_BannerRope` | `Objective` (+ `ObjectiveClearRule`) | Objective (rope collider: Rope) | M2 (crest, crate) · M4 (lantern, orb, dummy, banner, frost seal) | PROPS |
+| Protected | `Prot_RoyalVase`, `Prot_SleepingFox`, `Prot_RoyalRelic` | `ProtectedObject`, `ProtectedOutline` | Protected | M2 (vase) · M4 (fox, relic) | PROPS |
+| Prop | `Prop_Rope`, `Prop_Rope_Chain` | `RopeCuttable`, `RopeView`, `Burnable` | Rope | M2 (chain: M4) | PROPS |
 | Prop | `Prop_PowderBarrel` | `Breakable`, `PowderBarrel`, `Explosion` | Prop | M4 | PROPS |
-| Prop | `Prop_BalloonCluster_2`, `Prop_BalloonCluster_3` | `Balloon` | Prop | M6 | PROPS |
-| Prop | `Prop_OilJar`, `Prop_StrawWick` | `OilJar` → `FireZone`; `Burnable` | Prop | M6 | PROPS |
-| Prop | `Prop_Boulder` | `PlanarBody`, `MaterialBody(MP_Stone)` (sphere) | Prop | M6 | PROPS |
-| Prop | `Prop_Shield_Rotating`, `Prop_Shield_Patrol` | `KinematicMover`, `MaterialBody(MP_Metal)` | Prop (kinematic) | M6 | PROPS |
-| Prop | `Prop_SpringPlate` *(should-have, D-021)* | `SpringPlate` | Prop | M6 (if on schedule) | PROPS |
-| Prop | `Prop_WindFan` | `WindField` (+ fan visual) | Field | M7 | PROPS |
-| Prop | `Prop_PortalPair` | `PortalPair` + 2 × `PortalRing` | Portal | M7 | PROPS |
-| Prop | `Prop_Platform_Moving_Ice` | `KinematicMover`, `MaterialBody(MP_Ice)` | Environment (kinematic) | M7 | PROPS |
-| Hazard | `Haz_Pit`, `Haz_WaterPit`, `Haz_SpikeBed` | `KillZone` (Pit/Water/Spikes) | KillZone | M2 (pit, water) · M6 (spikes) | PROPS |
+| Prop | `Prop_BalloonCluster_2`, `Prop_BalloonCluster_3` | `Balloon` | Prop | M4 | PROPS |
+| Prop | `Prop_OilJar`, `Prop_StrawWick` | `OilJar` → `FireZone`; `Burnable` | Prop | M4 | PROPS |
+| Prop | `Prop_Boulder` | `PlanarBody`, `MaterialBody(MP_Stone)` (sphere) | Prop | M4 | PROPS |
+| Prop | `Prop_Shield_Rotating`, `Prop_Shield_Patrol` | `KinematicMover`, `MaterialBody(MP_Metal)` | Prop (kinematic) | M4 | PROPS |
+| Prop | ~~`Prop_SpringPlate`~~ | **Cut (D-086)** — not in the palette | — | — | — |
+| Prop | `Prop_WindFan` | `WindField` (+ fan visual) | Field | M4 | PROPS |
+| Prop | `Prop_PortalPair` | `PortalPair` + 2 × `PortalRing` | Portal | M4 | PROPS |
+| Prop | ~~`Prop_Platform_Moving_Ice`~~ | **Cut (D-104)** — L53–55 use static ice slides | — | — | — |
+| Hazard | `Haz_Pit`, `Haz_WaterPit`, `Haz_SpikeBed` | `KillZone` (Pit/Water/Spikes) | KillZone | M2 (pit, water) · M4 (spikes) | PROPS |
 | Marker | `Marker_TutorialAnchor` | `TutorialAnchor` (`id`) | — (no collider) | M3 | LEVEL |
 | Marker | `Marker_Bullseye` | `BullseyeMarker` (radius 0.25 m) | — (queried on arrow impact) | M4 | PROPS |
 

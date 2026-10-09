@@ -89,7 +89,7 @@
 ### Context
 - mvp.md: §3 Aim and fire (ballistic path, preview while drawing, 1.5–2.5 s flight), §12 physics tuning targets.
 - Planning: `docs/planning/02_GAMEPLAY_SYSTEMS.md` §Ballistic projectile simulation and §Aim assist / trajectory display; `01` §9 (pure logic, zero GC), §10.3 dependency rules.
-- Decisions: D-005 (shared solver for flight + preview), D-006 (Δt 1/60), D-017 (preview includes wind/portal/bounce via environment), D-036 (Spec vs Snappy presets).
+- Decisions: D-005 (shared solver for flight + preview), D-006 (Δt 1/60), D-085 (preview shows wind, portal exits and the first bounce via the environment), D-036 (Spec vs Snappy presets).
 - Skills: `docs/skills/unity-gameplay-implementation.md`, `docs/skills/unity-feature-planning.md`.
 
 ### Goal
@@ -103,7 +103,7 @@ A deterministic, allocation-free `BallisticSolver` that advances an arrow state 
 - `BallisticSolver.LaunchVelocity(float angleDeg, float power01, ArrowDefinition def)`: maps the aim to the initial velocity using `def.minLaunchSpeed`/`maxLaunchSpeed`.
 - `BallisticSolver.Simulate(in state, dt, steps, gravity, env, Span/array buffer)` → number of points written (no allocations).
 **Out:**
-- Collision sweeps (AB-009), rendering dots (AB-008), portals/bounce handling (M6/M7 — the environment hook only), any MonoBehaviour.
+- Collision sweeps (AB-009), rendering dots (AB-008), portals/bounce handling (M4 — the environment hook only), any MonoBehaviour.
 
 ### Files allowed to modify
 - `Assets/_Project/Scripts/Runtime/Arrows/BallisticSolver.cs` (new)

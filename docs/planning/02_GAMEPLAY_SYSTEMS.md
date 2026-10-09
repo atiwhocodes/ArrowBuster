@@ -23,7 +23,7 @@
 | `minFirePower` | 0.15 | DrawModel | Releasing below this cancels the draw (no arrow spent) |
 | `minAimAngleDeg` / `maxAimAngleDeg` | 8 / 172 | DrawModel | Firing cone, measured from +X |
 | `powerCurveExponent` | 1.0 | DrawModel | 1 = linear. Tune at the M1 gate (0.8–1.3 range) |
-| `renockCooldown` | 0.35 s | GameplayController | D-016 |
+| `renockCooldown` | 0.35 s | GameplayController | D-083 (supersedes D-016) |
 | `drawHapticPowerThreshold` | = `minFirePower` | BowController | Light haptic when the draw becomes fireable |
 | `fullDrawHapticPower` | 0.98 | BowController | Second Light tick + string glow (§11) |
 | `arrowGravity` | 5.0 m/s² [12.0] | BallisticSolver | Arrow gravity, decoupled from world gravity (−9.81 for bodies) |
@@ -67,11 +67,11 @@ public enum GameplayState { Loading, Intro, Ready, Drawing, Cooldown, AwaitingRe
 | `Intro` | off (tap to skip) | asleep | 0.6 s level intro, plus any arrow-reveal card / blocking tutorial |
 | `Ready` | draw allowed | live | Arrows remain, no draw in progress |
 | `Drawing` | draw in progress | live | `AimState` is updating and the preview is visible |
-| `Cooldown` | off | live | `renockCooldown` after a release (0.35 s) |
+| `Cooldown` | off | live | `renockCooldown` after a release (0.35 s). The next arrow may then be drawn while physics is still resolving (D-083) |
 | `AwaitingResolution` | off | live | Quiver empty (or the last arrow is still flying). Waiting for win or fail (D-015) |
-| `WinPending` | off | live | All required objectives cleared; waiting for 0.75 s calm (cap 3 s) |
-| `Won` | results UI | live (frozen visually after 1 s) | Terminal |
-| `Failed` | results UI | live | Terminal |
+| `WinPending` | **off — firing disabled** (D-083) | live | All required objectives cleared; waiting for 0.75 s calm (cap 3 s) |
+| `Won` | results UI only — **no firing** (D-083) | live (frozen visually after 1 s) | Terminal |
+| `Failed` | results UI only — **no firing** (D-083); also off during the 0.6 s "Out of arrows" toast | live | Terminal |
 | `Paused` | pause UI | `timeScale = 0` | Overlay; stores `_stateBeforePause` |
 
 ### 1.2 Diagram
@@ -148,10 +148,11 @@ Fields: `LevelData Level`, `int Attempt`, `int ArrowsStart`, `int ArrowsUsed`, `
 | App backgrounded | `AppLifecycle` → `Pause()`; a draw in progress is cancelled |
 | Retry pressed during resolution | Allowed from the HUD at any time → `LevelRestarted`, attempt + 1 |
 | Rewarded bonus arrow accepted on Fail | `Failed → Ready` with `quiver.AddBonus(level.bonusArrowType)` and `BonusArrowUsed = true`. The layout is **not** reloaded: the world state persists. Only allowed if the fail reason is OutOfArrows (never ProtectedLost); `AdPolicy` decides (see `06`). |
+| Fire attempt in WinPending / Won / Failed / fail-toast | Rejected by `GameplayController.CanDraw()` (state guard, D-083). `BowInputReader` samples are ignored; no arrow is consumed and no `DrawStarted` is raised |
 | Level has 0 objectives | Validator error. Runtime: log an error, then Won after Intro (dev only) |
 
 ### 1.6 Tests
-- EditMode `GameplayStateMachineTests` (state logic extracted to the pure `GameplayStateMachine` helper inside `GameplayController.cs`, driven by a fake clock and fake trackers): win after 0.75 s calm; win cap 3 s with perpetual jitter; out-of-arrows fail at 2 s calm; fail cap 5 s; protected priority over win; draw cancelled on objective clear; bonus arrow resumes to Ready; pause stores and restores.
+- EditMode `GameplayStateMachineTests` (state logic extracted to the pure `GameplayStateMachine` helper inside `GameplayController.cs`, driven by a fake clock and fake trackers): win after 0.75 s calm; win cap 3 s with perpetual jitter; out-of-arrows fail at 2 s calm; fail cap 5 s; protected priority over win; draw cancelled on objective clear; bonus arrow resumes to Ready; pause stores and restores; **`CanDraw()` false in WinPending/Won/Failed and during the fail toast, true again 0.35 s after a release while bodies are still moving (D-083)**.
 - PlayMode `GameFlowSmokeTests`: Load → fire intended shots → Won → Next → Loading of the next level; Retry restores the initial layout hash.
 
 ### 1.7 Acceptance criteria
@@ -159,6 +160,7 @@ Fields: `LevelData Level`, `int Attempt`, `int ArrowsStart`, `int ArrowsUsed`, `
 - AC2: Win is declared ≤ 0.80 s after the world is calm and ≤ 3.05 s after objectives clear, in every case (fake-clock tests).
 - AC3: Out-of-arrows fail is shown ≤ 5.7 s after the last arrow resolves, including the toast.
 - AC4: Retry → Ready takes ≤ 1.0 s wall-clock on the Mid tier (p95 over 20 retries; `RestartPerfTests` + device check).
+- AC5 (D-083): in a scripted collapse, a second arrow can be released 0.35 s (±1 fixed step) after the first while ≥ 1 body is above the calm threshold; 0 arrows are consumed by input received in WinPending/Won/Failed (fake-clock test, 100 seeded runs).
 
 ---
 
@@ -228,13 +230,14 @@ Notes:
 
 ## 3. Aim assist and trajectory display
 
-**Owner:** CORE · **Files:** `Bow/TrajectoryPreview.cs` (+ pooled dot prefab `Prefabs/Bow/PreviewDot.prefab`, impact ring `PreviewImpactRing.prefab`) · **Ticket:** AB-008 · **Decisions:** D-017, D-040
+**Owner:** CORE · **Files:** `Bow/TrajectoryPreview.cs` (+ pooled dot prefab `Prefabs/Bow/PreviewDot.prefab`, impact ring `PreviewImpactRing.prefab`) · **Ticket:** AB-008 · **Decisions:** D-085 (supersedes D-017, D-040), D-088
 
 ### 3.1 Policy
 - **No aim magnetism, snapping or auto-aim.** The only aim assist is an *honest* preview (fair-physics pillar).
 - The preview is visible **only while Drawing** (§3), and only when `isFireable` (below the threshold it shows a faint 3-dot stub).
 - Length = `previewBaseSeconds × LevelData.trajectoryPreviewScale`. L1–15 must use scale 1.0 (validator V-14, error). The scale is never below the D-073 floor of 0.4, and the remote floor `levels.preview_scale_min` is applied on top — the preview is never removed.
-- The preview simulates exactly what the arrow will do (D-017): gravity, `WindField` acceleration, portal teleport, the Bounce ricochet and the Split split-point + child stubs. It stops at the first blocking hit with an impact ring (D-040). Ropes and balloons are drawn as pass-through (with a small "snip"/"pop" tick mark). Moving obstacles are sampled at their **current** pose.
+- The preview simulates exactly what the arrow will do (D-085): gravity, **`WindField` acceleration**, **portal exit paths** (entry ring → exit ring → continued arc), the **first bounce** and the Split split-point + child stubs. **Never hide a mechanic that changes the arrow's path**; difficulty comes only from a shorter preview, object placement, timing and limited arrows.
+- **First bounce (D-085):** if `ArrowImpactResolver.Predict` returns `Ricochet` at a hit (the Bounce arrow on metal always; any arrow at a shallow-angle metal ricochet per §6.3), the preview draws **one** reflected segment, then stops at the next blocking hit (impact ring) or the length budget. A second ricochet is never previewed. Any other blocking hit ends the preview with an impact ring. Ropes and balloons are drawn as pass-through (with a small "snip"/"pop" tick mark). Moving obstacles are sampled at their **current** pose.
 
 ### 3.2 Algorithm
 
@@ -250,19 +253,20 @@ Rebuild(aim, arrowDef):
         // KillZone: the preview ends where the arc enters a KillZone (same KillZoneMask point check as the arrow, §5.1)
         if o.kind ∈ {PassThrough(rope/balloon)}: mark tick; continue from hit with o.velocityAfter
         elif o.kind == Teleport: emit portal markers; state = o.exitState; continue
-        elif o.kind == Ricochet and arrowDef.behaviour == Bounce and ricochetsShown < 1: mark bounce; state = o.stateAfter; continue
+        elif o.kind == Ricochet and ricochetsShown < 1: mark bounce; ricochetsShown += 1; state = o.stateAfter; continue   // D-085: first bounce for any arrow
         else: place impact ring at hit.point; break
-     if arrowDef.behaviour == Split and state.time crosses splitTime: emit split marker + 3 child stubs (0.35 s each, no further splitting)
+     if arrowDef.behaviour == Split and state.time crosses splitTime: emit split marker (glowing ring, D-088) + 3 child stubs (0.35 s each, no further splitting)
      place a dot every previewDotSpacingSeconds; dots fade alpha 1 → 0.25 along length
      state = next
 ```
 
 - The preview is rebuilt every frame while drawing (≤ 150 sweeps ≈ 0.1–0.2 ms on Mid; budget 0.3 ms). Allocation-free buffers.
 - Dots are world-space quads on the play plane (z = −0.05 so they render in front), using one material (SRP-batched). Pool: 40 dots + 4 rings + 6 markers.
-- The ricochet preview for **Oak** off metal is **not** shown (only Bounce shows its bounce). This keeps Bounce valuable; designers rely on it in L47+.
+- The first ricochet is previewed for **every** arrow type (D-085). Bounce stays valuable because only Bounce *guarantees* a ricochet at any θ ≤ 80° with 0.95 restitution; other arrows ricochet only at grazing angles (γ ≤ 25°) with heavy speed loss (§6.3), so their previewed bounce is short.
 
 ### 3.3 Acceptance and tests
-- **Parity (blocking):** `ArrowPreviewParityTests` (EditMode, pure solver + mock environment) — for 20 seeded aims × each arrow type, with wind on/off, the preview points equal the flight positions within **1 mm** over 3 s, including portal exits and the Bounce ricochet. PlayMode variant against real colliders: the final impact point is within 2 cm.
+- **Parity (blocking):** `ArrowPreviewParityTests` (EditMode, pure solver + mock environment) — for 20 seeded aims × each arrow type, with wind on/off, the preview points equal the flight positions within **1 mm** over 3 s, including **wind** (constant and gust-free fields), **portal exits** and the **first bounce for every arrow type that can ricochet** (Bounce on metal; Oak/Split child at γ ≤ 25° on metal), and the Split marker time (±1 fixed step). PlayMode variant against real colliders: the final impact point is within 2 cm.
+- AC (D-085): in every W3 wind/portal/bounce level (L44–L60) the bot-recorded intended shot's first-impact point lies on the previewed path within 2 cm; no level relies on an un-previewed path change (validator + `LevelSolvabilityTests` log).
 - AC: the preview never shows through a solid (non-rope, non-portal) collider (PlayMode `PreviewBlockingTests`).
 - AC: the dot count/length matches the level scale (W1 L1–15 scale 1.0 verified by `LevelValidator`).
 
@@ -373,7 +377,7 @@ Definitions: incidence `θ = angle(−v, n)` (0° = head-on); grazing `γ = 90°
 
 Objectives of kind SupplyCrate / TrainingDummy / BannerRope go through rows 2 and 8 (they are physical crates/dummies/ropes).
 
-**Dispatch (dependency rule, `01` §10.3):** the resolver never references Props/Objectives types. The registry entry for the hit collider carries `BodyKind` plus an optional `IArrowHittable` (declared in `Physics/`). The resolver calls `Evaluate(in ArrowHitInfo)` (pure; also used by the preview) to get the reaction (pass-through factor, teleport exit state, stop, clear), then `Apply(in ArrowHitInfo)` for the side effects (cut, pop, notify protected, activate spring, flag bullseye). Implemented by `RopeCuttable`, `Balloon`, `PortalRing`, `ProtectedObject`, `Objective`, `SpringPlate` and `BullseyeMarker`. The "Side effects" column above describes what each `Apply` does.
+**Dispatch (dependency rule, `01` §10.3):** the resolver never references Props/Objectives types. The registry entry for the hit collider carries `BodyKind` plus an optional `IArrowHittable` (declared in `Physics/`). The resolver calls `Evaluate(in ArrowHitInfo)` (pure; also used by the preview) to get the reaction (pass-through factor, teleport exit state, stop, clear), then `Apply(in ArrowHitInfo)` for the side effects (cut, pop, notify protected, flag bullseye). Implemented by `RopeCuttable`, `Balloon`, `PortalRing`, `ProtectedObject`, `Objective` and `BullseyeMarker` (`SpringPlate` is cut from the MVP, D-086). The "Side effects" column above describes what each `Apply` does.
 
 ### 6.3 Arrow type × material outcome table
 
@@ -404,9 +408,9 @@ The impulse is deliberately **not** `arrowMass × v` (that is too small to toppl
 ### 6.5 Special behaviours (strategy classes selected by `ArrowDefinition.behaviour`)
 
 - **Heavyhead** — no separate class (data only: low speed, high impulse/damage, gravityScale 1.25, windResponse 0.25, `maxRicochets = 0`).
-- **`SplitArrowBehaviour`** (D-019): at `Time ≥ splitTime` (0.45 s) and `!HasSplit` → spawn 3 children at the parent position with velocities rotated −12°/0°/+12° and ×1.0 speed; each child is `ArrowType.Split` with the `isChild` flag (mass factor 0.5 → impulse ×0.5, damage ×0.6, lifetime 0.8 s, windResponse 1.4, `maxRicochets = 1`). Impact before split: the children spawn at `hit.point + n × 0.15` with directions = the tangent-reflected velocity ±12° (forward fan) and the struck body receives the parent impulse. Children never split. Quiver: counts as 1 arrow.
+- **`SplitArrowBehaviour`** (D-088, supersedes D-019): `splitTime` is configurable per `AD_Split` (default 0.45 s). At `Time ≥ splitTime − splitPulseLeadSeconds` (0.12 s) it plays the cosmetic split cue — a glowing ring / trail pulse (`VFX_Arrow_SplitPulse`, a pooled child particle on the `Arrow_Split` prefab, no gameplay effect) — so the rule is readable before it happens; at `Time ≥ splitTime` and `!HasSplit` → spawn 3 children at the parent position with velocities rotated −12°/0°/+12° and ×1.0 speed; each child is `ArrowType.Split` with the `isChild` flag (mass factor 0.5 → impulse ×0.5, damage ×0.6, lifetime 0.8 s, windResponse 1.4, `maxRicochets = 1`). Impact before split: the children spawn at `hit.point + n × 0.15` with directions = the tangent-reflected velocity ±12° (forward fan) and the struck body receives the parent impulse. Children never split. Quiver: counts as 1 arrow.
 - **`FireArrowBehaviour`**: on a hit, if the target has `Burnable` → `Burnable.Ignite(IgniteSource.FireArrow)`. Passing through a rope also ignites the rope's remaining visual (cosmetic). If it embeds in a non-burnable target, the flame VFX lingers 1.5 s with **no gameplay effect** (keeps fire rules readable; see `03` §8.8). Trail VFX: flame + ember.
-- **`BounceArrowBehaviour`**: enables row 7 (one guaranteed metal ricochet with 0.95 restitution); the preview shows that one bounce. After the bounce it is Oak in every way (`RicochetsLeft = 0` for Oak-style metal ricochets too).
+- **`BounceArrowBehaviour`**: enables row 7 (one guaranteed metal ricochet with 0.95 restitution); the preview shows that bounce (D-085 — the preview shows the first bounce for every arrow; Bounce is the only one that guarantees it). After the bounce it is Oak in every way (`RicochetsLeft = 0` for Oak-style metal ricochets too).
 
 ### 6.6 Tests and acceptance
 - EditMode `ArrowImpactResolverTests`: a parameterised table over (arrow type × material × θ ∈ {0, 30, 60, 70, 85}° × speed ∈ {3, 6, 10}) asserts `ImpactKind` and impulse within ±1% of the table. Priority rows 1–10 each have one test.
@@ -444,7 +448,7 @@ Sample() each FixedUpdate:
      if body.velocity.sqrMagnitude > calmLinearSpeed² or |body.angularVelocity| > calmAngularSpeedDeg × Deg2Rad:
          moving = true; break
   moving |= externalActivity                    // passed in by GameplayController: arrowRegistry.FlyingCount > 0 (keeps Physics free of Arrows)
-  moving |= TimedEvents.PendingCount > 0        // burning ropes, fuses, explosion queue, spring cooldown about to fire
+  moving |= TimedEvents.PendingCount > 0        // burning ropes, fuses, explosion queue about to fire
   calmSeconds = moving ? 0 : calmSeconds + dt
 ```
 
@@ -491,7 +495,7 @@ public sealed class QuiverModel {
 
 ## 10. Star rating
 
-**Owner:** CORE (rules) / SYS (persistence) · **Files:** `Gameplay/StarRules.cs` (pure static), `Levels/LevelData.cs` (`StarsFor` delegates) · **Ticket:** AB-017 · **Decision:** D-024
+**Owner:** CORE (rules) / SYS (persistence) · **Files:** `Gameplay/StarRules.cs` (pure static), `Levels/LevelData.cs` (`StarsFor` delegates) · **Ticket:** AB-017 · **Decision:** D-084 (supersedes D-024)
 
 ```text
 StarRules.Compute(arrowsUsed, goldPar, bonusArrowUsed):
@@ -503,6 +507,7 @@ Best stars stored = max(previousBest, new)   (ProgressionService.RecordResult)
 ```
 
 - Never scored on physics damage (§3).
+- **Bonus-arrow cap (D-084):** a clear that used the rewarded bonus arrow is a normal completion for progression (unlocks, world count, coins as 1★) but never earns 2★/3★. The Fail-panel offer (`RewardedOfferButton`, UI) must show **"Bonus Arrow Used — 1★ Max"** (`UIStrings` key `fail.bonus_arrow.star_cap`) **before** the player accepts the ad — see `06` §7.1 and `05` (Fail panel).
 - Authoring rules (validated in `04`): `1 ≤ goldPar ≤ TotalArrows`. For non-tutorial levels, `TotalArrows ≥ goldPar + 1` so 2★ is possible. §7 examples: tutorial 3/par 1, normal 4/par 2, set piece 5/par 3.
 - The win screen shows stars earned + "Clear in N arrows for ★★★" when < 3★ (UI).
 - Tests: the existing `LevelDataTests.StarsFor_FollowsGoldParRule` stays green. New `StarRulesTests` cover the bonus cap and par edge cases.
@@ -596,7 +601,7 @@ Then shift by the safe-area offset so the HUD band (top ~9%) never covers the st
 | `ArrowImpact` meaningful | `SE_Impact_<Material>` (heavy variant) | `VFX_Impact_<Material>` | **Medium** | Hit-stop |
 | `ArrowImpact` minor | `SE_Impact_<Material>` (light variant) | small puff | — | — |
 | `ObjectBroken` | `SE_Break_<Material>` | `VFX_Break_<Material>` + debris | Medium (Heavy for explosions) | — (shake for explosions) |
-| `PropTriggered` | per prop (`SE_Rope_Snap`, `SE_Balloon_Pop`, `SE_Barrel_Blast`, `SE_Oil_Ignite`, `SE_Portal_Whoosh`, `SE_Spring_Boing`, `SE_Boulder_Release`) | per prop | Medium for blasts | shake for blasts |
+| `PropTriggered` | per prop (`SE_Rope_Snap`, `SE_Balloon_Pop`, `SE_Barrel_Blast`, `SE_Oil_Ignite`, `SE_Portal_Whoosh`, `SE_Boulder_Release`) | per prop | Medium for blasts | shake for blasts |
 | `ObjectiveCleared` | `SE_Objective_Clear` (escalating pitch per objective in a 2 s window = chain-reaction percussion, §11) | crest burst + icon flies to HUD | Light | — |
 | `ProtectedLost` | `SE_Protected_Lost` | purple flash on the object | **Heavy** | slow-mo focus |
 | `LevelWon` | `SE_Win_Sting` | confetti (after the outcome is readable) | **Success** pattern | — |
@@ -615,12 +620,12 @@ Then shift by the safe-area offset so the HUD band (top ~9%) never covers the st
 
 ## 15. Arrow-type specification (graybox tuning, `AD_<Type>` assets)
 
-Spec preset values (Snappy in brackets where different). Final values are set at the M1 gate (Oak, AB-005/AB-014), M4 (Heavyhead, AB-049), M6 (Fire AB-088, Split AB-089) and M7 (Bounce, AB-106).
+Spec preset values (Snappy in brackets where different). Final values are set at the M1/M3 gates (Oak, AB-005/AB-014; locked at G0) and in **M4 Systems Complete** for every special arrow (Heavyhead AB-049, Fire AB-088, Split AB-089, Bounce AB-106) — D-102. No special arrow is built before the G0 GO.
 
 | Field | Oak | Heavyhead | Split | Fire | Bounce |
 |---|---|---|---|---|---|
 | `type` / `behaviour` | Oak / Standard | Heavyhead / Heavy | Split / Split | Fire / Fire | Bounce / Bounce |
-| First appearance (D-014) | L1 | L13 | L30 | L36 | L47 |
+| First appearance (D-082) | L1 (W1_L01) | L13 (W1_L13) | L30 (W2_L10) | L36 (W2_L16) | L47 (W3_L07) |
 | `minSpeed` / `maxSpeed` (m/s) | 4 / 13 [6 / 20] | 3.5 / 10 [5 / 15] | 4 / 13 [6 / 20] | 4 / 13 [6 / 20] | 4 / 13 [6 / 20] |
 | `gravityScale` | 1.0 | 1.25 | 1.0 | 1.0 | 1.0 |
 | `windResponse` | 1.0 | 0.25 | 1.0 (children 1.4) | 1.0 | 1.0 |
@@ -630,8 +635,8 @@ Spec preset values (Snappy in brackets where different). Final values are set at
 | `embedMaxIncidenceDeg` (timber) | 60 | 70 | 60 | 60 | 60 |
 | `embedMinSpeed` (m/s) | 5 | 3 | 5 (children 4) | 5 | 5 |
 | `maxRicochets` (metal, grazing ≤ 25°) | 2 | 0 | 1 (children) | 2 | 1 guaranteed (any θ ≤ 80°, ×0.95), then Oak rules |
-| Special params | — | — | `splitTime` 0.45 s, `splitSpreadDeg` 12, `childCount` 3, `childLifetime` 0.8 s | `igniteOnHit` true, `lingerFlameSeconds` 1.5 (cosmetic) | `bounceRestitution` 0.95, `bounceMaxIncidenceDeg` 80 |
-| Preview extras | — | — | split marker + 3 stubs (0.35 s) | flame-coloured dots | shows 1 bounce |
+| Special params | — | — | `splitTime` 0.45 s (configurable, D-088), `splitPulseLeadSeconds` 0.12, `splitSpreadDeg` 12, `childCount` 3, `childLifetime` 0.8 s | `igniteOnHit` true, `lingerFlameSeconds` 1.5 (cosmetic) | `bounceRestitution` 0.95, `bounceMaxIncidenceDeg` 80 |
+| Preview extras (D-085) | first bounce if a grazing metal ricochet is predicted | — (never ricochets) | split marker + pulse cue + 3 stubs (0.35 s) | flame-coloured dots; first bounce as Oak | shows the guaranteed bounce |
 | Readability (silhouette) | thin shaft, leaf fletch | fat iron head, short | three-prong head | ember-wrapped head | rounded rubber-gold head |
 | Pool prewarm | 8 | 3 | 3 + 9 children | 3 | 3 |
 
@@ -662,6 +667,8 @@ Arrow mass is not physically simulated while flying (kinematic). Spent arrows us
 | FeedbackDirector, hit-stop/TimeScaleController | AB-030, AB-031, AB-033, AB-034 | AB-032, AB-033 |
 | Tutorial prompts | AB-016, AB-035 | AB-039 (+ AB-067 arrow reveal card) |
 | Heavyhead | AB-011 | AB-049 (M4) |
-| Fire / Split | AB-086 / AB-049 | AB-088 / AB-089 (M6) |
-| Wind (`IFlightEnvironment`) / Bounce / Portals | AB-006 / AB-094 / AB-006 | AB-105 / AB-106 / AB-107 (M7) |
-| Rewarded bonus arrow (`QuiverModel.AddBonus`) | AB-017, AB-128 | AB-129 (M8) |
+| Fire / Split | AB-086 / AB-049 | AB-088 / AB-089 (M4) |
+| Wind (`IFlightEnvironment`) / Bounce / Portals | AB-006 / AB-094 / AB-006 | AB-105 / AB-106 / AB-107 (M4) |
+| Rewarded bonus arrow (`QuiverModel.AddBonus`) | AB-017, AB-128 | AB-129 (M7) |
+
+Order rule (D-102): every M4 row starts only after the G0 Vertical Slice & Feel Lock GO.

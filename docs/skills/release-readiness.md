@@ -8,14 +8,16 @@ Take a green `main` to a **signed, store-uploadable build** for TestFlight / Goo
 > Store rules, SDK requirements and API levels change often. Every item marked **(verify at time of use)** must be checked against the current Apple/Google documentation on the day of submission.
 
 ## When to invoke
-- M3 (first internal device builds — use the build steps only), M10 (closed test + submission candidate), and every later store build.
+- M3 (first internal device builds, Android + iOS — use the build steps only), M9 (UK closed test + submission candidate), M10 (Canada/Australia soft launch), and every later store build.
 
 **Do NOT invoke** for day-to-day dev APKs (use `Arrow Buster ▸ Build ▸ Android Dev`), and never with open S1/S2 bugs or a red regression run.
 
 ## Inputs
 - A GO regression run ([`qa-regression-and-device-test.md`](qa-regression-and-device-test.md)) for the exact SHA.
 - The release gates in [`07_QA_PERFORMANCE_RELEASE.md`](../planning/07_QA_PERFORMANCE_RELEASE.md).
-- Accounts (OWNER): Apple Developer Program, App Store Connect app record; Google Play Console app with Play App Signing.
+- Accounts (OWNER), on the owner calendar: **project week 1** verify the Google Play account type and whether the personal-account closed-test requirement applies — if so, start recruiting eligible testers immediately (D-099, verify at time of use); **week 3** Mac + Apple Developer Program ready (D-100); **week 5** App Store Connect app record, Google Play Console app with Play App Signing, and the IAP products `remove_ads` (£3.99 / USD 3.99) and `starter_pack` (£2.99 / USD 2.99) created (D-091, D-100).
+- Privacy policy hosted **before M7 SDK integration starts** (D-097); its URL goes in Settings and both store listings.
+- Name clearance: legal/store/domain check of "Arrow Buster" done **before** store-submission assets are produced (M8, D-081). Technical identifiers use `ArrowBuster` / lowercase `arrowbuster` where the platform requires it.
 - Secrets outside git: Android upload keystore + passwords, the App Store Connect API key, `google-services.json` / `GoogleService-Info.plist` (if Firebase), IAP tangle secrets.
 - Final bundle ID (currently `com.attila.arrowbuster` in `ProjectSetup` — "change before first store upload"; OWNER decides, since it can never change after upload).
 
@@ -53,7 +55,7 @@ Take a green `main` to a **signed, store-uploadable build** for TestFlight / Goo
    - `adb logcat -s Unity AndroidRuntime` clean.
 6. Upload IL2CPP symbols (`symbols.zip` from the build) to Play Console and to the crash vendor (Crashlytics symbol upload step).
 7. Play Console:
-   - internal → closed testing track;
+   - internal → closed testing track (**UK testers first**, D-098; ≥ 14 days / the store-required tester count if D-099 applies — verify at time of use);
    - **Data safety** form from the 07 data inventory;
    - content rating questionnaire (13+);
    - ads declaration "contains ads";
@@ -86,19 +88,19 @@ Take a green `main` to a **signed, store-uploadable build** for TestFlight / Goo
    - export compliance;
    - review notes (how to reach a fail screen to see the rewarded offer; that no login is required).
 
-### D. Store listing (original assets only — D-042)
+### D. Store listing (original assets only — D-089; name cleared first — D-081)
 - Icon, screenshots (6.7"/6.5"/5.5" iPhone, iPad if universal; Android phone + 7"/10" tablet if supported), optional preview video, short/long descriptions, keywords.
 - **Originality review:** compare against the reference game — different palette/frame, no cannon, no can towers, no similar wordmark, no copied copy (mvp §1, §11).
 
 ### E. Release gates and rollout
-1. Gates (from `07` §16: G4 Release Candidate, then G-Release Submission; sign-off ticket AB-157):
+1. Gates (from `07` §16: G5 Release Candidate, then G-Release Submission; sign-off ticket AB-157):
    - GO regression;
    - crash-free sessions in the closed test ≥ the target in 07;
    - perf budgets met on Mid/Low;
    - consent/ads/IAP compliance review signed (MON + PO);
    - store forms complete;
    - OWNER approval.
-2. Android production: **staged rollout** (e.g. 5% → 20% → 50% → 100%) with crash/ANR monitoring at each step. iOS: phased release ON.
+2. Soft launch (M10, D-098): production release limited to **Canada and Australia** (country availability in both consoles), English only; KPI read-out per `07` soft-launch criteria before any wider release. Android production: **staged rollout** (e.g. 5% → 20% → 50% → 100%) with crash/ANR monitoring at each step. iOS: phased release ON.
 3. Rollback plan:
    - Android — halt the rollout and ship a hotfix with a higher `bundleVersionCode`;
    - iOS — pause the phased release and expedite a fix;
@@ -137,7 +139,7 @@ Take a green `main` to a **signed, store-uploadable build** for TestFlight / Goo
 ```text
 Agent: ab-mobile-platform
 Skill: docs/skills/release-readiness.md (A, B, E for the Android closed test)
-Ticket: AB-153 (M10) Closed-test distribution — Android AAB 0.10.0-rc1 (signing pipeline from AB-152)
+Ticket: AB-153 (M9) Closed-test distribution — Android AAB 0.10.0-rc1 (signing pipeline from AB-152)
 Inputs: GO regression docs/qa/test-runs/2026-xx-xx_M10_regression.md (SHA <sha>); keystore at <local path, not in git>
 Deliverables: signed AAB uploaded to the Play closed track (OWNER performs the console upload if the agent lacks access);
 docs/qa/releases/v0.10.0-rc1_release-checklist.md; symbols uploaded; tag v0.10.0-rc1 (only when OWNER says commit/tag).

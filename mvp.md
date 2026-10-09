@@ -1,6 +1,8 @@
-# ArrowBuster — MVP Game Design Document
+# Arrow Buster — MVP Game Design Document
 
-**Working title:** ArrowBuster  
+> **Owner decisions applied 2026-10-09** (see `docs/planning/10_DECISION_LOG.md` D-080…D-104): arrow first appearances locked (§5), Royal Violet renamed Royal Amethyst (§5), Spring Plates and moving ice platforms cut (§4, §6), cut-first items marked (D-101, D-104). All other text is unchanged.
+
+**Working title:** Arrow Buster (public/store name). Technical identifiers use `ArrowBuster` (D-081).  
 **Genre:** Casual physics puzzle / skill-based mobile game  
 **Platform:** iOS and Android, portrait-first  
 **Audience:** Broad casual players, 13+, short-session puzzle fans  
@@ -17,10 +19,10 @@ Pull back a bow, find the weak point, and use a limited quiver of arrows to coll
 The player is a precision fantasy archer solving compact destruction puzzles. A satisfying shot may snap a rope, topple a crate tower, burst a lantern, release a boulder, or trigger a cascading chain reaction that clears the board with one arrow.
 
 ### Product thesis
-ArrowBuster takes the instantly understandable **aim → release → watch physics resolve** loop and gives it a distinct archer identity. The bow creates a more tactile input than a cannon, while arrows allow richer interactions than simple impact: piercing, pinning, cutting, popping, igniting, and triggering. The game should be simple enough to understand in three seconds and strategic enough to replay for a three-star clear.
+Arrow Buster takes the instantly understandable **aim → release → watch physics resolve** loop and gives it a distinct archer identity. The bow creates a more tactile input than a cannon, while arrows allow richer interactions than simple impact: piercing, pinning, cutting, popping, igniting, and triggering. The game should be simple enough to understand in three seconds and strategic enough to replay for a three-star clear.
 
 ### Reference boundary
-The visual reference supplied shows a bright, portrait puzzle game based on limited shots, destructible structures, and escalating level variety. Knock Fever’s store listing similarly frames its game around precision shots, physics-driven collapses, chain reactions, and many short levels. ArrowBuster should use only that broad genre pattern—not its art, UI, assets, copy, structure designs, name, branding, or level layouts. Its differentiator is the bow-and-arrow interaction system and an original fantasy-adventure presentation. [web:4]
+The visual reference supplied shows a bright, portrait puzzle game based on limited shots, destructible structures, and escalating level variety. Knock Fever’s store listing similarly frames its game around precision shots, physics-driven collapses, chain reactions, and many short levels. Arrow Buster should use only that broad genre pattern—not its art, UI, assets, copy, structure designs, name, branding, or level layouts. Its differentiator is the bow-and-arrow interaction system and an original fantasy-adventure presentation. [web:4]
 
 ---
 
@@ -121,7 +123,7 @@ The visual reference supplied shows a bright, portrait puzzle game based on limi
 | Oil jar | Breaks on strong hit; creates brief fire zone | Burns ropes and straw after delay |
 | Powder barrel | Breaks and produces a controlled radial blast | Clears dense stacks; cannot destroy protected objects nearby |
 | Rolling boulder | Released by a cut or impact | Sweeps a lane and creates domino effects |
-| Spring plate | Activates when hit or weighted | Launches an object upward/sideways |
+| ~~Spring plate~~ | ~~Activates when hit or weighted~~ | **Cut from the launch MVP (D-086); post-MVP candidate.** |
 | Wind fan | Always on in later worlds | Curves light arrows and pushes balloons |
 | Rotating shield | Moves at a predictable speed | Timing puzzle; blocks direct lines |
 | Portal ring | Teleports a fired arrow to paired exit | Signature late-MVP puzzle object |
@@ -149,21 +151,21 @@ The base arrow is available forever. Special arrows unlock by world completion a
 | Arrow | Unlock | Effect | MVP role |
 |---|---|---|---|
 | Oak Arrow | Start | Standard impact / embed | Baseline skill |
-| Heavyhead Arrow | World 1, level 15 | High impulse; low travel speed | Break supports and push stone |
-| Split Arrow | World 2, level 8 | Splits into three short-range arrows after first impact or timed trigger | Broad target coverage |
-| Fire Arrow | World 2, level 18 | Ignites rope, straw, and oil jars | Delayed chain reaction |
-| Bounce Arrow | World 3, level 10 | Predictable single ricochet from metal | Bank-shot puzzles |
+| Heavyhead Arrow | Global L13 (W1_L13) | High impulse; low travel speed | Break supports and push stone |
+| Split Arrow | Global L30 (W2_L10) | Splits into three short-range arrows at a fixed, previewed flight time, or on impact if it hits first (D-088) | Broad target coverage |
+| Fire Arrow | Global L36 (W2_L16) | Ignites rope, straw, and oil jars | Delayed chain reaction |
+| Bounce Arrow | Global L47 (W3_L07) | Predictable single ricochet from metal | Bank-shot puzzles |
 | Drill Arrow | Post-MVP reserve | Pierces one timber layer | Do not implement for launch |
 
 ### Loadout rule
 - Most early levels give only Oak Arrows.
 - A special-arrow level starts with a fixed, curated quiver—for example, `2 Oak + 1 Heavyhead`.
 - The game does not let players choose a loadout in the MVP. This maintains level authorship and prevents complexity.
-- From level 31 onward, occasional “choice levels” show two special-arrow slots; the player taps which of two tools to include. This is optional if scope becomes tight.
+- From level 31 onward, occasional “choice levels” show two special-arrow slots; the player taps which of two tools to include. This is optional if scope becomes tight. **Owner decision: cut from the MVP (D-101).**
 
 ### Cosmetic unlocks
-- Bow skins: Oak Ranger, Moonwood, Ember, Frostglass, Royal Violet.
-- Arrow trails: gold spark, leaf swirl, cyan streak, ember ash.
+- Bow skins: Oak Ranger, Moonwood, Ember, Frostglass, Royal Amethyst. **Launch set (D-101): Oak Ranger, Moonwood, Royal Amethyst; Ember and Frostglass post-MVP.**
+- Arrow trails: gold spark, leaf swirl, cyan streak, ember ash. **Launch set (D-101): gold spark, leaf swirl.**
 - Quiver badges: completion rewards only.
 - Cosmetics must not change arrow physics, aim assist, damage, or win chance.
 
@@ -209,7 +211,7 @@ Use a vertical scrollable path of 20 circular level nodes per world. A three-nod
 - Levels 44–46: Wind gust lanes affecting light arrows.
 - Levels 47–49: Bounce Arrow introduction using metal shields.
 - Levels 50–52: Portal pairs; teach visible entry-to-exit trajectory.
-- Levels 53–55: Moving ice platforms and low-risk timing.
+- Levels 53–55: Moving ice platforms and low-risk timing. **(Moving platforms are cut from the MVP, D-104: use static ice slides plus moving shields.)**
 - Levels 56–59: Multi-system puzzles with alternative solutions.
 - Level 60 finale: Break the frost seal on a fortress tower by using a bank shot through a portal, then collapse the structure without hitting a royal relic.
 
@@ -255,7 +257,7 @@ These templates are production-ready patterns, not copied layouts.
 - Before firing, use a small “Aim for the rope” callout only in designated teaching levels.
 
 ### Core screens
-1. **Splash / loading:** brief branded bow draw and arrow impact.
+1. **Splash / loading:** brief branded bow draw and arrow impact. **(Launch: static branded splash; the animated splash is cut, D-101.)**
 2. **Home:** large `PLAY` button, current-world card, shop/cosmetics, settings.
 3. **World map:** level nodes, stars, locked-world teaser.
 4. **Gameplay:** portrait scene and minimal HUD.

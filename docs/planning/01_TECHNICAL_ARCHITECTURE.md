@@ -1,6 +1,6 @@
 # 01 — Technical Architecture
 
-> Owner: Unity Technical Architect (`ARCH`). Status: Draft v1 — 2026-10-09.
+> Owner: Unity Technical Architect (`ARCH`). Status: **v2 — owner-approved 2026-10-09; technical direction locked (D-103).**
 > This is the **canonical reference for names**: folders, assemblies, layers, classes, events, ScriptableObjects and save keys. Every other planning doc and every agent task must use these names. Changing a name here requires a decision-log entry ([`10_DECISION_LOG.md`](10_DECISION_LOG.md)).
 
 ---
@@ -9,8 +9,8 @@
 
 ### 1.1 Unity version
 - **Develop on Unity 6000.6.5f1** (already installed, fixed in CLAUDE.md).
-- **LTS check (Q-01):** before the M9 performance pass, the Architect checks Unity Hub / the release notes for the newest **Unity 6 LTS** stream. If 6000.6 is not an LTS stream, run a timeboxed (≤ 1 day) upgrade spike on a branch. Gate: all EditMode/PlayMode tests green, the solvability bot green and an Android build boots. Adopt only if it is green. Otherwise stay pinned and log it.
-- **Never upgrade the editor in the middle of a milestone.** Upgrades happen only at a milestone boundary, on their own branch, by `ARCH`.
+- **Locked (D-080):** Unity 6000.6.5f1 is used for the whole MVP. There is **no upgrade spike**. The editor is upgraded only after launch, or if a release-blocking iOS/Android issue requires it (OWNER approval + decision entry).
+- Any exceptional upgrade happens on its own branch, at a milestone boundary, by `ARCH`, and must re-pass all tests, the solvability bot and device builds.
 
 ### 1.2 Rendering — URP (decision D-003)
 | Option | Verdict |
@@ -43,17 +43,17 @@ Rules: Forward rendering path (Forward+ only if more than 4 real-time lights app
 | `com.unity.test-framework` 1.8 | Installed — keep | EditMode + PlayMode tests, solvability bot | Native |
 | `com.coplaydev.unity-mcp` v10 | Installed — keep (editor-only) | Agent ↔ Editor bridge | Dev tool; verify it is excluded from player builds (AB-002) |
 | `com.unity.ide.rider` / `ide.visualstudio` | Installed — keep | IDEs | Dev tool |
-| `com.unity.timeline` | Installed — **optional** | Splash and set-piece intro framing. Remove at M9 if unused. | Native |
+| `com.unity.timeline` | Installed — **optional** | Splash and set-piece intro framing. Remove at M8 if unused. | Native |
 | `com.unity.visualscripting` | Installed — **remove** (AB-002) | Unused. Adds compile time and confuses agents. | — |
 | `com.unity.collab-proxy` | Installed — **remove** | Unity Version Control is not used (Git) | — |
 | `com.unity.ai.navigation` | Installed — **remove** | No NavMesh in this game | — |
-| `com.unity.purchasing` (Unity IAP) | **Add in M8** | Store abstraction for the App Store and Google Play, restore purchases | Native package behind `IIapService` |
-| Ad mediation SDK (MAX **or** LevelPlay) | **Select at M8 gate** | Rewarded + interstitial with mediation | Vendor SDK behind `IAdsService`, in the `ArrowBuster.Integrations` asmdef |
-| Google UMP (consent) | **Add with ads** | IAB TCF v2.2 certified CMP for EEA/UK. Free. Usually bundled or supported by mediation. | Vendor SDK behind `IConsentService` |
-| Firebase (Analytics, Crashlytics, Remote Config) | **Select at M8 gate** (default lean) | One vendor family for 3 needs. Mature IL2CPP symbolication. | Vendor SDK behind `IAnalyticsService` / `ICrashReporter` / `IRemoteConfigService` |
+| `com.unity.purchasing` (Unity IAP) | **Selected — add in M7** (D-090) | Store abstraction for the App Store and Google Play, restore purchases | Native package behind `IIapService` |
+| **Unity LevelPlay** (ad mediation) | **Selected — add in M7** (D-090) | Rewarded + interstitial with mediation | Vendor SDK behind `IAdsService`, in the `ArrowBuster.Integrations` asmdef |
+| Google UMP (consent) | **Add in M7 with ads** (integration path with LevelPlay verified at integration) | IAB TCF v2.2 certified CMP for EEA/UK. Free. Usually bundled or supported by mediation. | Vendor SDK behind `IConsentService` |
+| Firebase (Analytics, Crashlytics, Remote Config) | **Selected — add in M7** (D-090) | One vendor family for 3 needs. Mature IL2CPP symbolication. | Vendor SDK behind `IAnalyticsService` / `ICrashReportingService` / `IRemoteConfigService` |
 | External Dependency Manager (EDM4U) | Comes with Firebase/ads | Resolves Gradle and CocoaPods dependencies | Vendor tool. Pin its version. |
 | `com.unity.mobile.android-logcat` | Optional dev tool | Device logs from the editor | Dev only |
-| `com.unity.memoryprofiler` | Optional dev tool (M9) | Memory snapshots | Dev only |
+| `com.unity.memoryprofiler` | Optional dev tool (M8) | Memory snapshots | Dev only |
 | `com.unity.probuilder` | Optional (graybox environments only) | Quick environment blocking | Editor-time authoring; final art replaces it |
 | `com.unity.addressables` | **Not in MVP** (D-013) | 60 small levels load directly. Revisit for live content after launch. | Post-MVP |
 | `com.unity.localization` | **Not in MVP** | English only. Strings go through `UIStrings` keys so migration later is mechanical. | Post-MVP |
@@ -71,7 +71,7 @@ Rules: Forward rendering path (Forward+ only if more than 4 real-time lights app
 | Platform | Minimum | Notes |
 |---|---|---|
 | iOS | iOS 15.0 (already set). iPhone and iPad universal. | Built on a Mac via an Xcode export. Lock 60 FPS on ProMotion devices. |
-| Android | API 26 (Android 8.0), ARM64, IL2CPP (already set). Target API = the latest that Google Play requires at submission time (verify in M10). | AAB for store, APK for dev |
+| Android | API 26 (Android 8.0), ARM64, IL2CPP (already set). Target API = the latest that Google Play requires at submission time (verify in M8 and again at M9 submission). | AAB for store, APK for dev |
 
 | Tier | Example devices | FPS | Render scale | Shadows | Debris cap | Particles | HDR/Bloom |
 |---|---|---|---|---|---|---|---|
@@ -124,13 +124,13 @@ Target: < 300 ms on Mid, measured by the PlayMode perf test.
 | Tweening/animation | In-house `UiTween` (unscaled time, pooled) plus Animator only for character/bow rigs. LitMotion is the fallback (D-031). | Small custom abstraction | M3 |
 | Audio | Built-in AudioSource pool (24 voices) + AudioMixer (Master/Music/SFX/UI groups) + `SoundEvent` ScriptableObjects. No FMOD/Wwise. | Native + small abstraction | M3 |
 | Haptics | `IHapticsService`. iOS `UIImpactFeedbackGenerator`/`UINotificationFeedbackGenerator` via `Plugins/iOS/ABHaptics.mm`. Android `VibrationEffect` via `AndroidJavaObject`. Editor no-op logger. | Small custom abstraction | M3 |
-| Ads | `IAdsService` + `AdPolicy` (pure rules, unit-tested). Mediation SDK chosen at the M8 gate (criteria: rewarded fill/eCPM in target geos, UMP support, SDK size, Unity support quality). Mock in editor/dev. | SDK to select later | Interface M2, SDK M8 |
-| IAP | Unity IAP behind `IIapService`. Products: `remove_ads` (non-consumable), `starter_pack` (non-consumable). Restore on iOS from Settings. | Native package | M8 |
-| Analytics | `IAnalyticsService` with `DebugAnalyticsService` (logs + CSV in dev) from M2. Vendor adapter at M8 (default lean Firebase/GA4). Event dictionary in `06`. | SDK to select later | Interface M2, SDK M8 |
-| Consent/privacy | `IConsentService`: Google UMP for GDPR/UK + US-state notices, iOS ATT prompt after UMP, consent stored in the save. Analytics and ads are initialised **only after** consent resolves. | SDK (UMP) + small abstraction | M8 |
-| Crash reporting | `ICrashReporter` (breadcrumbs, non-fatal logging). Default lean Firebase Crashlytics. Play Console vitals and Xcode Organizer as free baselines. Needed by the closed test. | SDK to select later | M8 |
-| Remote config | `IRemoteConfigService` with `RemoteConfigDefaults` SO (all keys plus defaults). Fetch at Boot with a 2 s timeout, use the cached last-known values, never block play. | SDK to select later | Interface M2, SDK M8 |
-| Local save | `ISaveService` → `JsonSaveService` (JsonUtility, atomic write + `.bak`, versioned migrations) | Small custom abstraction | M2 (progress), M8 (full) |
+| Ads | `IAdsService` + `AdPolicy` (pure rules, unit-tested; interstitial rules D-093, bonus arrow D-063/D-084). **Unity LevelPlay** adapter (`LevelPlayAdsService`) in M7. Mock in editor/dev. | Selected SDK behind interface | Interface M2, SDK M8 |
+| IAP | Unity IAP behind `IIapService`. Products: `remove_ads` (non-consumable), `starter_pack` (non-consumable). Restore on iOS from Settings. Prices D-091. | Native package | M7 |
+| Analytics | `IAnalyticsService` with `DebugAnalyticsService` (logs + CSV in dev) from M2. **Firebase Analytics** adapter in M7, collection disabled until consent where required (D-096). Event dictionary in `06`. | Selected SDK behind interface | Interface M2, SDK M7 |
+| Consent/privacy | `IConsentService`: Google UMP for GDPR/UK + US-state notices, iOS ATT prompt after UMP, consent stored in the save. Analytics, ad personalisation and crash reporting are enabled **only after** consent resolves where consent is required (UK/EEA, D-096). | SDK (UMP) + small abstraction | M8 |
+| Crash reporting | `ICrashReportingService` (breadcrumbs, non-fatal logging). **Firebase Crashlytics** adapter, collection consent-gated in UK/EEA (D-096). Play Console vitals and Xcode Organizer as free baselines. Needed by the closed test. | Selected SDK behind interface | Interface M2, SDK M7 |
+| Remote config | `IRemoteConfigService` with `RemoteConfigDefaults` SO (all keys plus defaults). **Firebase Remote Config** adapter. Fetch at Boot with a 2 s timeout, use the cached last-known values, never block play. | Selected SDK behind interface | Interface M2, SDK M7 |
+| Local save | `ISaveService` → `JsonSaveService` (JsonUtility, atomic write + `.bak`, versioned migrations) | Small custom abstraction | M2 (progress), M6 (full meta) |
 | Cloud save | **Post-MVP.** The save schema has `installId` and `schemaVersion` so a cloud merge can be added later. | Post-MVP | — |
 
 ---
@@ -140,7 +140,7 @@ Target: < 300 ms on Mid, measured by the PlayMode perf test.
 | Assembly | Folder | References | Notes |
 |---|---|---|---|
 | `ArrowBuster.Runtime` (exists) | `Scripts/Runtime` | `Unity.InputSystem`, `Unity.TextMeshPro`, `UnityEngine.UI` | All game code. Namespace `ArrowBuster` (sub-namespaces allowed: `ArrowBuster.Bow` etc.). **Must not reference any vendor SDK.** |
-| `ArrowBuster.Integrations` (new, M8) | `Scripts/Integrations` | Runtime + vendor assemblies | Vendor adapters only (`FirebaseAnalyticsService`, `MaxAdsService`...). Each adapter is wrapped in `#if AB_FIREBASE` style defines set by `versionDefines`/scripting defines, so the project compiles with SDKs absent. |
+| `ArrowBuster.Integrations` (new, M7) | `Scripts/Integrations` | Runtime + vendor assemblies | Vendor adapters only (`FirebaseAnalyticsService`, `FirebaseCrashReportingService`, `FirebaseRemoteConfigService`, `LevelPlayAdsService`, `UnityIapService`, `UmpConsentService`). Each adapter is wrapped in `#if AB_FIREBASE` style defines set by `versionDefines`/scripting defines, so the project compiles with SDKs absent. |
 | `ArrowBuster.Editor` (exists) | `Scripts/Editor` | Runtime | ProjectSetup, BuildScript, level tools, validators |
 | `ArrowBuster.Tests.EditMode` (exists) | `Tests/EditMode` | Runtime (+ Editor for validator tests) | Pure logic tests |
 | `ArrowBuster.Tests.PlayMode` (new, AB-002) | `Tests/PlayMode` | Runtime | Physics, solvability bot, flow, perf smoke |
@@ -173,8 +173,8 @@ Assets/_Project/
       Objectives/  Objective, ObjectiveClearRule, ObjectiveTracker, ProtectedObject, ProtectedTracker,
                    BullseyeMarker
       Props/       RopeCuttable, RopeView, Balloon, Burnable, FireZone, OilJar, PowderBarrel,
-                   SpringPlate, WindField, WindFieldSampler, KinematicMover, PortalRing, PortalPair, KillZone,
-                   PlayBounds
+                   WindField, WindFieldSampler, KinematicMover, PortalRing, PortalPair, KillZone,
+                   PlayBounds   (SpringPlate: **cut from MVP**, D-086 — not built)
       Levels/      LevelData, QuiverEntry, IntendedShot, TutorialPromptData, ObjectiveSummaryEntry, LevelLayout,
                    LevelLoader, LevelCatalog, WorldData, TutorialAnchor, LevelEnums (MechanicTag,
                    SolutionArchetype, LevelStatus — D-075)
@@ -189,13 +189,13 @@ Assets/_Project/
                    VfxEvent, HitStop (requests via TimeScaleController), CameraShake, ChainReactionTracker,
                    HapticsService, HapticKind
       Services/    IAnalyticsService, IAdsService, IIapService, IConsentService, IRemoteConfigService,
-                   ICrashReporter, ISaveService, IHapticsService, IAudioService, AdPolicy,
+                   ICrashReportingService, ISaveService, IHapticsService, IAudioService, AdPolicy,
                    RemoteConfigDefaults, RemoteConfigKeys, AnalyticsEvents (names + param builders),
                    AnalyticsBridge (GameEvents → analytics), AnalyticsContext (common params),
                    Debug*/Mock*/Recording* implementations (e.g. DebugAnalyticsService, RecordingAnalyticsService)
       Platform/    QualityTierSelector (raises TierChanged → `quality_tier_changed`), QualityTier, AppLifecycle,
                    DeviceInfo
-    Integrations/                    ArrowBuster.Integrations (M8)
+    Integrations/                    ArrowBuster.Integrations (M7): Firebase + LevelPlay + Unity IAP + UMP adapters (D-090)
     Editor/                          ArrowBuster.Editor
       Setup/ ProjectSetup, LayerSetup, PhysicsSetup
       Build/ BuildScript, BuildVersioning, iOSPostProcess (Info.plist strings, privacy manifest checks)
@@ -217,7 +217,7 @@ Assets/_Project/
 docs/          planning/ agents/ skills/ levels/ art/ qa/{test-runs,perf,playtests,analytics,monetisation,releases,ui-reviews}
                (qa/BUGS.md = bug log; see docs/README.md)
 .claude/agents/ subagent definitions
-.github/workflows/ CI (GameCI), owned by PLAT, from M4/M8
+.github/workflows/ CI (GameCI), owned by PLAT, from M4 (required by M7)
 ```
 
 Editor menu roots (canonical): `Arrow Buster ▸ Setup ▸ {1. Apply Mobile Player Settings, 2. Create Scenes + Build List, 3. Switch Platform to Android, Run All (1 + 2)}` (exist in `ProjectSetup.cs`) plus `{Layers, Physics}` (added by AB-002), `Arrow Buster ▸ Levels ▸ {Level Editor, Validate All, Validate Selected, Build Catalog}`, `Arrow Buster ▸ Build ▸ {Android Dev, Android Release, iOS Dev, iOS Release}`. Tag: `Ground` (Environment colliders that count as ground for TrainingDummy, D-037).
@@ -274,7 +274,7 @@ New folders vs. M0: `Gameplay/`, `Platform/`, `Integrations/`, `Prefabs/Protecte
 6. **Tuning lives in data.** `GameConstants` holds only global product targets (FPS, settle times, caps). Per-system tuning lives in ScriptableObjects (`GameplayTuning`, `ArrowDefinition`, `MaterialProfile`, `EconomyConfig`, `RemoteConfigDefaults`). This also removes merge contention on `GameConstants.cs`.
 7. **No `Find*`/`GetComponent` in hot paths.** Use registries (`PhysicsBodyRegistry`, `ArrowRegistry`, `ObjectiveTracker`) populated on level load.
 8. **XML docs on public APIs.** `[Tooltip]` on every serialized tuning field.
-9. **Logging** through `Log.Info/Warn/Error(LogCat, msg)`. `Info` is `[Conditional("AB_DEV")]`. Errors also go to `ICrashReporter` breadcrumbs.
+9. **Logging** through `Log.Info/Warn/Error(LogCat, msg)`. `Info` is `[Conditional("AB_DEV")]`. Errors also go to `ICrashReportingService` breadcrumbs.
 10. **Null-safe services:** `Services.Analytics` etc. are never null (null-object implementations are installed by default).
 
 ---
@@ -404,7 +404,7 @@ Built on `UnityEngine.Pool.ObjectPool<T>` wrapped by `PrefabPool<T>` (Core). Poo
 | Concern | Mechanism |
 |---|---|
 | Environments | `BuildConfig` SO per environment: `Dev`, `ClosedTest`, `Release`. Fields: `environment`, `adsTestMode`, `analyticsDebug`, `cheatsEnabled`, `remoteConfigEnvironment`, `logLevel`. |
-| Scripting defines | `AB_DEV` (dev/closed-test builds: DevOverlay, verbose logs, cheats), `AB_CHEATS`, vendor defines `AB_FIREBASE`, `AB_MAX`/`AB_LEVELPLAY`, `AB_UNITY_IAP` |
+| Scripting defines | `AB_DEV` (dev/closed-test builds: DevOverlay, verbose logs, cheats), `AB_CHEATS`, vendor defines `AB_FIREBASE`, `AB_LEVELPLAY`, `AB_UNITY_IAP` |
 | Unity 6 Build Profiles | `Android-Dev`, `Android-Release`, `iOS-Dev`, `iOS-Release` — each sets defines and the `BuildConfig` reference |
 | Secrets | Keystore, store API keys and `google-services.json` / `GoogleService-Info.plist` stay **outside git** or are git-ignored. `docs/README.md` explains where they live. |
 | Remote config | `RemoteConfigKeys` constants + `RemoteConfigDefaults` SO. Only whitelisted keys are remote (list in `06`). |
@@ -414,8 +414,8 @@ Built on `UnityEngine.Pool.ObjectPool<T>` wrapped by `PrefabPool<T>` (Core). Poo
 ## 16. Error logging and crash reporting
 
 - `Log` wrapper with categories (`Bow`, `Arrow`, `Physics`, `Level`, `Save`, `Ads`, `IAP`, `Analytics`, `UI`).
-- `Application.logMessageReceived` hook in `AppLifecycle` forwards `Error`/`Exception` to `ICrashReporter.RecordNonFatal` with breadcrumbs (last 20 GameEvents names + levelId).
-- Crash SDK at M8 (default Crashlytics, with an IL2CPP symbol-upload build step). Free baselines: Play Console Android vitals, Xcode Organizer.
+- `Application.logMessageReceived` hook in `AppLifecycle` forwards `Error`/`Exception` to `ICrashReportingService.RecordNonFatal` with breadcrumbs (last 20 GameEvents names + levelId).
+- Crash SDK: **Firebase Crashlytics** in M7 (D-090), with an IL2CPP symbol-upload build step; collection disabled until consent in UK/EEA (D-096). Free baselines: Play Console Android vitals, Xcode Organizer.
 - Dev builds: `DevOverlay` shows the last 5 errors on screen.
 
 ---
@@ -425,15 +425,15 @@ Built on `UnityEngine.Pool.ObjectPool<T>` wrapped by `PrefabPool<T>` (Core). Poo
 1. **Local scripted builds** (`Arrow Buster ▸ Build ▸ …`) via `BuildScript`. Also callable as `-executeMethod ArrowBuster.Editor.BuildScript.BuildAndroidDev` etc. for CLI/CI. It sets the version from `BuildVersioning` (`0.<milestone>.<patch>`, Android `bundleVersionCode` = monotonically increasing integer stored in `ProjectSettings`), runs `LevelValidator` over all levels first and aborts on errors.
 2. **Android:** APK (dev, Development Build + Autoconnect Profiler optional) / AAB (closed test + release, signed with an upload key outside the repo).
 3. **iOS:** Xcode project export to `Builds/iOS` → copied to the Mac → archive/sign in Xcode. A checklist lives in skill `release-readiness.md`.
-4. **CI (recommended from M4, required from M8 if the repo is on GitHub):** GitHub Actions + GameCI. It runs EditMode + PlayMode tests on every PR to `main` and builds an Android dev APK nightly. Needs a Unity license secret. The iOS build stays manual on the Mac.
+4. **CI (recommended from M4, required from M7; the repo is on GitHub (`atiwhocodes/ArrowBuster`)):** GitHub Actions + GameCI. It runs EditMode + PlayMode tests on every PR to `main` and builds an Android dev APK nightly. Needs a Unity license secret. The iOS build stays manual on the Mac.
 
 ---
 
 ## 18. Security / privacy considerations
 
 - No accounts, no PII. The analytics user id is a random `installId` GUID (resettable by reinstall). No IDFA unless ATT is granted; no Android Advertising ID use if consent is denied (configured in the ads SDK).
-- Consent before collection: UMP (EEA/UK/CH and US-state regulations) → ATT (iOS) → then initialise analytics/ads/crash. Crash reporting may run under legitimate interest with no identifiers. The final decision on this, and the privacy-policy text, needs owner/legal confirmation (see `06`).
-- Each SDK's iOS privacy manifest (`PrivacyInfo.xcprivacy`) is verified at M8. App Store privacy labels and the Google Play Data safety form are filled from the data inventory in `07`.
+- Consent before collection (D-096): UMP (UK/EEA/CH and US-state regulations) → ATT (iOS) → then enable Firebase Analytics, Crashlytics and ad personalisation per the user's choices. Before consent (or if consent is denied/unresolved, D-067): non-personalised ads, Analytics and Crashlytics collection disabled, only the minimum technically essential diagnostics permitted by the chosen privacy implementation. Final legal/privacy review before launch. The privacy policy is hosted before M7 starts (D-097).
+- Each SDK's iOS privacy manifest (`PrivacyInfo.xcprivacy`) is verified in M7 and again at M8. App Store privacy labels and the Google Play Data safety form are filled from the data inventory in `07`.
 - IAP: non-consumables only. Local receipt validation via Unity IAP's validator (obfuscated tangle files are generated and git-ignored). Restore purchases on iOS.
 - The save file has no secrets. Remote config cannot grant purchases.
 
@@ -457,6 +457,11 @@ Built on `UnityEngine.Pool.ObjectPool<T>` wrapped by `PrefabPool<T>` (Core). Poo
 | D-028 | Single Runtime asmdef + an Integrations asmdef for vendor SDKs |
 | D-029 | Static `Services` locator populated by `ServiceInstaller` (no DI framework) |
 | D-030 | `GameEvents` static bus for cross-cutting listeners only |
+| D-080 | Unity 6000.6.5f1 locked for the MVP (no upgrade spike) |
+| D-086 | Spring Plate cut from the MVP |
+| D-090 | Firebase (Analytics, Crashlytics, Remote Config) + Unity LevelPlay + Unity IAP behind interfaces |
+| D-096 | UK/EEA consent gating of analytics, ad personalisation and crash reporting |
+| D-103 | Locked technical direction |
 | D-052 | World codes + `Env_`/`Marker_`/`Lvl_Pattern_` naming |
 | D-060 | No gameplay fracture; broken objects spawn cosmetic debris only |
 | D-061 | `TimeScaleController` is the only writer of `Time.timeScale` |

@@ -44,11 +44,11 @@ Constants: `Physics/PhysicsLayers.cs` (layer indices + masks). Applied by `Edito
 | # | Layer | Contents |
 |---|---|---|
 | 0 | Default | Nothing gameplay-related (validator warns) |
-| 6 | Environment | Static ground, walls, platforms, ledges, kinematic movers (shields, platforms), portal frames, spring-plate bases |
+| 6 | Environment | Static ground, walls, platforms, ledges, kinematic movers (shields), portal frames |
 | 7 | Structure | Dynamic blocks/beams/planks/crates (non-objective), levers, boulders* |
 | 8 | Objective | Required objectives' physical bodies (crest, supply crate, lantern, orb, dummy) |
 | 9 | Protected | Royal vase, sleeping fox, royal relic |
-| 10 | Prop | Oil jar, powder barrel, boulder*, balloon hit volumes (triggers), spring-plate sensor (trigger) |
+| 10 | Prop | Oil jar, powder barrel, boulder*, balloon hit volumes (triggers) |
 | 11 | Rope | Rope/chain cut capsules (triggers) |
 | 12 | Portal | Portal ring entry discs (triggers) |
 | 13 | Arrow | Spent arrows only (flying arrows are kinematic sweeps, no collider) |
@@ -84,7 +84,6 @@ Notes: Rope and Portal colliders are triggers touched **only by queries**. Field
 | `ExplosionMask` | Structure, Objective, Prop, Rope | Collide (ropes are cut in the inner radius) | `Explosion` — **excludes Protected** (D-020) |
 | `FireOverlapMask` | Rope, Structure, Objective, Prop | Collide | `FireZone`, `Burnable` spread |
 | `TrackedBodyLayers` | Structure, Objective, Protected, Prop | — | `PhysicsBodyRegistry` / `SettleMonitor` |
-| `SpringSensorMask` | Structure, Objective, Protected, Prop | — | `SpringPlate` |
 | `GroundProbeMask` | Environment | Ignore | `OilJar` spill placement, `TrainingDummy` ground check |
 | `KillZoneMask` | KillZone | Collide | Flying-arrow and preview kill-zone point check (`02` §5.1). KillZone is deliberately **not** in `ArrowCastMask`. |
 
@@ -151,7 +150,7 @@ Budget: ≤ 12 joints per level (ropes count as 1 each). Validator warning at > 
 | VFX (`VfxEvent`) | `VFX_Impact_Straw`, `VFX_Break_Straw` (chaff puff) | `VFX_Impact_Timber`, `VFX_Break_Timber` (splinter burst) | `VFX_Impact_Stone` (dust), `VFX_Break_Stone` | `VFX_Impact_Ice` (sparkle), `VFX_Break_Ice` (glitter shards) | `VFX_Impact_Metal` (sparks) | `VFX_Impact_Earth` (dirt) |
 | Colour language (§4) | pale woven yellow | warm brown | grey-blue | bright cyan, translucent | dark steel + gold trim | world ground palette |
 | Visual states (≤ 3) | intact / frayed (≤ 50% HP) / gone | intact / cracked (≤ 50%) / broken | intact / chipped (≤ 50%) / crumbled | intact / cracked (≤ 50%) / shattered | intact / dented (cosmetic on hit) | — |
-| Graybox colour (M1–M4) | #E8D27A | #9A6B3F | #7D8AA0 | #7FE3F2 (alpha 0.75) | #3A3F47 | #6B8E4E |
+| Graybox colour (M1–M5; art in M6) | #E8D27A | #9A6B3F | #7D8AA0 | #7FE3F2 (alpha 0.75) | #3A3F47 | #6B8E4E |
 
 ### 4.2 Size classes (HP and debris scale)
 
@@ -234,16 +233,15 @@ All gameplay prefabs derive from one of four base prefabs: `Struct_Base`, `Obj_B
 | `OilJar` | Props | Break → FireZone | Breakable | PROPS |
 | `PowderBarrel` | Props | Triggers → `Explosion` | Breakable | PROPS |
 | `Balloon` | Props | Lift force on the load, pop, wind response | — | PROPS |
-| `SpringPlate` | Props | Weighted/hit activation → launch | — | PROPS |
 | `WindField` | Props | Constant acceleration zone. Implements the `IFlightEnvironment` wind sampling (via `WindFieldSampler`) | BoxCollider (trigger, Field) | PROPS |
-| `KinematicMover` | Props | Deterministic pose(t) for shields and platforms | Rigidbody (kinematic) | PROPS |
+| `KinematicMover` | Props | Deterministic pose(t) for shields (moving ice platforms are cut, D-104) | Rigidbody (kinematic) | PROPS |
 | `PortalRing` / `PortalPair` | Props | Arrow teleport mapping | Trigger collider (Portal) | PROPS |
 | `KillZone` | Props | Water/Spikes/Pit removal semantics (D-039) | Trigger (KillZone) | PROPS |
 | `PlayBounds` | Props | Out-of-frame removal | — | PROPS |
 | `LevelLayout` | Levels | Root of a layout prefab: framing, `clearLineY`, tutorial anchors, mover phase list | — | LEVEL/CORE |
 | `TutorialAnchor` | Levels | Named anchor for prompts | — | LEVEL |
 
-**Interfaces:** exactly the four Physics contracts above, and no more without an ARCH decision. The registry maps each collider instance id to `{BodyKind, PlanarBody, Breakable?, IArrowHittable?, IExplosionReactive?}`, cached at load (no `GetComponent` at hit time). `ArrowImpactResolver` and `Explosion` dispatch through the interfaces, so neither Arrows nor Physics references a Props/Objectives type. Implementers: `IArrowHittable` — RopeCuttable, Balloon, PortalRing, Objective (orb/crest/lantern clear), ProtectedObject, SpringPlate, BullseyeMarker. `IExplosionReactive` — RopeCuttable (inner-radius cut), Balloon (pop), PowderBarrel (chain), CursedOrb's Objective (explicit immunity).
+**Interfaces:** exactly the four Physics contracts above, and no more without an ARCH decision. The registry maps each collider instance id to `{BodyKind, PlanarBody, Breakable?, IArrowHittable?, IExplosionReactive?}`, cached at load (no `GetComponent` at hit time). `ArrowImpactResolver` and `Explosion` dispatch through the interfaces, so neither Arrows nor Physics references a Props/Objectives type. Implementers: `IArrowHittable` — RopeCuttable, Balloon, PortalRing, Objective (orb/crest/lantern clear), ProtectedObject, BullseyeMarker. `IExplosionReactive` — RopeCuttable (inner-radius cut), Balloon (pop), PowderBarrel (chain), CursedOrb's Objective (explicit immunity).
 
 ---
 
@@ -272,7 +270,9 @@ All gameplay prefabs derive from one of four base prefabs: `Struct_Base`, `Obj_B
 
 ## 8. Interactive objects — implementation plans
 
-**Ticket map** (`09`): structures AB-013 / AB-058 · objectives §8.1 (§7 list) · rope AB-020 · kill zones + clear line AB-021 · royal vase AB-018 · sleeping fox AB-056 · bullseye AB-057 · explosion AB-050 · powder barrel AB-051 · balloon AB-085 · Burnable/FireZone AB-086 · oil jar AB-087 · shields (`KinematicMover`) AB-090 · boulders AB-091 · levers AB-092 · spring plate AB-093 (P2, D-021) · metal tuning AB-094 · ice AB-104 · wind AB-105 · portals AB-107 · moving ice platforms AB-108 · royal relic = the vase component with a relic prefab (art AB-111) · interaction-matrix tests AB-063 (W1), AB-095 (W2), AB-109 (W3).
+**Ticket map** (`09`): structures AB-013 / AB-058 · objectives §8.1 (§7 list) · rope AB-020 · kill zones + clear line AB-021 · royal vase AB-018 · sleeping fox AB-056 · bullseye AB-057 · explosion AB-050 · powder barrel AB-051 · balloon AB-085 · Burnable/FireZone AB-086 · oil jar AB-087 · shields (`KinematicMover`) AB-090 · boulders AB-091 · levers AB-092 · ~~spring plate AB-093~~ **cut (D-086)** · metal tuning AB-094 · ice AB-104 · wind AB-105 · portals AB-107 · ~~moving ice platforms AB-108~~ **cut (D-104)** · royal relic = the vase component with a relic prefab (art AB-111) · interaction-matrix tests AB-063 (W1), AB-095 (W2), AB-109 (W3).
+
+**Milestone (D-102):** every system in this section is built in **M4 Systems Complete**, after the G0 Vertical Slice & Feel Lock GO — except the VS set already built in M2/M3 (crate, crest target, rope, royal vase, kill zones). **MVP prop set = 8** (rope/chain, balloon cluster, oil jar, powder barrel, rolling boulder, wind fan, rotating/moving shield, portal pair) — meets §14 "≥ 8". Spring plates are cut (D-086).
 
 Common to every object: built from a base prefab, ≤ 3 visual states, validated by `PrefabValidator` (layer, PlanarBody, collider depth, mass in range). It raises `GameEvents.PropTriggered` with `PropTriggerKind` for analytics `object_triggered`. It has a sandbox scene `Sandbox_PROPS_<Name>.unity` and ≥ 1 `InteractionMatrixTests` case. **Colour:** helpful interactive = green/gold, hazard/protected = purple, required = red.
 
@@ -356,7 +356,7 @@ ExplosionSolver.Compute(center, body, profile):
 - `Prop_WindFan` (static Environment fan model + rotating blade visual) + `WindField` box trigger (Field layer) with `acceleration` (vector in XY, e.g. (4, 0) m/s²).
 - **Always on, constant, no gusts in MVP** (§4 "always on"). "Gust lanes" (L44–46) = narrow WindFields with stronger acceleration (≤ 8 m/s²).
 - Affects: **arrows** via `BallisticSolver` (× `windResponse`; Heavyhead 0.25, so it barely bends), **balloons** (§8.7). **Does not affect** structures, objectives, protected, debris (simplifies readability: "wind bends arrows and pushes balloons").
-- The preview shows wind-bent arcs (D-017). Visual: streak particles flowing along the acceleration direction (Low tier: 50% particles, a static streak texture fallback).
+- The preview shows wind-bent arcs (D-085). Visual: streak particles flowing along the acceleration direction (Low tier: 50% particles, a static streak texture fallback).
 - `WindFieldSampler` (an `IFlightEnvironment` impl) caches WindField boxes at load; the sample = the sum of the accelerations of the boxes containing the point (max 2 overlapping, validator).
 
 ### 8.13 Rotating / moving shields (`KinematicMover`)
@@ -367,22 +367,18 @@ ExplosionSolver.Compute(center, body, profile):
 - Movers push dynamic bodies they touch (kinematic). Design rule: a mover's swept area must not intersect resting dynamic bodies at load (validator: sweep the path AABB vs bodies → error).
 - Arrow interaction: Metal rules (ricochet at grazing; Bounce arrow bank shots).
 
-### 8.14 Moving ice platforms
-- `Prop_Platform_Ice_Mover`: `KinematicMover` (PingPong) + Ice `PhysicsMaterial` (friction 0.08, Minimum combine). Objects on it slide off as it reverses — this is the puzzle (L53–55, "low-risk timing").
-- Bodies in contact with a mover within the last 0.1 s are `IsAmbient` (excluded from calm) **only while their speed < 0.3 m/s relative to the mover**. Otherwise they count as motion.
-- **Cut fallback (cut list):** replace with static tilted ice slides (no mover) — the same prefab family with `KinematicMover` disabled.
+### 8.14 Moving ice platforms — cut from the MVP (D-101, D-104)
+- **Not built for the MVP.** L53–55 use **static ice slides/ramps** (`Struct_Slab_Ice_*` on tilted `Environment` ledges; Ice `PhysicsMaterial` friction 0.08, Minimum combine) plus `KinematicMover` metal shields for the "low-risk timing" beat. `KinematicMover` itself stays (shields).
+- If the project is genuinely ahead of schedule after G3, the original design can return as a `KinematicMover` (PingPong) with an Ice material; contact-ambient rule: bodies touching a mover within the last 0.1 s are `IsAmbient` only while their speed < 0.3 m/s relative to it. Requires an OWNER decision.
 
 ### 8.15 Portal pairs (`PortalRing`, `PortalPair`)
 - `Prop_PortalPair`: two rings (A, B). Each has a static Environment frame collider (a torus approximated by 4 boxes) and an entry disc trigger (radius 0.6 m, Portal layer). **Convention:** the entry normal is the ring's `transform.up` (it must lie in the XY plane; the ring rotates only about Z). An arrow enters when `dot(v, ring.up) < 0`. Author it with the gizmo arrow. Colour: green/gold swirl, with the pair linked by matching rune colour (≤ 2 pairs per level, distinct colours).
 - **Only arrows teleport** (§4); bodies and debris pass the disc trigger unaffected (Portal layer collides with nothing).
-- **Mapping:** entering A from its front side → `local = A.InverseTransform(hitPoint)`; exit position = `B.Transform(mirror(local))`; exit velocity = `B.rotation × Quaternion.Euler(0, 0, 180) × inverse(A.rotation) × v` (the speed is preserved). The arrow ignores B's trigger for 0.1 s. `TeleportsLeft` decrements (max 3 → avoids infinite loops). Preview identical (D-017).
+- **Mapping:** entering A from its front side → `local = A.InverseTransform(hitPoint)`; exit position = `B.Transform(mirror(local))`; exit velocity = `B.rotation × Quaternion.Euler(0, 0, 180) × inverse(A.rotation) × v` (the speed is preserved). The arrow ignores B's trigger for 0.1 s. `TeleportsLeft` decrements (max 3 → avoids infinite loops). Preview identical, including the exit path (D-085).
 - Edge: entering from the back side → the frame behaves as Environment (Stone rules).
 
-### 8.16 Spring plates (`SpringPlate`) — Should-have (D-021)
-- `Prop_SpringPlate`: static base (Environment) + plate visual + sensor trigger (Prop layer, 1.0 × 0.5 m above the plate).
-- **Activation:** an arrow hit on the plate (resolver: Stop + activate), **or** "weighted": the sum of `TrackedBody` masses in the sensor ≥ 3 kg for 0.2 s.
-- **Effect:** for each body in the sensor, `AddForce(launchDir × launchVelocity, ForceMode.VelocityChange)` with `launchVelocity` 8 m/s (designer 4–12), `launchDir` = the plate up (±45° tilt allowed). Cooldown 1.5 s, `maxActivations` 1 (default) or ∞.
-- Visual states: armed (gold glow) / fired / recharging. If cut, the prefab is removed from the catalogue and no level references it.
+### 8.16 Spring plates — cut from MVP (D-086); post-MVP note only
+Not built, not in the prefab catalogue, not used by any level. A post-MVP design would be a static base + sensor trigger launching bodies with a deterministic `VelocityChange` impulse.
 
 ### 8.17 Kill zones (`KillZone`) and `PlayBounds` — D-039
 
@@ -445,34 +441,33 @@ ExplosionSolver.Compute(center, body, profile):
 | Sleeping fox | **FAIL** | **FAIL** | **FAIL** | **FAIL** | **FAIL** |
 | Portal ring (front) | Teleport | Teleport | Teleport | Teleport | Teleport |
 | Portal frame / back | Stone rules | Stone rules | Stone rules | Stone rules | Stone rules |
-| Spring plate | Activate | Activate | Activate | Activate | Activate |
 | Wind field | Bends ×1.0 | Bends ×0.25 | Bends ×1.0 / ×1.4 | Bends ×1.0 | Bends ×1.0 |
 | Water / spikes / pit | Removed | Removed | Removed | Removed (extinguished) | Removed |
 
 ### 9.2 Effect × object (✗ = explicitly no interaction)
 
-| Object ↓ / Effect → | Fire (zone or spread) | Explosion | Wind | Falling Stone/heavy body | Kill zone | Spring launch | Kinematic mover contact |
-|---|---|---|---|---|---|---|---|
-| Straw structure | Burns 2 s → breaks | Damage ×1.5 + force | ✗ | Damage (collision) | Removed | Launched | Pushed |
-| Timber structure | ✗ | Damage + force | ✗ | Damage | Removed | Launched | Pushed |
-| Stone structure | ✗ | Damage ×0.5 + force | ✗ | Damage | Removed | Launched | Pushed |
-| Ice structure | ✗ (no melt) | Damage ×1.5 + force | ✗ | Shatter if ≥ 14 Ns | Removed | Launched | Slides |
-| Metal piece | ✗ | Force only | ✗ | ✗ damage | Removed | Launched | Pushed |
-| Rope | Burns 1.2 s → cut | Cut if ≤ 1.2 m | ✗ | Cut only if its anchor/attached body breaks | n/a | ✗ | ✗ |
-| Chain | ✗ | Cut if ≤ 1.2 m | ✗ | as rope | n/a | ✗ | ✗ |
-| Balloon | Pops (≤ 0.4 m) | Pops (in radius) | Pushed | Pops on contact > 1 m/s | n/a | ✗ | Pops on contact |
-| Oil jar | Breaks → bigger fire | Breaks → fire zone | ✗ | Breaks ≥ 5 Ns | Removed (no fire in water) | Launched | Pushed |
-| Powder barrel | Fuse 0.4 s → explode | Chain-explode after 0.15 s | ✗ | Explode ≥ 8 Ns | Removed (✗ explode in water; spikes → explode) | Launched | Pushed |
-| Boulder | ✗ | Force | ✗ | ✗ | Removed | Launched | Pushed |
-| Crest target | ✗ | Break if impulse ≥ 6 | ✗ | Break ≥ 6 Ns | Cleared | Launched | Pushed |
-| Cursed orb | ✗ | ✗ | ✗ | ✗ | Cleared (+ validator flag) | ✗ (kinematic) | ✗ |
-| Lantern | ✗ | Break | ✗ | Break ≥ 2 Ns | Cleared | Launched | Break if > 2 m/s |
-| Training dummy | Burns → broken → cleared | Damage + force | ✗ | Damage / knock-over | Cleared | Launched | Pushed |
-| Vase / relic | ✗ | **✗ (D-020)** | ✗ | Fail ≥ 4/6 Ns | **Fail** | Launched (fail likely) | Pushed (fail on impulse) |
-| Sleeping fox | ✗ | **✗ (D-020)** | ✗ | Displacement/tilt fail | **Fail** | Launched → fail | Pushed (fail on displacement) |
-| Debris fragment | ✗ | ✗ | ✗ | ✗ | Removed (splash only) | ✗ | ✗ |
-| Spent arrow | ✗ | ✗ | ✗ | ✗ | Removed | ✗ | ✗ |
-| Embedded arrow | rides its host | rides its host | ✗ | rides its host | removed with its host | rides | rides |
+| Object ↓ / Effect → | Fire (zone or spread) | Explosion | Wind | Falling Stone/heavy body | Kill zone | Kinematic mover contact |
+|---|---|---|---|---|---|---|
+| Straw structure | Burns 2 s → breaks | Damage ×1.5 + force | ✗ | Damage (collision) | Removed | Pushed |
+| Timber structure | ✗ | Damage + force | ✗ | Damage | Removed | Pushed |
+| Stone structure | ✗ | Damage ×0.5 + force | ✗ | Damage | Removed | Pushed |
+| Ice structure | ✗ (no melt) | Damage ×1.5 + force | ✗ | Shatter if ≥ 14 Ns | Removed | Slides |
+| Metal piece | ✗ | Force only | ✗ | ✗ damage | Removed | Pushed |
+| Rope | Burns 1.2 s → cut | Cut if ≤ 1.2 m | ✗ | Cut only if its anchor/attached body breaks | n/a | ✗ |
+| Chain | ✗ | Cut if ≤ 1.2 m | ✗ | as rope | n/a | ✗ |
+| Balloon | Pops (≤ 0.4 m) | Pops (in radius) | Pushed | Pops on contact > 1 m/s | n/a | Pops on contact |
+| Oil jar | Breaks → bigger fire | Breaks → fire zone | ✗ | Breaks ≥ 5 Ns | Removed (no fire in water) | Pushed |
+| Powder barrel | Fuse 0.4 s → explode | Chain-explode after 0.15 s | ✗ | Explode ≥ 8 Ns | Removed (✗ explode in water; spikes → explode) | Pushed |
+| Boulder | ✗ | Force | ✗ | ✗ | Removed | Pushed |
+| Crest target | ✗ | Break if impulse ≥ 6 | ✗ | Break ≥ 6 Ns | Cleared | Pushed |
+| Cursed orb | ✗ | ✗ | ✗ | ✗ | Cleared (+ validator flag) | ✗ |
+| Lantern | ✗ | Break | ✗ | Break ≥ 2 Ns | Cleared | Break if > 2 m/s |
+| Training dummy | Burns → broken → cleared | Damage + force | ✗ | Damage / knock-over | Cleared | Pushed |
+| Vase / relic | ✗ | **✗ (D-020)** | ✗ | Fail ≥ 4/6 Ns | **Fail** | Pushed (fail on impulse) |
+| Sleeping fox | ✗ | **✗ (D-020)** | ✗ | Displacement/tilt fail | **Fail** | Pushed (fail on displacement) |
+| Debris fragment | ✗ | ✗ | ✗ | ✗ | Removed (splash only) | ✗ |
+| Spent arrow | ✗ | ✗ | ✗ | ✗ | Removed | ✗ |
+| Embedded arrow | rides its host | rides its host | ✗ | rides its host | removed with its host | rides |
 
 ### 9.3 Prop × prop highlights (designer cheat-sheet)
 - Fire arrow → straw wick → rope (spread 0.6 m) → load falls (the "Burning Bridge" template). The wick must be ≤ 0.6 m from the rope. The wick ignites on the hit. The rope ignites after 0.5 s of exposure, detected on the next 0.25 s spread tick (so 0.5–0.75 s after the hit), and burns 1.2 s → cut at ≈ 1.7–1.95 s. **Test window (FR-01): the load falls 1.7–2.5 s after the hit.** (The wick itself burns out at 2.0 s, after the rope has already ignited.)
@@ -600,12 +595,11 @@ PlayMode tests live in `Tests/PlayMode/InteractionMatrixTests.cs` (one fixture p
 | PB-04 | Barrel | `Barrel_CutsRopeInInnerRadius` | Rope at 1.0 m / 1.5 m | Cut / intact | Auto |
 | BD-01 | Boulder | `Boulder_PegBreak_HeavyheadReleases` | "Boulder Run" rig | Boulder rolls the lane; targets cleared | Auto |
 | BD-02 | Boulder | `Boulder_OakDoesNotBreakPeg` | Same rig, Oak | Peg intact after 1 Oak hit (5.4 < HP 8); broken after 2. This is intentional: Heavyhead = 1 arrow (3★ route); 2 Oaks = a less efficient alternate route | Auto |
-| SP-01 | Spring plate | `Spring_Weighted_Launches` / `Spring_ArrowActivates` | 4 kg crate dropped / arrow | Crate launched to ≥ 2.5 m height | Auto (if built) |
 | WD-01 | Wind | `Wind_BendsOak_NotHeavyhead` | Wind (4, 0); same aim | Oak lands ≥ 1 m further than in no-wind; Heavyhead shifts < 0.3 m | Auto |
 | WD-02 | Wind | `Wind_PreviewMatchesFlight` | Wind field | Parity ≤ 1 mm | Auto |
 | SH-01 | Shield | `Mover_PoseDeterministic` | Pose at t = 1.234 s in two runs | Identical | Auto |
 | SH-02 | Shield | `Mover_BlocksArrow_Timed` | Rotating shield crossing the aim line | Blocked at t1, passes at t2 | Auto |
-| IP-01 | Ice platform | `IcePlatform_CargoSlidesOffOnReverse` | Crate on a moving ice platform | Crate falls within 1 period | Auto |
+| IP-01 | Ice slide (static, D-101) | `IceSlide_CrateSlidesToEdge` | Crate released on a 15° static ice ramp | Crate slides ≥ 2 m and leaves the ramp within 2.5 s; same end hash on repeat | Auto |
 | PT-01 | Portal | `Portal_TeleportsArrow_PreservesSpeed` / `Portal_BackSide_Blocks` / `Portal_BodiesIgnore` | Pair rig | Exit velocity rotated, \|v\| equal / blocked / a crate passes through the disc | Auto |
 | PT-02 | Portal | `Portal_LoopCap3` | Facing pair | ≤ 3 teleports, then the arrow continues/resolves | Auto |
 | PV-01 | Vase | `Vase_GentleBump_Survives` / `Vase_StoneFall_Fails` / `Vase_ArrowHit_Fails` | Impulse 3 Ns / stone 2 m drop / arrow | Intact / fail / fail | Auto |

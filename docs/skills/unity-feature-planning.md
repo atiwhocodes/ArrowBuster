@@ -81,7 +81,7 @@ Estimate: S/M/L
 Agent: ab-core-gameplay
 Skill: docs/skills/unity-feature-planning.md (plan only — do not write code)
 Ticket: AB-019 SettleMonitor + GameplayController state machine (win/fail/soft-lock)
-Spec: mvp.md §3 "Win and fail"; docs/planning/02_GAMEPLAY_SYSTEMS.md (state machine, settle); D-015, D-016
+Spec: mvp.md §3 "Win and fail"; docs/planning/02_GAMEPLAY_SYSTEMS.md (state machine, settle); D-015, D-083
 Inputs: Scripts/Runtime/Core/GameConstants.cs, Scripts/Runtime/Physics (PhysicsBodyRegistry if present)
 Deliverable: a plan in the Plan template format covering GameplayState enum, SettleMonitor (pure core + MonoBehaviour shell),
 GameplayController transitions, new GameConstants (OutOfArrowsMaxWaitSeconds, WinSettleMaxSeconds), EditMode tests with a fake clock.

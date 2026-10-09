@@ -82,7 +82,7 @@ Locks released: … · Decisions referenced: D-…
 
 ## 1. Summary
 - Added an allocation-free `BallisticSolver` (semi-implicit Euler) with `Step`, `Simulate` and `LaunchVelocity`.
-- Added `ArrowFlightState` and the `IFlightEnvironment` hook (`NullFlightEnvironment` default) for future wind/portal support (D-017).
+- Added `ArrowFlightState` and the `IFlightEnvironment` hook (`NullFlightEnvironment` default) for future wind/portal/first-bounce preview support (D-085).
 - Positions are clamped to `GameConstants.PlayPlaneZ`.
 
 | # | Acceptance criterion | Result | Evidence |

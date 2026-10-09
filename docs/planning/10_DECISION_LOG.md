@@ -38,36 +38,36 @@
 | D-011 | Restart and next level re-instantiate the layout; no scene reload | CORE | Accepted |
 | D-012 | uGUI + TextMeshPro for runtime UI | UI | Accepted |
 | D-013 | No Addressables in MVP | ARCH | Accepted |
-| D-014 | Special-arrow first appearances follow §6 map beats (L13/L30/L36/L47) | PO | Proposed |
+| D-014 | Special-arrow first appearances follow §6 map beats (L13/L30/L36/L47) | PO | Accepted (owner 2026-10-09, D-082) |
 | D-015 | Out-of-arrows fail confirmation timing | CORE | Accepted |
-| D-016 | Player may fire during resolution after a 0.35 s re-nock cooldown | PO | Proposed |
-| D-017 | Preview shows wind, portal pass-through and Bounce ricochet | PO | Proposed |
+| D-016 | Player may fire during resolution after a 0.35 s re-nock cooldown | PO | Superseded by D-083 |
+| D-017 | Preview shows wind, portal pass-through and Bounce ricochet | PO | Superseded by D-085 |
 | D-018 | Draw starts anywhere in the lower aim zone; relative drag | CORE | Proposed |
-| D-019 | Split Arrow uses a timed split shown in the preview | PO | Proposed |
-| D-020 | Powder blasts neither damage nor push protected objects | PO | Proposed |
-| D-021 | Spring plate is Should-have, first cut candidate | PO | Proposed |
+| D-019 | Split Arrow uses a timed split shown in the preview | PO | Superseded by D-088 |
+| D-020 | Powder blasts neither damage nor push protected objects | PO | Accepted (owner 2026-10-09, D-092) |
+| D-021 | Spring plate is Should-have, first cut candidate | PO | Superseded by D-086 |
 | D-022 | Counterweights = hinge levers + rope-hung weights; no pulleys | PROPS | Accepted |
 | D-023 | Quiver is consumed in authored order; no in-level arrow swap | PO | Proposed |
-| D-024 | Clears using a rewarded bonus arrow are capped at 1★ | PO | Proposed |
-| D-025 | Interstitial policy defaults | MON | Proposed |
+| D-024 | Clears using a rewarded bonus arrow are capped at 1★ | PO | Superseded by D-084 |
+| D-025 | Interstitial policy defaults | MON | Superseded by D-093 |
 | D-026 | Coin reward values | SYS | Proposed |
-| D-027 | Daily challenge minimal scope | SYS | Proposed |
+| D-027 | Daily challenge minimal scope | SYS | Accepted (owner 2026-10-09, D-094) |
 | D-028 | One Runtime asmdef + Integrations asmdef for vendor SDKs | ARCH | Accepted |
 | D-029 | Static `Services` locator; no DI framework | ARCH | Accepted |
 | D-030 | `GameEvents` static bus for cross-cutting listeners only | ARCH | Accepted |
 | D-031 | In-house `UiTween`; LitMotion is the approved fallback | ARCH | Accepted |
 | D-032 | In-house native haptics bridge | PLAT | Accepted |
-| D-033 | Milestone plan restructured around a Vertical Slice gate at M3 | PO | Proposed |
-| D-034 | Git + LFS + worktree-per-agent workflow; `main` protected by the Integrator | INT | Proposed |
-| D-035 | Vendor SDK selection deferred to the M8 gate; interfaces + mocks from M2 | MON | Accepted |
+| D-033 | Milestone plan restructured around a Vertical Slice gate at M3 | PO | Superseded by D-102 |
+| D-034 | Git + LFS + worktree-per-agent workflow; `main` protected by the Integrator | INT | Accepted (owner 2026-10-09; done in AB-001) |
+| D-035 | Vendor SDK selection deferred to the M8 gate; interfaces + mocks from M2 | MON | Superseded by D-090 |
 | D-036 | Arrow flight time: test MVP 1.5–2.5 s against a snappier profile at the M1 gate | PO | Proposed |
 | D-037 | Objective clear rules per kind | PO | Accepted |
 | D-038 | Protected-object fail rules | PO | Accepted |
 | D-039 | Kill-zone and clear-line semantics | PO | Accepted |
-| D-040 | Trajectory preview ends at the first collider hit, with an impact marker | CORE | Proposed |
+| D-040 | Trajectory preview ends at the first collider hit, with an impact marker | CORE | Superseded by D-085 |
 | D-041 | Low-FOV perspective camera fitted to play-area width; pillarbox on tablets | CORE | Accepted |
-| D-042 | Asset originality and licensing policy | OWNER | Proposed |
-| D-043 | Stay on Unity 6000.6.5f1; LTS upgrade spike at M9 start | ARCH | Proposed |
+| D-042 | Asset originality and licensing policy | OWNER | Superseded by D-089 |
+| D-043 | Stay on Unity 6000.6.5f1; LTS upgrade spike at M9 start | ARCH | Superseded by D-080 |
 | D-044 | Specialist subagents defined in `.claude/agents/` | INT | Accepted |
 | D-045 | Bullseye medals in MVP as data + simple collection view | PO | Accepted |
 | D-046 | Choice levels deferred (schema reserved) | PO | Accepted |
@@ -96,14 +96,39 @@
 | D-069 | Squash-merge per ticket; short-lived branches | INT | Accepted |
 | D-070 | `GameEnums` values are append-only | ARCH | Accepted |
 | D-071 | XL tickets are split before Ready | INT | Accepted |
-| D-072 | Store accounts and IAP products are created early | OWNER | Proposed |
+| D-072 | Store accounts and IAP products are created early | OWNER | Superseded by D-100 |
 | D-073 | Trajectory preview floor 0.4 | PO | Proposed |
 | D-074 | Canonical solvability tolerance | QA | Accepted |
 | D-075 | Level classification enums live in `Levels/LevelEnums.cs` | LEVEL | Accepted |
 | D-076 | Vertical-slice tutorial scope | PO | Accepted |
 | D-077 | Shielded target is a pattern, not a component | PO | Accepted |
-| D-078 | Gate naming | INT | Accepted |
-| D-079 | Google Play closed-testing requirement is a schedule risk | OWNER | Proposed |
+| D-078 | Gate naming | INT | Superseded by D-102 |
+| D-079 | Google Play closed-testing requirement is a schedule risk | OWNER | Superseded by D-099 |
+| D-080 | Unity 6000.6.5f1 locked for the whole MVP | OWNER | Accepted |
+| D-081 | Public name vs technical identifiers | OWNER | Accepted |
+| D-082 | Special-arrow first appearances locked | OWNER | Accepted |
+| D-083 | Re-nock during active physics; no firing after the outcome is decided | OWNER | Accepted |
+| D-084 | Bonus-arrow clears capped at 1★, disclosed before the ad | OWNER | Accepted |
+| D-085 | Preview shows wind, portal exits and the first bounce | OWNER | Accepted |
+| D-086 | Spring Plates cut from the launch MVP | OWNER | Accepted |
+| D-087 | No pulley simulation | OWNER | Accepted |
+| D-088 | Timed Split Arrow with visible split feedback | OWNER | Accepted |
+| D-089 | Asset licensing and AI-generated content policy | OWNER | Accepted |
+| D-090 | Vendors: Firebase + Unity LevelPlay + Unity IAP behind adapters | OWNER | Accepted |
+| D-091 | Launch IAP pricing | OWNER | Accepted |
+| D-092 | Powder blasts never touch protected objects directly | OWNER | Accepted |
+| D-093 | Interstitial policy (final) | OWNER | Accepted |
+| D-094 | Daily Challenge scope (cut-first) | OWNER | Accepted |
+| D-095 | Rename Royal Violet → Royal Amethyst | OWNER | Accepted |
+| D-096 | Consent-gated analytics, ad personalisation and crash reporting (UK/EEA) | OWNER | Accepted |
+| D-097 | Privacy policy hosted before SDK integration | OWNER | Accepted |
+| D-098 | Test and launch markets | OWNER | Accepted |
+| D-099 | Verify Google Play testing requirements in Week 1 | OWNER | Accepted |
+| D-100 | Mac + Apple Developer account by week 3; store accounts and IAP products by week 5 | OWNER | Accepted |
+| D-101 | Official cut-first scope and launch cosmetic set | OWNER | Accepted |
+| D-102 | Execution order and milestone restructure | OWNER | Accepted |
+| D-103 | Locked technical direction | OWNER | Accepted |
+| D-104 | Final owner confirmations: Starter Pack positioning, cosmetic-only rule, hard cuts, four delivery phases | OWNER | Accepted |
 
 ---
 
@@ -273,7 +298,7 @@
 | Alternatives considered | Follow §5 literally (breaks the tutorial cadence for Split/Bounce; Heavyhead appears after its own tutorial block). |
 | Consequences | §10 "special-arrow reveal by L15 at the latest" is satisfied (L13). `04` level plan uses these numbers. **Needs OWNER confirmation.** |
 | Owner | PO |
-| Status | Proposed |
+| Status | Accepted (owner 2026-10-09, D-082) |
 
 ### D-015 — Out-of-arrows fail confirmation timing
 | Field | Value |
@@ -297,7 +322,7 @@
 | Alternatives considered | Lock input until settle (slow, frustrating). No cooldown (accidental double fires). |
 | Consequences | Win/fail logic must be continuous. Analytics capture time between shots. |
 | Owner | PO |
-| Status | Proposed |
+| Status | Superseded by D-083 |
 
 ### D-017 — Preview shows wind, portal pass-through and Bounce ricochet
 | Field | Value |
@@ -309,7 +334,7 @@
 | Alternatives considered | Show only the raw gravity arc (wind/portal shots become guesswork). |
 | Consequences | `BallisticSolver` must be pure and environment-aware via an `IFlightEnvironment` (wind sampler, portal lookup). **Needs OWNER confirmation.** |
 | Owner | PO |
-| Status | Proposed |
+| Status | Superseded by D-085 |
 
 ### D-018 — Draw starts anywhere in the lower aim zone; relative drag
 | Field | Value |
@@ -333,7 +358,7 @@
 | Alternatives considered | Tap-to-split (extra input, breaks one-thumb clarity). Impact-only split (hard to read and aim). |
 | Consequences | 9 extra arrow pool entries. The children count as part of the same quiver arrow. **Needs OWNER confirmation.** |
 | Owner | PO |
-| Status | Proposed |
+| Status | Superseded by D-088 |
 
 ### D-020 — Powder blasts neither damage nor push protected objects
 | Field | Value |
@@ -345,7 +370,7 @@
 | Alternatives considered | Damage immunity only (the blast could still shove the fox off its ledge, which reads as unfair). |
 | Consequences | Level validation warns when a protected object sits in a blast radius with unconstrained heavy pieces between them. |
 | Owner | PO |
-| Status | Proposed |
+| Status | Accepted (owner 2026-10-09, D-092) |
 
 ### D-021 — Spring plate is Should-have, first cut candidate
 | Field | Value |
@@ -357,7 +382,7 @@
 | Alternatives considered | Force it into W1 (overloads the teaching curve). |
 | Consequences | Listed second in the cut list. |
 | Owner | PO |
-| Status | Proposed |
+| Status | Superseded by D-086 |
 
 ### D-022 — Counterweights = hinge levers + rope-hung weights; no pulleys
 | Field | Value |
@@ -393,7 +418,7 @@
 | Alternatives considered | Normal star math (ads could buy 2★; undermines mastery). |
 | Consequences | `StarRules.Compute(arrowsUsed, goldPar, bonusArrowUsed)`. Unit-tested. **Needs OWNER confirmation.** |
 | Owner | PO |
-| Status | Proposed |
+| Status | Superseded by D-084 |
 
 ### D-025 — Interstitial policy defaults
 | Field | Value |
@@ -405,7 +430,7 @@
 | Alternatives considered | Session-based 10-minute window (resets every session; too aggressive). |
 | Consequences | Pure, unit-tested `AdPolicy`. Analytics logs every suppression reason in dev builds. |
 | Owner | MON |
-| Status | Proposed |
+| Status | Superseded by D-093 |
 
 ### D-026 — Coin reward values
 | Field | Value |
@@ -429,7 +454,7 @@
 | Alternatives considered | Server-driven dailies (no backend in v1). |
 | Consequences | Clock tampering is tolerated (cosmetic coins only). |
 | Owner | SYS |
-| Status | Proposed |
+| Status | Accepted (owner 2026-10-09, D-094) |
 
 ### D-028 — One Runtime asmdef + Integrations asmdef for vendor SDKs
 | Field | Value |
@@ -501,7 +526,7 @@
 | Alternatives considered | Follow §14 literally (risks building 20 levels before proving fun with feedback). |
 | Consequences | One Greenwood environment section is art-polished in M3; the full Greenwood art lands in M5. See `08`. |
 | Owner | PO |
-| Status | Proposed |
+| Status | Superseded by D-102 |
 
 ### D-034 — Git + LFS + worktree-per-agent workflow
 | Field | Value |
@@ -513,7 +538,7 @@
 | Alternatives considered | Single working copy with sequential agents (safe but slow). Unity Version Control (no team need). |
 | Consequences | Each worktree has its own `Library/` (first import cost). File locks in `docs/agents/FILE_LOCKS.md`. |
 | Owner | INT |
-| Status | Proposed |
+| Status | Accepted (owner 2026-10-09; done in AB-001) |
 
 ### D-035 — Vendor SDK selection deferred to the M8 gate
 | Field | Value |
@@ -525,7 +550,7 @@
 | Alternatives considered | Integrate at M1 (slows every build). Integrate at M10 (too risky). |
 | Consequences | Analytics events are verified in the Debug sink long before the vendor exists. |
 | Owner | MON |
-| Status | Accepted |
+| Status | Superseded by D-090 |
 
 ### D-036 — Arrow flight time tuning
 | Field | Value |
@@ -585,7 +610,7 @@
 | Alternatives considered | Arc ignores colliders (classic, less readable). |
 | Consequences | Revisit at the M1 feel gate: if 3★ becomes trivial, reduce `previewBaseSeconds` for later worlds. |
 | Owner | CORE |
-| Status | Proposed |
+| Status | Superseded by D-085 |
 
 ### D-041 — Low-FOV perspective camera fitted to play-area width; pillarbox on tablets
 | Field | Value |
@@ -609,7 +634,7 @@
 | Alternatives considered | Fully original including SFX (expensive for a solo dev). |
 | Consequences | **Needs OWNER confirmation**, especially on AI-generated content. |
 | Owner | OWNER |
-| Status | Proposed |
+| Status | Superseded by D-089 |
 
 ### D-043 — Stay on Unity 6000.6.5f1; LTS upgrade spike at M9 start
 | Field | Value |
@@ -621,7 +646,7 @@
 | Alternatives considered | Downgrade now to an older LTS (risk of package incompatibilities and lost features). |
 | Consequences | Update CLAUDE.md if the version changes. |
 | Owner | ARCH |
-| Status | Proposed |
+| Status | Superseded by D-080 |
 
 ### D-044 — Specialist subagents defined in `.claude/agents/`
 | Field | Value |
@@ -969,7 +994,7 @@
 | Alternatives considered | Create them at M10 (high risk of submission slip). |
 | Consequences | Unblocks the M7 SDK spike (sandbox IAP) and the closed test. |
 | Owner | OWNER |
-| Status | Proposed |
+| Status | Superseded by D-100 |
 
 ### D-073 — Trajectory preview floor 0.4
 | Field | Value |
@@ -1041,7 +1066,7 @@
 | Alternatives considered | — |
 | Consequences | 08 lists the mapping. |
 | Owner | INT |
-| Status | Accepted |
+| Status | Superseded by D-102 |
 
 ### D-079 — Google Play closed-testing requirement is a schedule risk
 | Field | Value |
@@ -1053,4 +1078,304 @@
 | Alternatives considered | Ignore until M10 (likely 2+ week slip). |
 | Consequences | 08 M10 duration. 07 closed-test plan. |
 | Owner | OWNER |
-| Status | Proposed |
+| Status | Superseded by D-099 |
+
+### D-080 — Unity 6000.6.5f1 locked for the whole MVP
+| Field | Value |
+|---|---|
+| Decision ID | D-080 |
+| Date | 2026-10-09 |
+| Context | Q-01. Owner approval 2026-10-09 (plan review). A late engine upgrade is unnecessary risk in a physics-heavy project. |
+| Decision | Develop, test and ship the MVP on Unity 6000.6.5f1. No upgrade spike. Upgrade only after launch, or if a release-blocking iOS/Android issue requires it (decision entry required). |
+| Alternatives considered | LTS upgrade spike at M9 (D-043). |
+| Consequences | D-043 superseded. The M9 spike ticket is removed. Unity version changes need OWNER approval. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-081 — Public name vs technical identifiers
+| Field | Value |
+|---|---|
+| Decision ID | D-081 |
+| Date | 2026-10-09 |
+| Context | Q-02. Owner approval 2026-10-09 (plan review). |
+| Decision | Public/UI/store name: **Arrow Buster**. Technical identifiers use **`ArrowBuster`**: namespaces, asmdefs, class prefixes, save file/keys, analytics app naming, repo name. Where a platform convention needs lowercase, use the lowercase token (bundle ID `com.attila.arrowbuster`, snake_case analytics events). Legal/store/domain clearance is done before store-submission assets are produced (M8). |
+| Alternatives considered | Mixed spellings (as in the original mvp.md). |
+| Consequences | mvp.md title updated. The local folder `Arrow Buster` keeps its name (renaming would break Unity Hub paths); the GitHub repo is `ArrowBuster`. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-082 — Special-arrow first appearances locked
+| Field | Value |
+|---|---|
+| Decision ID | D-082 |
+| Date | 2026-10-09 |
+| Context | Q-03. Owner approval 2026-10-09 (plan review). Resolves the §5/§6 conflict. |
+| Decision | Heavyhead: Global L13 / W1_L13. Split: Global L30 / W2_L10. Fire: Global L36 / W2_L16. Bounce: Global L47 / W3_L07. mvp.md §5 updated. |
+| Alternatives considered | The original §5 unlock column. |
+| Consequences | D-014 accepted. Validator rule V-11 enforces it. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-083 — Re-nock during active physics; no firing after the outcome is decided
+| Field | Value |
+|---|---|
+| Decision ID | D-083 |
+| Date | 2026-10-09 |
+| Context | Q-04. Owner approval 2026-10-09 (plan review). |
+| Decision | The next arrow is available 0.35 s after release while physics still resolves (rapid chain reactions are allowed). Firing is disabled as soon as all required objectives are cleared (win pending), and in Won and Failed states. |
+| Alternatives considered | Wait for settle (slow). No cooldown (accidental double fires). |
+| Consequences | D-016 superseded. `GameplayStateMachineTests` covers no-fire after objectives cleared. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-084 — Bonus-arrow clears capped at 1★, disclosed before the ad
+| Field | Value |
+|---|---|
+| Decision ID | D-084 |
+| Date | 2026-10-09 |
+| Context | Q-05. Owner approval 2026-10-09 (plan review). |
+| Decision | A clear using the rewarded bonus arrow counts as completed (normal completion progression) but never earns 2★ or 3★. The offer shows **"Bonus Arrow Used — 1★ Max"** before the player accepts the ad. |
+| Alternatives considered | Normal star math. |
+| Consequences | D-024 superseded. UI string key `fail.bonus_arrow.star_cap`. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-085 — Preview shows wind, portal exits and the first bounce
+| Field | Value |
+|---|---|
+| Decision ID | D-085 |
+| Date | 2026-10-09 |
+| Context | Q-06. Owner approval 2026-10-09 (plan review). Hidden path changes are unfair. |
+| Decision | Within its length budget the preview shows wind influence, the path after a portal exit, and the **first bounce**: if `ArrowImpactResolver` predicts a Ricochet at the first hit (always for Bounce on metal; shallow-angle metal ricochets for other arrows), one reflected segment is drawn until the next hit; otherwise the preview stops at the first hit with an impact marker. Difficulty comes from shorter previews, placement, timing and limited arrows — never invisible forces. |
+| Alternatives considered | Raw gravity arc only. |
+| Consequences | D-017 and D-040 superseded. Parity tests cover wind, portal and first-bounce cases. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-086 — Spring Plates cut from the launch MVP
+| Field | Value |
+|---|---|
+| Decision ID | D-086 |
+| Date | 2026-10-09 |
+| Context | Q-07. Owner approval 2026-10-09 (plan review). |
+| Decision | No spring plate is scheduled or implemented. Revisit only if all core systems, 60 levels, performance work and store integration are ahead of schedule. Launch props: rope/chain, balloon, oil jar, powder barrel, rolling boulder, wind fan, rotating/moving shield, portal (8; meets §14). |
+| Alternatives considered | Should-have in M6 (D-021). |
+| Consequences | D-021 superseded. Ticket moved to Cut / post-MVP. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-087 — No pulley simulation
+| Field | Value |
+|---|---|
+| Decision ID | D-087 |
+| Date | 2026-10-09 |
+| Context | Q-08. Owner approval 2026-10-09 (plan review). |
+| Decision | Counterweight puzzles use rope-hung weights, hinge seesaws, dropping loads and rolling boulders. No true pulleys or multi-rope tension simulation. |
+| Alternatives considered | Custom pulley constraint. |
+| Consequences | Confirms D-022. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-088 — Timed Split Arrow with visible split feedback
+| Field | Value |
+|---|---|
+| Decision ID | D-088 |
+| Date | 2026-10-09 |
+| Context | Q-09. Owner approval 2026-10-09 (plan review). |
+| Decision | The Split Arrow splits at a fixed, configurable flight time (`ArrowDefinition.splitTime`) shown by a marker in the preview. If it collides first, it splits on impact into a forward fan. A glowing ring/trail pulse (`VFX_Arrow_SplitPulse`) plays ~0.12 s before the split. |
+| Alternatives considered | Tap-to-split. Impact-only split. |
+| Consequences | D-019 superseded. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-089 — Asset licensing and AI-generated content policy
+| Field | Value |
+|---|---|
+| Decision ID | D-089 |
+| Date | 2026-10-09 |
+| Context | Q-10 + Q-21. Owner approval 2026-10-09 (plan review). |
+| Decision | Licensed fonts and licensed SFX libraries are allowed (SFX processed), each recorded in `docs/art/ASSET_LICENSES.md` with source and licence. Original/custom: bow, arrows, props, UI, logo, environments, characters, level compositions, icons, VFX identity and **music**. AI-generated assets are for internal concepts and temporary placeholders only. They never ship (hero art, logos, characters, environments, UI, music, competitor-adjacent material) unless the tool licence, commercial rights and an originality review are documented. |
+| Alternatives considered | Fully original including SFX (cost). Unrestricted AI use (legal/originality risk). |
+| Consequences | D-042 superseded. Placeholder build check (D-056) also blocks AI placeholders. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-090 — Vendors: Firebase + Unity LevelPlay + Unity IAP behind adapters
+| Field | Value |
+|---|---|
+| Decision ID | D-090 |
+| Date | 2026-10-09 |
+| Context | Q-11. Owner approval 2026-10-09 (plan review). |
+| Decision | Firebase for Analytics, Crashlytics and Remote Config. Unity LevelPlay for ad mediation. Unity IAP for purchases. All behind our interfaces in M2 — `IAnalyticsService`, `ICrashReportingService`, `IRemoteConfigService`, `IAdsService`, `IIapService`, `IConsentService` — with mock implementations until the SDK milestone (M7). Vendor code lives only in `ArrowBuster.Integrations`. Consent via Google UMP + iOS ATT (exact UMP–LevelPlay integration path verified at integration). |
+| Alternatives considered | AppLovin MAX, AdMob mediation, GameAnalytics, Unity Gaming Services analytics/RC. |
+| Consequences | D-035 superseded. `ICrashReporter` renamed `ICrashReportingService`. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-091 — Launch IAP pricing
+| Field | Value |
+|---|---|
+| Decision ID | D-091 |
+| Date | 2026-10-09 |
+| Context | Q-12. Owner approval 2026-10-09 (plan review). |
+| Decision | Remove Ads: £3.99 / USD 3.99 (removes interstitials only; rewarded ads stay optional). Cosmetic Starter Pack: £2.99 / USD 2.99 = Royal Amethyst bow skin + Gold Spark trail + 500 coins. Never stat boosts, arrows or puzzle advantages. Prices are set in the store consoles; other markets use the nearest price tier. |
+| Alternatives considered | Earlier tier proposals (Q-12). |
+| Consequences | 06 IAP catalogue updated. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-092 — Powder blasts never touch protected objects directly
+| Field | Value |
+|---|---|
+| Decision ID | D-092 |
+| Date | 2026-10-09 |
+| Context | Q-13. Owner approval 2026-10-09 (plan review). |
+| Decision | Explosions apply no damage and no force to protected objects. Structure pieces moved by the blast can still break them (player responsibility). |
+| Alternatives considered | Damage immunity only. |
+| Consequences | Confirms D-020. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-093 — Interstitial policy (final)
+| Field | Value |
+|---|---|
+| Decision ID | D-093 |
+| Date | 2026-10-09 |
+| Context | Q-14. Owner approval 2026-10-09 (plan review). |
+| Decision | An interstitial may show only on a Win → Next/Home transition when: cumulative active gameplay ≥ 10 min per install; ≥ 3 completed levels since the last interstitial; ≥ 120 s since the last interstitial; Remove Ads not owned. Never after a fail, during a level, during onboarding (global L1–L5 / first-session FTUE), after a purchase (same session), on the transition right after any rewarded ad, or on app resume from background. All thresholds are Remote Config values. |
+| Alternatives considered | D-025 defaults. |
+| Consequences | D-025 superseded. `AdPolicyTests` cover every exclusion. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-094 — Daily Challenge scope (cut-first)
+| Field | Value |
+|---|---|
+| Decision ID | D-094 |
+| Date | 2026-10-09 |
+| Context | Q-15. Owner approval 2026-10-09 (plan review). |
+| Decision | Unlocks after clearing Global L10. Each local day picks 3 already-completed levels by local date seed; the quiver is the gold-par arrow count. No leaderboard, streak, backend or push notification. Cut-first if it risks the 60-level campaign. |
+| Alternatives considered | Server-driven dailies. |
+| Consequences | Confirms D-027. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-095 — Rename Royal Violet → Royal Amethyst
+| Field | Value |
+|---|---|
+| Decision ID | D-095 |
+| Date | 2026-10-09 |
+| Context | Q-16. Owner approval 2026-10-09 (plan review). Avoids association with the purple protected-object language. |
+| Decision | The bow skin is **Royal Amethyst** (`CD_Bow_RoyalAmethyst`). |
+| Alternatives considered | Keep "Royal Violet". |
+| Consequences | mvp.md §5 updated. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-096 — Consent-gated analytics, ad personalisation and crash reporting (UK/EEA)
+| Field | Value |
+|---|---|
+| Decision ID | D-096 |
+| Date | 2026-10-09 |
+| Context | Q-17. Owner approval 2026-10-09 (plan review). Don't rely on a legal assumption that crash reporting is exempt. |
+| Decision | Where consent is required (UK/EEA, as reported by UMP): before consent, ads are non-personalised, Firebase Analytics collection is disabled and Crashlytics collection is disabled; only the minimum technically essential diagnostics permitted by the chosen privacy implementation run. SDKs are initialised consent-aware (consent → ATT → enable collection per choices). Final legal/privacy review before launch. |
+| Alternatives considered | Crash reporting under legitimate interest. |
+| Consequences | D-067 (offline = denied) still applies. 06 and 07 updated. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-097 — Privacy policy hosted before SDK integration
+| Field | Value |
+|---|---|
+| Decision ID | D-097 |
+| Date | 2026-10-09 |
+| Context | Q-18. Owner approval 2026-10-09 (plan review). |
+| Decision | The OWNER hosts the privacy policy before SDK integration begins — at the start of M7 at the latest. It lists analytics, crash reporting, advertising, IAP processing, consent choices and a support contact. The URL is shown in Settings and both store listings. |
+| Alternatives considered | Policy at M8/M10. |
+| Consequences | Privacy-policy ticket moved to the M7 start. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-098 — Test and launch markets
+| Field | Value |
+|---|---|
+| Decision ID | D-098 |
+| Date | 2026-10-09 |
+| Context | Q-19. Owner approval 2026-10-09 (plan review). |
+| Decision | Run a UK closed test first (TestFlight + Google Play closed track; the owner can observe it directly). Then soft launch in **Canada and Australia** (English only). Verify local privacy requirements (Canada PIPEDA / Quebec Law 25, Australia Privacy Act) before the soft launch. |
+| Alternatives considered | Mixed-language soft launch. |
+| Consequences | 07 closed-test and soft-launch plans updated. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-099 — Verify Google Play testing requirements in Week 1
+| Field | Value |
+|---|---|
+| Decision ID | D-099 |
+| Date | 2026-10-09 |
+| Context | Q-20. Owner approval 2026-10-09 (plan review). |
+| Decision | In project week 1 the OWNER verifies the Google Play account type and testing/production-access rules. If the personal-account closed-test requirement applies, start recruiting eligible testers early so the requirement is met long before submission. |
+| Alternatives considered | Verify by M5 (D-079). |
+| Consequences | D-079 superseded. M1 owner ticket. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-100 — Mac + Apple Developer account by week 3; store accounts and IAP products by week 5
+| Field | Value |
+|---|---|
+| Decision ID | D-100 |
+| Date | 2026-10-09 |
+| Context | Q-22. Owner approval 2026-10-09 (plan review). iOS issues (perf, safe areas, haptics, touch feel, ATT, build) must surface early. |
+| Decision | Mac access and an Apple Developer account are ready by project week 3 (regular iOS device builds from the vertical slice onward). Apple and Google developer accounts and store IAP products are created by project week 5. |
+| Alternatives considered | Mac by M8; accounts by M5 (D-072). |
+| Consequences | D-072 superseded. iOS device build is part of the G0 gate. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-101 — Official cut-first scope and launch cosmetic set
+| Field | Value |
+|---|---|
+| Decision ID | D-101 |
+| Date | 2026-10-09 |
+| Context | Owner scope cuts. Owner approval 2026-10-09 (plan review). |
+| Decision | Cut-first (build only if the VS is excellent and the project is genuinely ahead of schedule): Spring Plates (cut, D-086); choice-loadout levels (cut); moving ice platforms (L53–55 use static ice slides + moving shields); animated splash (static splash only); more than 3 bow skins / 2 trails; Daily Challenge if it risks the campaign; cloud save, leaderboards, achievements, push notifications, seasonal and multiplayer systems. **Launch cosmetics:** bow skins Oak Ranger (default), Moonwood (World 1 completion or 1,200 coins, D-064), Royal Amethyst (Starter Pack; also 2,500 coins — *coin price proposed by the lead, confirm*); trails Gold Spark (Starter Pack or 1,000 coins), Leaf Swirl (600 coins). World 2/3 completion grants quiver badges + 300 coins. Ember, Frostglass, Cyan Streak and Ember Ash are post-MVP. |
+| Alternatives considered | Ship the full mvp.md cosmetic list. |
+| Consequences | Supersedes the cosmetic parts of the earlier catalogue. The MVP must live or die on bow feel, fair trajectory, reliable physics, readable structures, satisfying collapses, level variety and rapid restart. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-102 — Execution order and milestone restructure
+| Field | Value |
+|---|---|
+| Decision ID | D-102 |
+| Date | 2026-10-09 |
+| Context | Owner-required execution order. Owner approval 2026-10-09 (plan review). |
+| Decision | 1 Git baseline (done, AB-001) → 2 settings, layers, physics, test asmdefs, folders → 3 build the 5-level vertical slice only → 4 5–10 external casual-player tests before special arrows, maps, cosmetics, ads or 60 levels → 5 lock bow feel, trajectory accuracy, collision reliability, restart time, physics stability → 6 reusable material + interactive-object systems → 7 graybox all 60 levels → 8 validate every intended solution on target devices → 9 final art, sound, VFX, UI polish, cosmetics → 10 ads, IAP, consent, analytics, crash, Remote Config → 11 UK closed test, then Canada/Australia soft launch → 12 post-soft-launch optimisation. **Milestones:** M1 Foundations & Core Feel (G-M1) · M2 Core Loop + VS Graybox · M3 Vertical Slice + External Playtest + Feel Lock (G0) · M4 Systems Complete (G1) · M5 Content Graybox + Device Validation (G2) · M6 Art, Audio, UI Polish & Meta (G3) · M7 Platform Services & Monetisation (G4) · M8 Optimisation, Balance, QA & Release Prep (G5 Release Candidate) · M9 UK Closed Test & Submission (G-Release) · M10 Soft Launch (Canada, Australia). |
+| Alternatives considered | World-by-world milestones (D-033). |
+| Consequences | D-033 and D-078 superseded. 08/09 restructured; ticket IDs kept, milestones re-mapped. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-103 — Locked technical direction
+| Field | Value |
+|---|---|
+| Decision ID | D-103 |
+| Date | 2026-10-09 |
+| Context | Owner approval 2026-10-09 (plan review). |
+| Decision | Unity 6000.6.5f1 · URP · 3D PhysX constrained to the XY plane · 2.5D portrait diorama · kinematic swept arrow driven by the same `BallisticSolver` as the preview · `LevelData` SO + layout prefab · local JSON save only · uGUI + TextMeshPro · UI Toolkit only for editor tools · bundled launch content, no Addressables · LevelPlay behind `IAdsService` · Firebase behind service interfaces. |
+| Alternatives considered | — |
+| Consequences | Confirms D-003…D-013 and D-005. Changing any item needs OWNER approval. |
+| Owner | OWNER |
+| Status | Accepted |
+
+### D-104 — Final owner confirmations: Starter Pack positioning, cosmetic-only rule, hard cuts, four delivery phases
+| Field | Value |
+|---|---|
+| Decision ID | D-104 |
+| Date | 2026-10-09 |
+| Context | Owner final confirmation 2026-10-09 (second review), resolving the open items in D-101. |
+| Decision | **(1) Royal Amethyst** is unlocked immediately by the Cosmetic Starter Pack **and** is purchasable for **2,500 coins** by free players (the D-101 coin price is confirmed). **(2) Positioning:** never call Royal Amethyst (or any cosmetic) "exclusive", "premium-only", "paid-only" or "limited". The Starter Pack value proposition is immediate unlock of Royal Amethyst + one included arrow trail (Gold Spark) + a modest coin bundle (500) — good-value convenience, not gameplay advantage or permanent exclusivity. **(3) Cosmetic-only:** no cosmetic changes aim assist, arrow damage/physics, quiver, stars, progression or any other gameplay outcome. **(4) Hard cuts:** Spring Plates (AB-093) and moving ice platforms (AB-108) are **Cut** from the MVP, not merely deferred; L53–55 use static ice slides + moving shields. Launch cosmetics are exactly 3 bow skins + 2 arrow trails; quiver badges ship only if low-cost and non-blocking. **(5) Delivery phases** (grouping of the D-102 order; canonical): **Phase 1** = git/project baseline, project settings/physics layers/test assemblies/foundations, the five-level vertical slice only, casual-player playtest gate (M0–M3). **Phase 2** = lock bow feel, arrow flight, preview accuracy, collision reliability, restart time and physics stability (G0); build reusable materials, objectives, destruction and interactive-object systems (M4); graybox all 60 levels with reusable prefabs + LevelData (M5). **Phase 3** = validate every intended solution on target devices (M5 exit, G2); final world art, UI, SFX, VFX, music, cosmetics and polish (M6). **Phase 4** = consent, analytics, Crashlytics, Remote Config, ads and IAP (M7); optimisation/QA/release prep (M8); UK internal test first, then the closed test (M9); Canada and Australia soft launch after the closed test (M10); optimise monetisation and balance only after real retention and funnel data exists (post-soft-launch). Pre-launch M8 work is limited to playtest-driven difficulty tuning (par/quiver fixes), not monetisation or economy optimisation. |
+| Alternatives considered | Starter-pack-exclusive skin (weaker ethics, no long-term coin sink). Keeping moving ice platforms as cut-first. |
+| Consequences | Closes the D-101 confirmation note. AB-093 and AB-108 status = Cut. 05/06 shop copy must avoid exclusivity wording. M8 "balance pass" is renamed "playtest-driven difficulty tuning". |
+| Owner | OWNER |
+| Status | Accepted |

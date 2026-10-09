@@ -1,7 +1,7 @@
 # 05 — Art, Audio & UX
 
 > Owners: Art, VFX & Audio Integrator (`ART`) for §1–§11; UI/UX Engineer (`UI`) for §12–§16. Reviewers: `PO` (readability, originality), `PLAT` (budgets), `MON` (monetisation screens).
-> Status: Draft v1 — 2026-10-09. Source of truth: [`/mvp.md`](../../mvp.md) §4, §8, §11. Canonical names: [`01_TECHNICAL_ARCHITECTURE.md`](01_TECHNICAL_ARCHITECTURE.md). Decisions: [`10_DECISION_LOG.md`](10_DECISION_LOG.md).
+> Status: Draft v2 — 2026-10-09 (owner decisions D-080…D-103 applied: D-084, D-085, D-086, D-088, D-089, D-091, D-093, D-095, D-096, D-101, D-102 milestone structure). Source of truth: [`/mvp.md`](../../mvp.md) §4, §8, §11. Canonical names: [`01_TECHNICAL_ARCHITECTURE.md`](01_TECHNICAL_ARCHITECTURE.md). Decisions: [`10_DECISION_LOG.md`](10_DECISION_LOG.md).
 > Related: object behaviour in [`03_PHYSICS_AND_OBJECTS.md`](03_PHYSICS_AND_OBJECTS.md), screen logic in [`02_GAMEPLAY_SYSTEMS.md`](02_GAMEPLAY_SYSTEMS.md), monetisation screens in [`06_META_MONETISATION_ANALYTICS.md`](06_META_MONETISATION_ANALYTICS.md), budgets verification in [`07_QA_PERFORMANCE_RELEASE.md`](07_QA_PERFORMANCE_RELEASE.md), vertical slice art scope in [`11_VERTICAL_SLICE.md`](11_VERTICAL_SLICE.md).
 
 ---
@@ -16,7 +16,7 @@
 | # | Rule | Why | Check |
 |---|---|---|---|
 | S-1 | **Gradient-palette texturing.** Every world shares one `T_<World>_Palette` (256×256, uncompressed RGB24). Meshes are UV-mapped onto palette swatches/gradients. There are no per-object albedo textures except the hero bow, UI and VFX. | Cohesion, tiny memory, fast production, SRP-batcher friendly | Import rule (§7) + review |
-| S-2 | **Silhouette first.** Every gameplay object must be identifiable as a solid black silhouette at 1080×1920 at its in-game size. | Readability pillar (§2) | 5-second silhouette sheet review at M3/M5 |
+| S-2 | **Silhouette first.** Every gameplay object must be identifiable as a solid black silhouette at 1080×1920 at its in-game size. | Readability pillar (§2) | 5-second silhouette sheet review at M3 (G0) and M6 |
 | S-3 | **Bevel, don't detail.** Use 1–2 bevel segments on edges for the toy look. No noisy surface detail; any texture noise ≤ 10% value variance. | §11 "limited texture noise" | Review |
 | S-4 | **Colour language is sacred** (§4). Accent hues are reserved for gameplay meaning (§1.3). Decoration may not use reserved accent hues at full saturation. | Readability, accessibility | Palette lint: reserved swatches only in `Obj_`/`Prot_`/`Prop_`/`Haz_` meshes |
 | S-5 | **Value separation.** The play-plane band is mid-to-light value. Backgrounds are lower contrast and slightly desaturated (−25% saturation, +fog). Interactive objects have ≥ 30% luminance contrast against their local background. | Objects "pop" from the diorama | Grayscale screenshot check |
@@ -31,7 +31,7 @@
 | Semantic | Hue family | Used on | Never used on |
 |---|---|---|---|
 | **Required objective** | Red (crimson `#D7263D` family) + crest/target icon + strong outline | CrestTarget, SupplyCrate bands, HangingLantern glass, CursedOrb core, TrainingDummy sash, BannerRope's banner | Decoration, UI chrome, hazards |
-| **Helpful interactive** | Green / gold (`#3FA34D` leaf, `#E8B931` gold) | Rope/chain gold tags, balloons, oil jar glaze, powder-barrel bands, spring plate, portal rings, wind fan, Bullseye ring | Protected objects |
+| **Helpful interactive** | Green / gold (`#3FA34D` leaf, `#E8B931` gold) | Rope/chain gold tags, balloons, oil jar glaze, powder-barrel bands, portal rings, wind fan, Bullseye ring | Protected objects |
 | **Structure** | Material colours (§4) kept **mid-saturation**. Neutral pieces (platforms, metal, stone) are gray/blue. | Struct_*, Environment | Accent highlights |
 | **Hazard / protected** | Purple (`#7B3FBF` family) + shield icon + halo ring | RoyalVase, SleepingFox, RoyalRelic indicator rings, spike-bed warning bands, kill-zone edge markers | Anything helpful |
 
@@ -83,14 +83,15 @@ The reference boundary is §1. We use only the broad genre pattern (limited shot
 | Compose screenshots around *our* signature: drawn bow + dotted arc + a cut rope / burning fuse / portal mid-shot | Reproduce the reference's screenshot composition, caption style, colour blocking or layout order |
 | Write all copy from scratch in our voice (warm, ranger-guild, light humour) | Reuse or paraphrase the reference's store text, level names, button labels, tutorial lines |
 | Design levels from our templates (§7) and our own sketches | Trace, re-create or "mirror" any reference level layout or screenshot |
-| Use original or properly licensed audio, always processed | Use sound-alikes of the reference's SFX/music or any ripped audio |
+| Use **original music** and original or properly licensed SFX, always processed (D-089) | Use sound-alikes of the reference's SFX/music, ripped audio, or licensed/AI-generated music |
 
-### 2.2 Licensing and provenance (D-042)
-- Every third-party input (fonts, SFX libraries, Asset Store items, AI tools) is logged in **`docs/art/ASSET_LICENSES.md`**. ART creates this file at the first import. Columns: asset/path, source, licence, commercial OK (Y/N), modified (Y/N + how), attribution required, date, approver.
-- Fonts: OFL (SIL Open Font License) or a purchased commercial licence only. Licence text is stored next to the font in `UI/Fonts/<Font>/LICENSE.txt`.
-- SFX: custom-recorded or synthesised, or from licensed libraries with commercial rights. **Always layered/processed**, never used raw as a signature sound (bow release, chain-reaction sting, UI stars).
-- Music: commissioned or self-composed. Work-for-hire / assignment agreement on file (OWNER).
-- **AI-generated assets:** none ship without OWNER sign-off on the tool's licence terms (D-042). AI outputs may be used as *internal reference/concept* only until then, and must never be prompted with competitor names or screenshots.
+### 2.2 Licensing and provenance (D-089, supersedes D-042)
+- Every third-party input (fonts, SFX libraries, Asset Store utility items, AI tools used for concepts/placeholders) is logged in **`docs/art/ASSET_LICENSES.md`**. ART creates this file at the first import. Columns: asset/path, source, licence, commercial OK (Y/N), modified (Y/N + how), attribution required, date, approver.
+- **Must be original / custom-made:** bow, arrows, props, UI, logo/wordmark, environments, characters, level compositions, icons, VFX identity and **music**. These define the brand and are never licensed stock or AI output.
+- **Fonts:** licensed fonts allowed — OFL (SIL Open Font License) or a purchased commercial licence. Licence text is stored next to the font in `UI/Fonts/<Font>/LICENSE.txt` and recorded in the register.
+- **SFX:** custom-recorded/synthesised, or from **licensed SFX libraries** with commercial rights, **always processed/layered** and recorded in the register (source + licence). Never used raw as a signature sound (bow release, chain-reaction sting, UI stars).
+- **Music:** original only — commissioned or self-composed, with a work-for-hire / assignment agreement on file (OWNER).
+- **AI-generated assets (D-089):** allowed for **internal concepts and temporary placeholders only**. They live under `_Placeholder/` with the `Placeholder` label (so the D-056 build check blocks them from ClosedTest/Release builds) and an `AI` note in `PLACEHOLDER_TRACKER.md`. Never ship AI-generated hero art, logos, characters, environment art, UI, music or competitor-adjacent material unless the tool licence, commercial rights **and** an originality review are documented in the register and signed off by OWNER. AI tools must never be prompted with competitor names or screenshots.
 - No reference-game screenshots are stored in the repo. Moodboards use public-domain/self-shot photography and our own sketches only.
 
 ### 2.3 Originality review gates
@@ -98,8 +99,8 @@ The reference boundary is §1. We use only the broad genre pattern (limited shot
 | Gate | When | Reviewers | Checklist |
 |---|---|---|---|
 | OR-1 Concept | Before the M3 art kit starts | PO + ART | Moodboard sources clean; bow, UI and logo concepts compared against §2.1 |
-| OR-2 Art lock | M5 (art direction lock) | PO + ART + OWNER | Side-by-side with the reference store listing: launcher, frame, wordmark, objects, map, palette dominance |
-| OR-3 Store assets | M10, before submission | PO + MON + OWNER | Icon, screenshots, preview video, feature graphic, store text — no similarity in composition, captions or colour blocking; licence register complete |
+| OR-2 Art lock | Provisional at G0 (end of M3, after the external VS playtest); final at the start of M6 (art production) | PO + ART + OWNER | Side-by-side with the reference store listing: launcher, frame, wordmark, objects, map, palette dominance |
+| OR-3 Store assets | M8 (store assets), re-checked before the M9 submission | PO + MON + OWNER | Icon, screenshots, preview video, feature graphic, store text — no similarity in composition, captions or colour blocking; licence register complete |
 | OR-4 Placeholder purge | Every Release build | Automated + ART | Build check (§8) green; `ASSET_LICENSES.md` has no "pending" rows |
 
 ---
@@ -139,7 +140,7 @@ Source files (`.blend`, `.psd`, layered audio sessions) live under `ArtSource/` 
 
 ## 4. Asset list
 
-Columns: **ID** (canonical) · **Description** · **States / variants** (≤ 3 visual states, §4) · **Budget** (tris / texture) · **Needed** (milestone first needed in final-ish form; graybox before that) · **Priority** (P0 must / P1 should / P2 could).
+Columns: **ID** (canonical) · **Description** · **States / variants** (≤ 3 visual states, §4) · **Budget** (tris / texture) · **Needed** (milestone the production asset must be in, per the D-102 milestone structure: VS assets M3; final world art, VFX, SFX, music and meta UI M6; consent/IAP/ads UI M7; store/marketing M8–M9. Graybox stand-ins (`PH_` assets, `M_Graybox_*`) cover M4 systems work and M5 content graybox) · **Priority** (P0 must / P1 should / P2 could).
 
 ### 4.1 Environment kits (~25 pieces per world)
 
@@ -150,7 +151,7 @@ The kits share one structure. Gameplay-relevant static geometry (`Environment` l
 | ID | Description | States / variants | Budget | Needed | Pri |
 |---|---|---|---|---|---|
 | `T_GW_Palette` | World palette 256² | — | 192 KB | M3 | P0 |
-| `Env_GW_<Shape>_<Size>` | Greenwood art variants of every `04` §15 blocking prefab used by the VS (`Ground_12x1`, `Ledge_4x0.5`, `Ledge_6x0.5`, `Beam_6x0.4`, `Stump`, `Awning_6`, `Perch_1.5`); the rest of the blocking set in M5 | 1 each | ≤ 400 each | M3 (VS set) / M5 | P0 |
+| `Env_GW_<Shape>_<Size>` | Greenwood art variants of every `04` §15 blocking prefab used by the VS (`Ground_12x1`, `Ledge_4x0.5`, `Ledge_6x0.5`, `Beam_6x0.4`, `Stump`, `Awning_6`, `Perch_1.5`); the rest of the blocking set in M6 | 1 each | ≤ 400 each | M3 (VS set) / M6 | P0 |
 | `Env_GW_Backdrop_TrainingGrounds` | VS backdrop composition ("Ranger Training Grounds": valley, ruined arch, archery butts, fence, tree clusters, BG card, sky) built from kit pieces | 2 variants | ≤ 40 k tris total | M3 | P0 |
 | `Env_GW_Ground_Grass_4x1` | Grass-topped earth slab | 4×1, 2×1, 1×1 | ≤ 300 | M3 | P0 |
 | `Env_GW_Platform_Stone_2x1` | Ruined stone ledge (static platform) | 1×1, 2×1, 3×1 | ≤ 400 | M3 | P0 |
@@ -163,19 +164,19 @@ The kits share one structure. Gameplay-relevant static geometry (`Environment` l
 | `Env_GW_Tree_Round` | Lollipop toy tree | 3 sizes | ≤ 600 | M3 | P0 |
 | `Env_GW_Bush` | Bush clusters | 3 variants | ≤ 200 | M3 | P1 |
 | `Env_GW_Rock` | Rounded rocks | 4 variants | ≤ 150 | M3 | P1 |
-| `Env_GW_Fence` | Training-yard fence | straight/broken | ≤ 200 | M5 | P1 |
-| `Env_GW_Banner_Deco` | Guild pennant (green/cream — **not red**) | 2 | ≤ 150 | M5 | P2 |
-| `Env_GW_TargetRack_Deco` | Decorative archery butts (desaturated, no red) | 1 | ≤ 400 | M5 | P2 |
-| `Env_GW_RuinArch` | Mid-ground ruined arch | 1 | ≤ 1,200 | M5 | P1 |
-| `Env_GW_Watchtower_Deco` | Background watchtower silhouette | 1 | ≤ 1,000 | M5 | P1 |
-| `Env_GW_Waterfall` | Background waterfall (scrolling UV) | 1 | ≤ 400 | M5 | P2 |
-| `Env_GW_Flowers` | Flower clusters (low-sat) | 3 | ≤ 100 | M5 | P2 |
-| `Env_GW_Mushrooms` | Mushroom clusters | 2 | ≤ 100 | M5 | P2 |
-| `Env_GW_Signpost` | Wooden signpost (no text) | 1 | ≤ 200 | M5 | P2 |
-| `T_GW_BG_Near/Mid/Far` | 3 pre-blurred background cards (hills, forest, mountains) | — | ≤ 1024² ASTC 6×6 | M3 (1 card) / M5 | P0 |
+| `Env_GW_Fence` | Training-yard fence | straight/broken | ≤ 200 | M6 | P1 |
+| `Env_GW_Banner_Deco` | Guild pennant (green/cream — **not red**) | 2 | ≤ 150 | M6 | P2 |
+| `Env_GW_TargetRack_Deco` | Decorative archery butts (desaturated, no red) | 1 | ≤ 400 | M6 | P2 |
+| `Env_GW_RuinArch` | Mid-ground ruined arch | 1 | ≤ 1,200 | M6 | P1 |
+| `Env_GW_Watchtower_Deco` | Background watchtower silhouette | 1 | ≤ 1,000 | M6 | P1 |
+| `Env_GW_Waterfall` | Background waterfall (scrolling UV) | 1 | ≤ 400 | M6 | P2 |
+| `Env_GW_Flowers` | Flower clusters (low-sat) | 3 | ≤ 100 | M6 | P2 |
+| `Env_GW_Mushrooms` | Mushroom clusters | 2 | ≤ 100 | M6 | P2 |
+| `Env_GW_Signpost` | Wooden signpost (no text) | 1 | ≤ 200 | M6 | P2 |
+| `T_GW_BG_Near/Mid/Far` | 3 pre-blurred background cards (hills, forest, mountains) | — | ≤ 1024² ASTC 6×6 | M3 (1 card) / M6 | P0 |
 | `T_GW_Sky` | Sky gradient + clouds | — | 256² | M3 | P0 |
-| `Env_GW_Clouds` | Low-poly cloud puffs, slow drift | 3 | ≤ 150 | M5 | P2 |
-| `AMB_GW_Meadow` | Ambience bed (birds, breeze) | — | — | M5 | P1 |
+| `Env_GW_Clouds` | Low-poly cloud puffs, slow drift | 3 | ≤ 150 | M6 | P2 |
+| `AMB_GW_Meadow` | Ambience bed (birds, breeze) | — | — | M6 | P1 |
 
 #### Sunscar Canyon (`SC`) — desert caravan outpost: orange stone, wind, sunset
 
@@ -211,29 +212,30 @@ The kits share one structure. Gameplay-relevant static geometry (`Environment` l
 
 | ID | Description | States / variants | Budget | Needed | Pri |
 |---|---|---|---|---|---|
-| `T_FK_Palette` | World palette | — | 192 KB | M7 | P0 |
-| `Env_FK_Ground_Snow_4x1` | Snow-capped slab | 4×1, 2×1, 1×1 | ≤ 300 | M7 | P0 |
-| `Env_FK_Platform_Rampart_2x1` | Fortress rampart ledge | 1×1, 2×1, 3×1 | ≤ 400 | M7 | P0 |
-| `Env_FK_Platform_IceShelf` | Static ice shelf (slippery look) | 2 | ≤ 400 | M7 | P0 |
-| `Env_FK_Pillar_Tower` | Fortress pillar/turret | short/tall | ≤ 600 | M7 | P0 |
-| `Env_FK_Cliff_Edge` | Glacier wall framing | L/R | ≤ 1,500 | M7 | P0 |
-| `Env_FK_RopeAnchor_Chain` | Iron anchor bracket | 2 | ≤ 300 | M7 | P0 |
-| `Env_FK_BowStand` | Frost-stone bow stand | 1 | ≤ 1,500 | M7 | P0 |
-| `Env_FK_Pine_Snow` | Snowy toy pine | 3 | ≤ 500 | M7 | P1 |
-| `Env_FK_IceSpire` | Crystal spires (static deco, **not** cyan-bright like gameplay ice) | 3 | ≤ 400 | M7 | P1 |
-| `Env_FK_Brazier_Deco` | Warm brazier (emissive, contrast) | 1 | ≤ 300 | M7 | P2 |
-| `Env_FK_WindFanMount` | Mount for wind fans | 1 | ≤ 300 | M7 | P0 |
-| `Env_FK_PortalPlinth` | Plinth/frame mount for portal rings | 1 | ≤ 400 | M7 | P0 |
-| `Env_FK_MoverRail` | Rail for moving ice platforms | straight | ≤ 300 | M7 | P0 |
-| `Env_FK_Banner_Deco` | Fortress banners (blue/silver) | 2 | ≤ 150 | M7 | P2 |
-| `Env_FK_FrostSeal_Tower` | L60 finale tower set piece | 1 | ≤ 4,000 | M7 | P0 |
-| `Env_FK_SnowDrift` | Mid-ground snow drifts | 2 | ≤ 400 | M7 | P1 |
-| `Env_FK_Icicles` | Hanging icicles (deco) | 2 | ≤ 150 | M7 | P2 |
-| `Env_FK_Gate` | Background keep gate | 1 | ≤ 1,200 | M7 | P1 |
-| `T_FK_BG_Near/Mid/Far` | Mountains + keep cards | — | ≤ 1024² | M7 | P0 |
-| `T_FK_Sky_Aurora` | Night-blue gradient + aurora band (animated UV) | — | 256² | M7 | P0 |
-| `Env_FK_Snowfall` | Light snowfall particles (bg only) | — | ≤ 40 particles | M7 | P2 |
-| `AMB_FK_Howl` | Wind howl + creaks | — | — | M7 | P1 |
+| `T_FK_Palette` | World palette | — | 192 KB | M6 | P0 |
+| `Env_FK_Ground_Snow_4x1` | Snow-capped slab | 4×1, 2×1, 1×1 | ≤ 300 | M6 | P0 |
+| `Env_FK_Platform_Rampart_2x1` | Fortress rampart ledge | 1×1, 2×1, 3×1 | ≤ 400 | M6 | P0 |
+| `Env_FK_Platform_IceShelf` | Static ice shelf (slippery look) | 2 | ≤ 400 | M6 | P0 |
+| `Env_FK_Pillar_Tower` | Fortress pillar/turret | short/tall | ≤ 600 | M6 | P0 |
+| `Env_FK_Cliff_Edge` | Glacier wall framing | L/R | ≤ 1,500 | M6 | P0 |
+| `Env_FK_RopeAnchor_Chain` | Iron anchor bracket | 2 | ≤ 300 | M6 | P0 |
+| `Env_FK_BowStand` | Frost-stone bow stand | 1 | ≤ 1,500 | M6 | P0 |
+| `Env_FK_Pine_Snow` | Snowy toy pine | 3 | ≤ 500 | M6 | P1 |
+| `Env_FK_IceSpire` | Crystal spires (static deco, **not** cyan-bright like gameplay ice) | 3 | ≤ 400 | M6 | P1 |
+| `Env_FK_Brazier_Deco` | Warm brazier (emissive, contrast) | 1 | ≤ 300 | M6 | P2 |
+| `Env_FK_WindFanMount` | Mount for wind fans | 1 | ≤ 300 | M6 | P0 |
+| `Env_FK_PortalPlinth` | Plinth/frame mount for portal rings | 1 | ≤ 400 | M6 | P0 |
+| `Env_FK_IceSlide` | Static ice slide/ramp kit that replaces moving ice platforms in L53–55 (D-101) | straight / curved | ≤ 300 | M6 | P0 |
+| `Env_FK_MoverRail` | Rail for moving ice platforms — **cut (D-104)**; not produced | straight | ≤ 300 | — | Cut |
+| `Env_FK_Banner_Deco` | Fortress banners (blue/silver) | 2 | ≤ 150 | M6 | P2 |
+| `Env_FK_FrostSeal_Tower` | L60 finale tower set piece | 1 | ≤ 4,000 | M6 | P0 |
+| `Env_FK_SnowDrift` | Mid-ground snow drifts | 2 | ≤ 400 | M6 | P1 |
+| `Env_FK_Icicles` | Hanging icicles (deco) | 2 | ≤ 150 | M6 | P2 |
+| `Env_FK_Gate` | Background keep gate | 1 | ≤ 1,200 | M6 | P1 |
+| `T_FK_BG_Near/Mid/Far` | Mountains + keep cards | — | ≤ 1024² | M6 | P0 |
+| `T_FK_Sky_Aurora` | Night-blue gradient + aurora band (animated UV) | — | 256² | M6 | P0 |
+| `Env_FK_Snowfall` | Light snowfall particles (bg only) | — | ≤ 40 particles | M6 | P2 |
+| `AMB_FK_Howl` | Wind howl + creaks | — | — | M6 | P1 |
 
 ### 4.2 Structures (materials, shared across worlds; world skins are prefab variants per `01` §12)
 
@@ -244,25 +246,25 @@ The kits share one structure. Gameplay-relevant static geometry (`Environment` l
 | `Struct_Plank_Timber_4x0.25` | Timber plank | intact / cracked / broken | ≤ 150 | M3 | P0 |
 | `Struct_Beam_Timber_3x0.5` | Timber beam | intact / cracked / broken | ≤ 200 | M3 | P0 |
 | `Struct_Peg_Timber` | Timber peg (holds boulders, §7 "Boulder Run") | intact / broken | ≤ 150 | M6 | P0 |
-| `Struct_Bale_Straw_1x1`, `Struct_Screen_Straw_1x2` | Straw bale / wicker screen | intact / pierced / burst | ≤ 300 | M4 | P0 |
-| `Struct_Block_Stone_1x1`, `Struct_Beam_Stone_3x0.5`, `Struct_Cover_Stone_1.5x1` | Stone block / beam / shielded-target cover | intact / chipped / broken (high HP) | ≤ 300 | M4 | P0 |
-| `Struct_Block_Ice_1x1`, `Struct_Slab_Ice_2x0.5` | Ice crystal block / slab (`SG_AB_Ice`) | intact / cracked / shattered | ≤ 300 | M7 | P0 |
-| `Struct_Plate_Metal_2x0.25`, `Struct_Plate_Metal_Marked` | Dark steel with gold trim (ricochet surface); the marked variant is the Bounce bank plate (target-ring glyph) | intact only (+ spark on hit) | ≤ 300 | M6 (marked: M7) | P0 |
+| `Struct_Bale_Straw_1x1`, `Struct_Screen_Straw_1x2` | Straw bale / wicker screen | intact / pierced / burst | ≤ 300 | M6 | P0 |
+| `Struct_Block_Stone_1x1`, `Struct_Beam_Stone_3x0.5`, `Struct_Cover_Stone_1.5x1` | Stone block / beam / shielded-target cover | intact / chipped / broken (high HP) | ≤ 300 | M6 | P0 |
+| `Struct_Block_Ice_1x1`, `Struct_Slab_Ice_2x0.5` | Ice crystal block / slab (`SG_AB_Ice`) | intact / cracked / shattered | ≤ 300 | M6 | P0 |
+| `Struct_Plate_Metal_2x0.25`, `Struct_Plate_Metal_Marked` | Dark steel with gold trim (ricochet surface); the marked variant is the Bounce bank plate (target-ring glyph) | intact only (+ spark on hit) | ≤ 300 | M6 | P0 |
 | `Struct_Lever_Timber_4x0.5` | Lever plank on hinge (D-022) | intact / broken | ≤ 250 | M6 | P0 |
-| `Struct_Bridge_Timber` | Rope-held drawbridge plank | intact / broken | ≤ 300 | M4 | P1 |
-| `Debris_<Material or Object>_<nn>` | 3–6 fragment meshes per material, plus object-specific sets for crest, vase, lantern, orb, jar, barrel (e.g. `Debris_Timber_01`, `Debris_Vase_02`) | — | 20–80 each | M3 (timber, crest, vase) / M4 / M7 | P0 |
+| `Struct_Bridge_Timber` | Rope-held drawbridge plank | intact / broken | ≤ 300 | M6 | P1 |
+| `Debris_<Material or Object>_<nn>` | 3–6 fragment meshes per material, plus object-specific sets for crest, vase, lantern, orb, jar, barrel (e.g. `Debris_Timber_01`, `Debris_Vase_02`) | — | 20–80 each | M3 (timber, crest, vase) / M6 | P0 |
 
 ### 4.3 Required objectives (§4)
 
 | ID | Description | States (≤ 3) | Budget | Needed | Pri |
 |---|---|---|---|---|---|
 | `Obj_CrestTarget` | Red crest shield with target rings + crest icon (outline) | intact / cracked (optional) / shattered | ≤ 800 | M3 | P0 |
-| `Obj_SupplyCrate_1x1`, `Obj_SupplyCrate_2x1` | Crate with red bands + crest stencil | intact / cracked / broken | ≤ 500 | M4 (graybox M2) | P0 |
-| `Obj_HangingLantern` | Lantern with red glass, emissive glow | lit / cracked / broken | ≤ 800 | M4 | P0 |
-| `Obj_CursedOrb` | Floating red-black orb with rune ring and slow pulse (direct-hit-only tell: **runic eye glyph**) | pulsing / shattered | ≤ 800 | M4 | P0 |
-| `Obj_TrainingDummy` | Straw dummy with red sash, comedic face | idle wobble / hit squash / knocked down | ≤ 1,500 | M4 | P0 |
-| `Obj_CursedOrb_FrostSeal` | L60 frost-seal variant of the orb (ice-crusted rune ring) | pulsing / shattered | ≤ 1,000 | M7 | P0 |
-| `Obj_BannerRope` | Rope with a red banner tag marking it as required | intact / cut | ≤ 300 + rope line | M4 | P0 |
+| `Obj_SupplyCrate_1x1`, `Obj_SupplyCrate_2x1` | Crate with red bands + crest stencil | intact / cracked / broken | ≤ 500 | M6 (graybox M2) | P0 |
+| `Obj_HangingLantern` | Lantern with red glass, emissive glow | lit / cracked / broken | ≤ 800 | M6 | P0 |
+| `Obj_CursedOrb` | Floating red-black orb with rune ring and slow pulse (direct-hit-only tell: **runic eye glyph**) | pulsing / shattered | ≤ 800 | M6 | P0 |
+| `Obj_TrainingDummy` | Straw dummy with red sash, comedic face | idle wobble / hit squash / knocked down | ≤ 1,500 | M6 | P0 |
+| `Obj_CursedOrb_FrostSeal` | L60 frost-seal variant of the orb (ice-crusted rune ring) | pulsing / shattered | ≤ 1,000 | M6 | P0 |
+| `Obj_BannerRope` | Rope with a red banner tag marking it as required | intact / cut | ≤ 300 + rope line | M6 | P0 |
 | `UI_Icon_Obj_<Kind>` | HUD icons for each objective kind (shape-distinct) | normal / cleared (crossed) | 128² in atlas | M2 graybox, M3 final | P0 |
 
 ### 4.4 Interactive props (§4)
@@ -274,58 +276,58 @@ The kits share one structure. Gameplay-relevant static geometry (`Environment` l
 | `Prop_BalloonCluster_2`, `Prop_BalloonCluster_3` | 2 or 3 gold/green balloons with basket hook | full / partially popped / empty | ≤ 200 per balloon | M6 | P0 |
 | `Prop_OilJar` | Green-glazed jar with oil-drop icon | intact / broken (→ oil puddle + FireZone) | ≤ 600 | M6 | P0 |
 | `Prop_StrawWick` | Straw wick/fuse that carries fire to a rope (`Burnable`) | intact / burning / burnt | ≤ 200 | M6 | P0 |
-| `Prop_PowderBarrel` | Barrel with gold bands + spark icon | idle / fuse lit / exploded | ≤ 700 | M4 | P0 |
+| `Prop_PowderBarrel` | Barrel with gold bands + spark icon | idle / fuse lit / exploded | ≤ 700 | M6 | P0 |
 | `Prop_Boulder` | Round stone boulder with moss/sand/snow skin per world | resting / rolling (dust VFX) | ≤ 500 | M6 | P0 |
-| `Prop_SpringPlate` | Gold-coiled plate (D-021, should-have) | idle / compressed / launched | ≤ 600 | M6 | P1 |
-| `Prop_WindFan` | Carved fan with spinning blades + streak VFX | on (always) | ≤ 900 | M7 | P0 |
+| `Prop_SpringPlate` | **Cut from the launch MVP (D-086).** No art is produced. | — | — | — | Cut |
+| `Prop_WindFan` | Carved fan with spinning blades + streak VFX | on (always) | ≤ 900 | M6 | P0 |
 | `Prop_Shield_Rotating` | Metal shield on a pivot (KinematicMover) | moving only | ≤ 600 | M6 | P0 |
 | `Prop_Shield_Patrol` | Metal shield on a track | moving only | ≤ 600 | M6 | P0 |
-| `Prop_Platform_Moving_Ice` | Moving ice platform (KinematicMover) | moving only | ≤ 400 | M7 | P1 |
-| `Prop_PortalPair` (2 × ring) | Portal pair; **pairs distinguished by colour (gold/green/teal) + glyph (circle/triangle/diamond)** | idle / arrow passing | ≤ 900 each | M7 | P0 |
-| `Marker_Bullseye` | Gold ring decal on a weak point (`BullseyeMarker`) | idle / hit flash | ≤ 100 | M4 | P1 |
+| `Prop_Platform_Moving_Ice` | Moving ice platform (KinematicMover) — **cut (D-104)**: L53–55 use static ice slides (`Env_FK_IceSlide`, `Struct_Slab_Ice_*`) and moving shields instead | moving only | ≤ 400 | — | Cut-first |
+| `Prop_PortalPair` (2 × ring) | Portal pair; **pairs distinguished by colour (gold/green/teal) + glyph (circle/triangle/diamond)** | idle / arrow passing | ≤ 900 each | M6 | P0 |
+| `Marker_Bullseye` | Gold ring decal on a weak point (`BullseyeMarker`) | idle / hit flash | ≤ 100 | M6 | P1 |
 
 ### 4.5 Protected objects and hazards (§4)
 
 | ID | Description | States (≤ 3) | Budget | Needed | Pri |
 |---|---|---|---|---|---|
 | `Prot_RoyalVase` | Ornate vase with purple halo ring + crown icon | intact / broken (fail) | ≤ 1,200 | M3 (VS) | P0 |
-| `Prot_SleepingFox` | Original friendly fox curled asleep on a ledge, purple halo + "Zz" | asleep / startled (fail) / knocked (fail) | ≤ 3,000 skinned | M4 | P0 |
-| `Prot_RoyalRelic` | L60 relic (crowned crystal reliquary) | intact / broken | ≤ 2,000 | M7 | P0 |
+| `Prot_SleepingFox` | Original friendly fox curled asleep on a ledge, purple halo + "Zz" | asleep / startled (fail) / knocked (fail) | ≤ 3,000 skinned | M6 | P0 |
+| `Prot_RoyalRelic` | L60 relic (crowned crystal reliquary) | intact / broken | ≤ 2,000 | M6 | P0 |
 | `Haz_WaterPit` | Water strip with foam edge + purple edge posts | idle / splash | ≤ 800 + shader | M3 (VS-05) | P0 |
 | `Haz_SpikeBed` | Spikes with purple warning bands | idle / crunch | ≤ 1,000 | M6 | P0 |
 | `Haz_Pit` | Dark void edge with purple marker stones | idle | ≤ 500 | M3 (VS-02/04) | P0 |
-| Shielded target | No new asset: an `Obj_CrestTarget` behind displaceable `Struct_*` cover (`03`) | — | — | M4 | — |
+| Shielded target | No new asset: an `Obj_CrestTarget` behind displaceable `Struct_*` cover (`03`) | — | — | M6 | — |
 
 ### 4.6 Bow, arrows, characters
 
 | ID | Description | States / variants | Budget | Needed | Pri |
 |---|---|---|---|---|---|
 | `SM_Bow_OakRanger` + `AC_Bow` | Hero bow (default skin): carved oak, gold inlay, string glow at full draw | rest / drawing (blend 0–1) / release snap | 4–6k, 512² | M3 | P0 |
-| Gloved draw hand (optional) | Stylised leather glove pinching the string; **no full ranger avatar in MVP** (D-053, proposed) | rest / draw | ≤ 1,500 | M5 | P2 |
+| Gloved draw hand (optional) | Stylised leather glove pinching the string; **no full ranger avatar in MVP** (D-053, proposed) | rest / draw | ≤ 1,500 | M6 | P2 |
 | `Arrow_Oak` | Oak shaft, green fletching | flying / embedded / spent | ≤ 250 | M1 graybox, M3 | P0 |
-| `Arrow_Heavyhead` | Thick shaft, iron bulb head, gray fletching | same | ≤ 300 | M4 | P0 |
+| `Arrow_Heavyhead` | Thick shaft, iron bulb head, gray fletching | same | ≤ 300 | M6 | P0 |
 | `Arrow_Split` | Three-pronged head, gold fletching; children are slim | same + split | ≤ 300 | M6 | P0 |
 | `Arrow_Fire` | Wrapped head with ember glow (flame VFX) | same | ≤ 300 | M6 | P0 |
-| `Arrow_Bounce` | Rounded steel-cap head, cyan fletching | same | ≤ 300 | M7 | P0 |
-| `SK_SleepingFox` anims | `ANIM_SleepingFox_Sleep` (breathing loop), `_Startle`, `_Tumble` | 3 clips | — | M4 | P0 |
-| `SK_TrainingDummy` anims | `_Wobble`, `_HitSquash`, `_FallOver` (vertex/transform anim OK) | 3 | — | M4 | P1 |
-| Mascot (marketing) | The fox as the brand mascot for icon/store art | poses for marketing | — | M10 | P1 |
+| `Arrow_Bounce` | Rounded steel-cap head, cyan fletching | same | ≤ 300 | M6 | P0 |
+| `SK_SleepingFox` anims | `ANIM_SleepingFox_Sleep` (breathing loop), `_Startle`, `_Tumble` | 3 clips | — | M6 | P0 |
+| `SK_TrainingDummy` anims | `_Wobble`, `_HitSquash`, `_FallOver` (vertex/transform anim OK) | 3 | — | M6 | P1 |
+| Mascot (marketing) | The fox as the brand mascot for icon/store art | poses for marketing | — | M8 | P1 |
 
 ### 4.7 Cosmetics (§5) — must not change physics, aim, damage or win chance
 
 | ID | Description | Variants | Budget | Unlock (see `06`) | Needed | Pri |
 |---|---|---|---|---|---|---|
 | `CD_Bow_OakRanger` | Default bow | — | 4–6k | Start | M3 | P0 |
-| `CD_Bow_Moonwood` | Pale silver wood, moon-phase inlays, soft blue string glow | — | 4–6k | World 1 completion or coins (D-064) | M8 | P0 |
-| `CD_Bow_Ember` | Charred wood with ember cracks, orange glow | — | 4–6k | World 2 completion or coins (D-064) | M8 | P1 |
-| `CD_Bow_Frostglass` | Ice-glass limbs, frost runes | — | 4–6k | World 3 completion or coins (D-064) | M8 | P1 |
-| `CD_Bow_RoyalViolet` | Violet lacquer + gold filigree (Q-16 note: bow is never in the play field) | — | 4–6k | Starter pack / coins (`06`) | M8 | P1 |
-| `CD_Trail_GoldSpark` | Gold spark trail | — | ≤ 30 particles | Starter pack or coins | M8 | P0 |
-| `CD_Trail_LeafSwirl` | Leaf swirl trail | — | ≤ 30 | Coins | M8 | P1 |
-| `CD_Trail_CyanStreak` | Cyan streak ribbon | — | ribbon | Coins | M8 | P1 |
-| `CD_Trail_EmberAsh` | Ember + ash trail | — | ≤ 30 | Coins | M8 | P2 |
-| `CD_Badge_W1Clear…W3Clear`, `CD_Badge_W1Perfect…W3Perfect`, `CD_Badge_Bullseye10/30/All`, `CD_Badge_Daily7` (IDs per `06` §4.3) | Quiver badges (completion rewards only, §5) | 10 badges | 256² UI icon + 300-tri quiver charm | Completion | M8 | P1 |
-| `UI_Cosmetic_Thumb_<Id>` | Bow Forge thumbnails (rendered) | per cosmetic | 256² | — | M8 | P0 |
+| `CD_Bow_Moonwood` | Pale silver wood, moon-phase inlays, soft blue string glow | — | 4–6k | World 1 completion reward, or 1,200 coins earlier (D-064, D-101) | M6 | P0 |
+| `CD_Bow_Ember` | Charred wood with ember cracks, orange glow | — | 4–6k | **Post-MVP content update (D-101)** — not in the launch set | — | Deferred |
+| `CD_Bow_Frostglass` | Ice-glass limbs, frost runes | — | 4–6k | **Post-MVP content update (D-101)** — not in the launch set | — | Deferred |
+| `CD_Bow_RoyalAmethyst` | Amethyst lacquer + gold filigree (renamed from "Royal Violet", D-095; the bow is never in the play field) | — | 4–6k | Unlocked by the Cosmetic Starter Pack (D-091) or 2,500 coins (confirmed, D-104) — never marketed as exclusive | M6 | P0 |
+| `CD_Trail_GoldSpark` | Gold spark trail | — | ≤ 30 particles | Cosmetic Starter Pack (D-091), or 1,000 coins | M6 | P0 |
+| `CD_Trail_LeafSwirl` | Leaf swirl trail | — | ≤ 30 | 600 coins | M6 | P0 |
+| `CD_Trail_CyanStreak` | Cyan streak ribbon | — | ribbon | **Post-MVP content update (D-101)** | — | Deferred |
+| `CD_Trail_EmberAsh` | Ember + ash trail | — | ≤ 30 | **Post-MVP content update (D-101)** | — | Deferred |
+| `CD_Badge_W1Clear…W3Clear`, `CD_Badge_W1Perfect…W3Perfect`, `CD_Badge_Bullseye10/30/All`, `CD_Badge_Daily7` (IDs per `06` §4.3) | Quiver badges (completion rewards only, §5) | 10 badges | 256² UI icon + 300-tri quiver charm | Completion | M6 | P1 |
+| `UI_Cosmetic_Thumb_<Id>` | Bow Forge thumbnails (rendered) | per cosmetic | 256² | — | M6 | P0 |
 
 > Trails are rendered **behind** the arrow at ≤ 60% opacity and never obscure the trajectory preview or targets. Trails are disabled while drawing, and colour-assist mode can force a neutral trail (§15).
 
@@ -337,44 +339,44 @@ The kits share one structure. Gameplay-relevant static geometry (`Environment` l
 | `UI_Btn_Primary/Secondary/Icon` | Rounded shield buttons: carved wood rim, leaf-green (primary), parchment (secondary) | normal / pressed / disabled | 9-slice in `SA_Common` | M3 | P0 |
 | `UI_Panel_Parchment` | Panel background (9-slice), gold trim corners — **no purple frame** | 2 sizes | 9-slice | M3 | P0 |
 | `UI_Icon_*` | Pause, restart, settings, back, home, shop, forge, daily, close, sound, music, haptics, info, lock, coin, star (empty/full), medal, ad (video glyph), check | normal / pressed | 128² each | M2 graybox, M3 final | P0 |
-| `UI_Icon_Arrow_<Type>` | HUD quiver icons per arrow type (shape-distinct heads) | full / spent / next-highlight | 128² | M3 (Oak) / M4–M7 | P0 |
+| `UI_Icon_Arrow_<Type>` | HUD quiver icons per arrow type (shape-distinct heads) | full / spent / next-highlight | 128² | M3 (Oak) / M6 | P0 |
 | `UI_Star_Big` + `VFX_UI_StarBurst` | Win-screen stars | empty / filling / full | 256² | M3 | P0 |
-| `UI_Map_Node` | Level node (round crest-shield) | locked / current / cleared (+ 0–3 star pips, medal pip) | 256² | M5 | P0 |
-| `UI_Map_Backdrop_<World>` | Illustrated vertical world-map backdrops (tiling vertically, 3-node chapter clusters) | per world | 1024×2048 ×2–3 tiles, ASTC 6×6 | M5 (GW), M8 (all) | P0 |
-| `UI_Map_LockedTeaser_<World>` | Locked world teaser card | — | 512² | M8 | P1 |
-| `UI_Logo_Wordmark` | Original "Arrow Buster" wordmark (Q-02 pending) | light / dark | vector source; 1024² export | M3 (temp), M10 final | P0 |
-| `UI_Splash` | Branded bow-draw + arrow-impact splash (static fallback) | animated / static | — | M5 | P1 |
-| `UI_ArrowRevealCard_<Type>` | Card art for each special arrow's first appearance | 4 | 512² | M4–M7 | P0 |
+| `UI_Map_Node` | Level node (round crest-shield) | locked / current / cleared (+ 0–3 star pips, medal pip) | 256² | M6 | P0 |
+| `UI_Map_Backdrop_<World>` | Illustrated vertical world-map backdrops (tiling vertically, 3-node chapter clusters) | per world | 1024×2048 ×2–3 tiles, ASTC 6×6 | M6 | P0 |
+| `UI_Map_LockedTeaser_<World>` | Locked world teaser card | — | 512² | M6 | P1 |
+| `UI_Logo_Wordmark` | Original "Arrow Buster" wordmark (public name per D-081; legal/store/domain clearance before store-submission assets) | light / dark | vector source; 1024² export | M3 (temp), M8 final | P0 |
+| `UI_Splash` | **Static** branded splash: drawn bow + wordmark on the Greenwood palette. The animated bow-draw/impact splash is **cut (D-101)**. | static | — | M2 (temp), M6 (final) | P0 |
+| `UI_ArrowRevealCard_<Type>` | Card art for each special arrow's first appearance | 4 | 512² | M6 | P0 |
 | `UI_TutorialHand` | Ghost hand sprite for the L1 drag demo | — | 256² | M3 | P0 |
 | `UI_Callout_Bubble` | "Aim for the rope" bubble with pointer tail | — | 9-slice | M3 | P0 |
-| `UI_Shop_StarterPack` | Starter pack offer art (bow + trail + coins) | — | 1024×512 | M8 | P0 |
-| `UI_Icon_App` | App icon (see §4.10) | — | — | M10 | P0 |
+| `UI_Shop_StarterPack` | Starter Pack offer art: Royal Amethyst bow + Gold Spark trail + 500 coins, "Cosmetic only" badge (D-091) | — | 1024×512 | M7 | P0 |
+| `UI_Icon_App` | App icon (see §4.10) | — | — | M8 | P0 |
 
 ### 4.9 VFX — see §9 for timing and budgets
 
-### 4.10 Marketing (M10 unless noted; verify current store specs at M10 — they change)
+### 4.10 Marketing (M8 unless noted; captures refreshed from the M9 closed-test build; verify current store specs at M8 — they change)
 
-| ID | Description | Variants | Spec (verify at M10) | Needed | Pri |
+| ID | Description | Variants | Spec (verify at M8) | Needed | Pri |
 |---|---|---|---|---|---|
-| `MKT_Icon` | Fox mascot or drawn-bow motif on a leaf-green field, no text | iOS 1024² master; Android adaptive foreground/background 432² (108 dp) + 512² Play icon | No alpha on iOS | M10 (concepts M5) | P0 |
-| `MKT_iOS_Screenshot_*` | 5–8 portrait screenshots: signature shots (rope cut, collapse, fire, portal, 3★ win) with short original captions | 6.9" + 6.5" iPhone; iPad 13" if universal (A-03) | Current App Store sizes | M10 | P0 |
-| `MKT_GP_Screenshot_*` | Same set for Google Play | phone 9:16; 7"/10" tablet | ≥ 1080 px short side | M10 | P0 |
-| `MKT_GP_FeatureGraphic` | 1024×500 key art (bow + collapsing structure + wordmark) | — | 1024×500 | M10 | P0 |
-| `MKT_iOS_PreviewVideo` | 15–30 s portrait gameplay capture, no device frame, starts on a shot within 2 s | 1–3 | App Store preview spec | M10 | P1 |
-| `MKT_GP_PromoVideo` | YouTube-hosted cut of the same | 1 | — | M10 | P2 |
-| `MKT_KeyArt` | Hi-res key art for press/socials | portrait + landscape | 4K | M10 | P2 |
+| `MKT_Icon` | Fox mascot or drawn-bow motif on a leaf-green field, no text | iOS 1024² master; Android adaptive foreground/background 432² (108 dp) + 512² Play icon | No alpha on iOS | M8 (concepts M6) | P0 |
+| `MKT_iOS_Screenshot_*` | 5–8 portrait screenshots: signature shots (rope cut, collapse, fire, portal, 3★ win) with short original captions | 6.9" + 6.5" iPhone; iPad 13" if universal (A-03) | Current App Store sizes | M8 | P0 |
+| `MKT_GP_Screenshot_*` | Same set for Google Play | phone 9:16; 7"/10" tablet | ≥ 1080 px short side | M8 | P0 |
+| `MKT_GP_FeatureGraphic` | 1024×500 key art (bow + collapsing structure + wordmark) | — | 1024×500 | M8 | P0 |
+| `MKT_iOS_PreviewVideo` | 15–30 s portrait gameplay capture, no device frame, starts on a shot within 2 s | 1–3 | App Store preview spec | M8 | P1 |
+| `MKT_GP_PromoVideo` | YouTube-hosted cut of the same | 1 | — | M8 | P2 |
+| `MKT_KeyArt` | Hi-res key art for press/socials | portrait + landscape | 4K | M8 | P2 |
 
 ### 4.11 Audio — see §10 (SFX plan) and §11 (music). Asset count summary:
 
 | Category | Clips (incl. variations) | Needed |
 |---|---|---|
-| Bow & arrows | ~30 | M3 (Oak), M4–M7 (specials) |
-| Material impacts/breaks (5 materials) | ~40 | M3 (timber), M4, M7 |
-| Objectives/protected/characters | ~18 | M3–M4 |
-| Props/hazards | ~30 | M4–M7 |
-| UI | ~20 | M3 (core), M8 (meta) |
-| Music (loops + stings) | 4 loops + 6 stings + chain layer | M3 (GW loop), M5, M6, M7 |
-| Ambience | 3 beds | M5–M7 |
+| Bow & arrows | ~30 | M3 (Oak), M6 (specials; graybox `PH_` sounds from M4) |
+| Material impacts/breaks (5 materials) | ~40 | M3 (timber), M6 |
+| Objectives/protected/characters | ~18 | M3 / M6 |
+| Props/hazards | ~30 | M6 |
+| UI | ~20 | M3 (core), M6 (meta) |
+| Music (loops + stings) — **original only (D-089)** | 4 loops + 6 stings + chain layer | M3 (GW loop), M6 |
+| Ambience | 3 beds | M6 |
 
 ---
 
@@ -394,7 +396,8 @@ The kits share one structure. Gameplay-relevant static geometry (`Environment` l
 | Graybox materials | `M_Graybox_Required` (red), `M_Graybox_Protected` (purple), `M_Graybox_Interactive` (gold), `M_Graybox_Structure_<Material>` (§4 hues: straw yellow, timber brown, stone gray-blue, ice cyan, metal dark steel), `M_Graybox_Environment` (neutral gray-green) — graybox **already obeys the colour language** so playtests are valid |
 | Swap mechanism | Gameplay prefabs reference visuals through a child `Visual` object. Art replaces only that child (or the variant's mesh/material). Colliders, mass, layer and components never change (enforced by `PrefabValidator`, `01` §12). Audio/VFX swap by changing `SoundEvent` / `VfxEvent` assets, never code. |
 | Build check | `BuildScript` scans the build's dependency list. **Release/ClosedTest builds fail** if any dependency has the `Placeholder` label or a `_Placeholder` path. **Dev builds warn** and list them in the build report. |
-| Tracking | `docs/art/PLACEHOLDER_TRACKER.md` (ART, created at M3): asset, used by, replacement owner, target milestone |
+| Tracking | `docs/art/PLACEHOLDER_TRACKER.md` (ART, created at M3): asset, used by, replacement owner, target milestone, AI-generated (Y/N) |
+| AI-generated placeholders (D-089) | Allowed for internal concepts and temporary placeholders only. Same `_Placeholder` location, `PH_` prefix and `Placeholder` label, so the build check keeps them out of ClosedTest/Release builds. Never promoted to final without the documented licence + originality review. |
 
 ---
 
@@ -472,31 +475,33 @@ Source format: WAV 48 kHz / 24-bit in `ArtSource/Audio` (LFS); exported runtime 
 | Gameplay event (`GameEvents`) | VFX id | Duration | Max particles (Mid / Low) | Readability rule | Needed |
 |---|---|---|---|---|---|
 | Full draw reached | `VFX_Bow_FullDrawGlow` (string glow + 6 motes) | while held | 12 / 6 | Never overlaps the preview dots | M3 |
+| Trajectory preview (while drawing, D-085) | `VFX_Preview_ImpactRing`, `VFX_Preview_BounceMark` (first-bounce point + reflected dotted segment), `VFX_Preview_SplitMark` (Split marker + 3 child arcs), `VFX_Preview_PortalExit` (exit-ring highlight, path continues) | while drawing | dots pooled (40) + 3 markers | Same dot style before and after a bounce/portal; never hidden by other VFX; wind bends the dotted arc itself | M3 (impact ring) / M6 (others; graybox from M4) |
 | `ArrowFired` | `VFX_Bow_Release` (string snap ripple) | 0.2 s | 8 / 4 | — | M3 |
 | Arrow flight | `VFX_Trail_Default` (thin ribbon), cosmetic trails replace it | flight | ribbon / ≤ 30 | ≤ 60% opacity, behind the arrow | M3 |
-| `ArrowImpact` embed/deflect per material | `VFX_Impact_Straw/Timber/Stone/Ice/Metal` | 0.3–0.5 s | 20 / 10 | Small (≤ 0.6 m), additive or tiny alpha | M3 (timber) / M4 / M7 |
+| `ArrowImpact` embed/deflect per material | `VFX_Impact_Straw/Timber/Stone/Ice/Metal` | 0.3–0.5 s | 20 / 10 | Small (≤ 0.6 m), additive or tiny alpha | M3 (timber) / M6 |
 | Ricochet (metal / Bounce) | `VFX_Ricochet_Spark` | 0.25 s | 16 / 8 | Spark direction = reflected vector (teaches geometry) | M6 |
-| `ObjectBroken` per material | `VFX_Break_Straw/Timber/Stone/Ice/Metal` + debris meshes | 0.6–1.0 s; debris fades 1.2–2.0 s | 30 / 12 | Dust delayed 0.15 s; no dust on objectives | M3 / M4 / M7 |
+| `ObjectBroken` per material | `VFX_Break_Straw/Timber/Stone/Ice/Metal` + debris meshes | 0.6–1.0 s; debris fades 1.2–2.0 s | 30 / 12 | Dust delayed 0.15 s; no dust on objectives | M3 / M6 |
 | `ObjectiveCleared` | `VFX_Objective_Cleared` (red shards + gold ring pop + icon flies to HUD) | 0.6 s | 24 / 12 | Plays *at* the objective, then the HUD icon crosses out | M3 |
-| Bullseye hit | `VFX_Bullseye_Hit` (gold ring burst) | 0.5 s | 16 / 8 | — | M4 |
+| Bullseye hit | `VFX_Bullseye_Hit` (gold ring burst) | 0.5 s | 16 / 8 | — | M6 |
 | `ProtectedLost` | `VFX_Protected_Lost` (purple pulse ring + slow-mo focus) | 0.5 s | 12 / 6 | Object stays visible and is the focus | M3 |
 | Rope cut / chain cut | `VFX_RopeSnap` (fibre burst) / `VFX_ChainSnap` (spark) | 0.3 s | 10 / 5 | — | M3 / M6 |
 | Balloon pop | `VFX_BalloonPop` (confetti scraps, gold/green) | 0.4 s | 14 / 6 | — | M6 |
-| Powder barrel fuse | `VFX_Fuse_Spark` | 0.15 s (chain delay) | 8 / 4 | Telegraphs the chain | M4 |
-| Powder barrel blast | `VFX_Explosion_Powder` (flash ≤ 0.1 s, ring shockwave, embers; smoke **delayed 0.2 s**, low-opacity, rises away from the play centre) | 0.8 s | 60 / 25 | No full-screen flash; smoke never covers objectives | M4 |
+| Powder barrel fuse | `VFX_Fuse_Spark` | 0.15 s (chain delay) | 8 / 4 | Telegraphs the chain | M6 |
+| Powder barrel blast | `VFX_Explosion_Powder` (flash ≤ 0.1 s, ring shockwave, embers; smoke **delayed 0.2 s**, low-opacity, rises away from the play centre) | 0.8 s | 60 / 25 | No full-screen flash; smoke never covers objectives | M6 |
 | Oil jar break | `VFX_OilSplash` + puddle decal | 0.4 s | 12 / 6 | — | M6 |
 | Fire ignition | `VFX_Ignite` | 0.3 s | 10 / 5 | — | M6 |
 | Burning (rope/straw/FireZone) | `VFX_Fire_Burn` (looped, sized by object), `VFX_FireZone_Oil` | burn duration | 20 per source / 10; cap 3 sources simultaneously at full rate | Flames stay inside the object's bounds + 0.3 m | M6 |
+| Split pre-split pulse (D-088) | `VFX_Arrow_SplitPulse` (glowing ring + trail pulse on the arrow ~0.12 s before the split) | 0.12 s | 8 / 4 | Tells the player the split is about to happen at the point the preview marked | M6 |
 | Split arrow split | `VFX_Split_Burst` | 0.2 s | 10 / 5 | Marks the split point the preview showed | M6 |
 | Boulder rolling | `VFX_Boulder_Dust` (trail puffs) | while rolling | 16 / 6 | — | M6 |
-| Spring plate launch | `VFX_Spring_Launch` | 0.3 s | 10 / 5 | — | M6 |
-| Wind field | `VFX_Wind_Streaks` (direction streaks inside the zone) | always | 30 / 12 per zone | **Required readability**: always shows direction + rough strength (streak speed) | M7 |
-| Portal idle / pass | `VFX_Portal_Idle` (rim swirl, pair colour) / `VFX_Portal_Pass` (entry + exit flash) | always / 0.3 s | 20 / 10 per ring | Entry and exit flash in the same colour + glyph | M7 |
-| Ice slide | `VFX_Ice_Scrape` (glints) | while sliding | 10 / 4 | — | M7 |
+| ~~Spring plate launch~~ | ~~`VFX_Spring_Launch`~~ — **cut (D-086)** | — | — | — | — |
+| Wind field | `VFX_Wind_Streaks` (direction streaks inside the zone) | always | 30 / 12 per zone | **Required readability**: always shows direction + rough strength (streak speed) | M6 |
+| Portal idle / pass | `VFX_Portal_Idle` (rim swirl, pair colour) / `VFX_Portal_Pass` (entry + exit flash) | always / 0.3 s | 20 / 10 per ring | Entry and exit flash in the same colour + glyph | M6 |
+| Ice slide | `VFX_Ice_Scrape` (glints) | while sliding | 10 / 4 | — | M6 |
 | Kill zones | `VFX_Splash_Water`, `VFX_Spikes_Crunch`, `VFX_Pit_Poof` | 0.5 s | 24 / 10 | — | M3 (water, pit) / M6 (spikes) |
-| Chain reaction escalation | `VFX_Chain_Combo` (small rising gold notes near the HUD, optional) | per step | 6 / 0 | UI-space only, off with Reduced Particles | M5 (P2) |
+| Chain reaction escalation | `VFX_Chain_Combo` (small rising gold notes near the HUD, optional) | per step | 6 / 0 | UI-space only, off with Reduced Particles | M6 (P2) |
 | Win | `VFX_UI_StarBurst` ×1–3, `VFX_UI_Coins` | 0.4 s per star | 40 / 20 (UI) | — | M3 |
-| World unlock | `VFX_UI_WorldUnlock` | 1.2 s | 60 / 30 | — | M8 |
+| World unlock | `VFX_UI_WorldUnlock` | 1.2 s | 60 / 30 | — | M6 |
 
 ### 9.3 Hit-stop and camera shake (owner ART code, values in `GameplayTuning`)
 - `HitStop`: 40–70 ms (§11, `GameConstants.HitStopMin/MaxSeconds`) on *meaningful direct impacts* only: an arrow breaking an objective, cutting a required rope, a structure break by direct arrow, a blast start. Max 1 per 0.3 s. Scaled by impact energy. **Kept under Reduced Motion** (it is a time pause, not motion) but capped at 40 ms.
@@ -524,45 +529,45 @@ Source format: WAV 48 kHz / 24-bit in `ArtSource/Audio` (LFS); exported runtime 
 | `SE_Bow_Release` | String snap + twang (signature, custom) | 3 | 21 | 2 | M3 |
 | `SE_Bow_Cancel` | Gentle string relax | 1 | 60 | 1 | M3 |
 | `SE_Arrow_Whistle` | Loop; pitch/volume rise with speed (§11) | loop | 50 | 3 | M3 |
-| `SE_Impact_Straw` | Soft thwip + rustle | 3 | 30 | 3 | M4 |
+| `SE_Impact_Straw` | Soft thwip + rustle | 3 | 30 | 3 | M6 |
 | `SE_Impact_Timber` | Wood thunk (embed) | 4 | 30 | 3 | M3 |
-| `SE_Impact_Stone` | Stone thunk / chip (deflect) | 4 | 30 | 3 | M4 |
-| `SE_Impact_Ice` | Ice chime tick | 3 | 30 | 3 | M7 |
+| `SE_Impact_Stone` | Stone thunk / chip (deflect) | 4 | 30 | 3 | M6 |
+| `SE_Impact_Ice` | Ice chime tick | 3 | 30 | 3 | M6 |
 | `SE_Impact_Metal` | Metal ping (§11) | 4 | 25 | 3 | M6 |
 | `SE_Arrow_Ricochet` | Ping + whizz | 3 | 25 | 2 | M6 |
-| `SE_Break_Straw/Timber/Stone/Ice/Metal` | Layered break (crack + body + tail); ice = shatter + chime tail | 3 each | 65 | 4 | M3–M7 |
-| `SE_Debris_Settle_<Material>` | Small rattles | 3 | 140 | 2 | M5 |
+| `SE_Break_Straw/Timber/Stone/Ice/Metal` | Layered break (crack + body + tail); ice = shatter + chime tail | 3 each | 65 | 4 | M3 / M6 |
+| `SE_Debris_Settle_<Material>` | Small rattles | 3 | 140 | 2 | M6 |
 | `SE_Objective_Cleared` | Bright crest-shatter "ting" + rising tone | 2 | 10 | 2 | M3 |
 | `SE_Objective_AllCleared` | Short swell before the win confirm | 1 | 5 | 1 | M3 |
 | `SE_Protected_Lost_Vase` | Porcelain crash + "uh-oh" musical sting | 1 | 1 | 1 | M3 |
-| `SE_Protected_Lost_Fox` | Startled yelp (cartoon, original) | 2 | 1 | 1 | M4 |
-| `SE_Fox_Snore` | Quiet snore loop (ambient tell) | loop | 150 | 1 | M4 |
-| `SE_Dummy_Hit` / `_FallOver` | Squeaky stuffing thud / comedic flop | 2 / 2 | 30 | 2 | M4 |
-| `SE_Lantern_Break` | Glass tinkle + fizz | 2 | 30 | 2 | M4 |
-| `SE_Orb_Shatter` | Dark glass + magical release | 2 | 15 | 1 | M4 |
+| `SE_Protected_Lost_Fox` | Startled yelp (cartoon, original) | 2 | 1 | 1 | M6 |
+| `SE_Fox_Snore` | Quiet snore loop (ambient tell) | loop | 150 | 1 | M6 |
+| `SE_Dummy_Hit` / `_FallOver` | Squeaky stuffing thud / comedic flop | 2 / 2 | 30 | 2 | M6 |
+| `SE_Lantern_Break` | Glass tinkle + fizz | 2 | 30 | 2 | M6 |
+| `SE_Orb_Shatter` | Dark glass + magical release | 2 | 15 | 1 | M6 |
 | `SE_Rope_Snap` / `SE_Chain_Snap` | Rope twang (§11) / chain clank | 3 / 2 | 25 | 2 | M3 / M6 |
 | `SE_Rope_Burn` | Crackle loop | loop | 100 | 2 | M6 |
 | `SE_Balloon_Pop` | Pop | 3 | 40 | 3 | M6 |
 | `SE_OilJar_Break` | Clay crack + glug | 2 | 40 | 2 | M6 |
 | `SE_Fire_Ignite` / `SE_Fire_Loop` | Whoomp / crackle | 2 / loop | 40 / 110 | 2 / 3 | M6 |
-| `SE_Barrel_Fuse` | Short hiss | 1 | 35 | 2 | M4 |
-| `SE_Barrel_Explode` | Layered boom (sub trimmed for phone speakers) + debris tail | 3 | 15 | 2 | M4 |
+| `SE_Barrel_Fuse` | Short hiss | 1 | 35 | 2 | M6 |
+| `SE_Barrel_Explode` | Layered boom (sub trimmed for phone speakers) + debris tail | 3 | 15 | 2 | M6 |
 | `SE_Boulder_Roll` / `_Impact` | Rumble loop / heavy thud | loop / 3 | 90 / 45 | 1 / 2 | M6 |
-| `SE_Spring_Launch` | Boing-thwack (original) | 2 | 45 | 1 | M6 |
-| `SE_WindFan_Loop` | Whoosh loop | loop | 150 | 2 | M7 |
+| ~~`SE_Spring_Launch`~~ | **Cut (D-086)** | — | — | — | — |
+| `SE_WindFan_Loop` | Whoosh loop | loop | 150 | 2 | M6 |
 | `SE_Shield_Clank` / `_Hum` | Metal block / mechanism hum | 3 / loop | 30 / 160 | 2 / 2 | M6 |
-| `SE_Portal_Enter` / `_Exit` / `_Idle` | Warp in/out + idle hum | 2 / 2 / loop | 25 / 25 / 160 | 2 / 2 / 2 | M7 |
+| `SE_Portal_Enter` / `_Exit` / `_Idle` | Warp in/out + idle hum | 2 / 2 / loop | 25 / 25 / 160 | 2 / 2 / 2 | M6 |
 | `SE_Arrow_Split` | Triple whoosh | 2 | 25 | 1 | M6 |
-| `SE_Arrow_Bounce` | Bright magical ping | 2 | 25 | 1 | M7 |
+| `SE_Arrow_Bounce` | Bright magical ping | 2 | 25 | 1 | M6 |
 | `SE_Arrow_FireFlight` | Flame flutter loop | loop | 50 | 2 | M6 |
 | `SE_Kill_Water` / `_Spikes` / `_Pit` | Splash / crunch / distant thud | 3 / 2 / 2 | 70 | 3 | M3 (water, pit) / M6 (spikes) |
-| `SE_Ice_Slide` | Scrape loop | loop | 110 | 2 | M7 |
+| `SE_Ice_Slide` | Scrape loop | loop | 110 | 2 | M6 |
 | `SE_UI_Tap` / `_Back` / `_Toggle` / `_Error` | UI | 2 / 1 / 2 / 1 | 170 | 2 | M3 |
 | `SE_UI_Star1/2/3` | Rising three-note star reveals | 1 each | 160 | 1 | M3 |
 | `SE_UI_CoinTick` / `_CoinBurst` | Coin counter | 2 / 1 | 165 | 2 | M3 |
-| `SE_UI_Unlock` / `_WorldUnlock` | Node unlock / fanfare | 1 / 1 | 150 | 1 | M5 / M8 |
-| `SE_UI_Purchase` / `_Equip` | Purchase success / equip | 1 / 2 | 150 | 1 | M8 |
-| `SE_UI_ArrowReveal` | Special arrow card reveal | 1 | 150 | 1 | M4 |
+| `SE_UI_Unlock` / `_WorldUnlock` | Node unlock / fanfare | 1 / 1 | 150 | 1 | M6 |
+| `SE_UI_Purchase` / `_Equip` | Purchase success / equip | 1 / 2 | 150 | 1 | M7 (purchase) / M6 (equip) |
+| `SE_UI_ArrowReveal` | Special arrow card reveal | 1 | 150 | 1 | M6 |
 | `SE_UI_Toast` | Soft "1 arrow left" chime | 1 | 120 | 1 | M3 |
 
 Audio cues are **never the sole signal** (§15): every sound above has a visual counterpart.
@@ -574,13 +579,13 @@ Audio cues are **never the sole signal** (§15): every sound above has a visual 
 | Element | Spec | Needed |
 |---|---|---|
 | `MusicPlayer` | Persistent (AppRoot). Two `AudioSource`s for 1.0 s equal-power crossfades. Plays `MUS_*` via `WorldData.music` refs. Pauses on app pause/ads. Respects the Music toggle (fades, doesn't restart). | M3 |
-| `MUS_Menu_Theme` | Home + World Map. Warm, adventurous, light folk-orchestral, 60–90 s seamless loop | M5 |
+| `MUS_Menu_Theme` | Home + World Map. Warm, adventurous, light folk-orchestral, 60–90 s seamless loop | M6 |
 | `MUS_GW_Loop` | Greenwood: acoustic guitar/lute, wooden flute, hand percussion; bright, 100–110 BPM, 60–120 s loop | M3 (VS) |
 | `MUS_SC_Loop` | Sunscar: frame drums, plucked strings, warm brass pads; dusk mood. Original fantasy idiom, avoiding real-culture pastiche clichés. | M6 |
-| `MUS_FK_Loop` | Frostspire: bells, celesta, string ostinato, airy choir pad | M7 |
-| Set-piece layer (P1) | Every 5th level: an additional percussion stem on the world loop (`MUS_<W>_SetPieceLayer`), synced by sample position | M5 |
-| Stings | `MUS_Sting_Win` (2–3 s, key-agnostic), `MUS_Sting_Fail` (gentle, short, non-punishing), `MUS_Sting_ThreeStar`, `MUS_Sting_WorldUnlock`, `MUS_Sting_ArrowReveal`, `MUS_Sting_ChainFinale` | M3–M8 |
-| **Chain-reaction percussion** (§11) | `ChainReactionTracker` (in `FeedbackDirector`) counts break/trigger events inside a sliding 0.4 s window **after a single shot**. Steps 1–6 trigger `SE_Chain_Perc_1..6` (escalating drum/ting hits, each a semitone/intensity step up). At step ≥ 3, the music ducks −4 dB. On the shot's resolution with ≥ 4 steps, play `MUS_Sting_ChainFinale` before the win sting (or instead of it if the win is immediate). | M5 |
+| `MUS_FK_Loop` | Frostspire: bells, celesta, string ostinato, airy choir pad | M6 |
+| Set-piece layer (P1) | Every 5th level: an additional percussion stem on the world loop (`MUS_<W>_SetPieceLayer`), synced by sample position | M6 |
+| Stings | `MUS_Sting_Win` (2–3 s, key-agnostic), `MUS_Sting_Fail` (gentle, short, non-punishing), `MUS_Sting_ThreeStar`, `MUS_Sting_WorldUnlock`, `MUS_Sting_ArrowReveal`, `MUS_Sting_ChainFinale` | M3 / M6 |
+| **Chain-reaction percussion** (§11) | `ChainReactionTracker` (in `FeedbackDirector`) counts break/trigger events inside a sliding 0.4 s window **after a single shot**. Steps 1–6 trigger `SE_Chain_Perc_1..6` (escalating drum/ting hits, each a semitone/intensity step up). At step ≥ 3, the music ducks −4 dB. On the shot's resolution with ≥ 4 steps, play `MUS_Sting_ChainFinale` before the win sting (or instead of it if the win is immediate). | M6 |
 | Ducking | Win/Fail panels: music −6 dB (`Results` snapshot). Pause: low-pass. Rewarded/interstitial ad: all audio paused. Hit-stop: no change. | M3 |
 | Loudness | Music −16 LUFS integrated. Ships at 70% default volume (Settings slider 0–100% if time allows; the toggle is mandatory, §8). | M3 |
 
@@ -612,26 +617,26 @@ Owner `UI` unless noted (co-owner in brackets). All screens use `UIRouter`, `Scr
 
 | Screen / panel | Class | Purpose | Entry → Exit | Key elements | Needed | Owner |
 |---|---|---|---|---|---|---|
-| Splash / loading | `AppRoot` overlay (Boot) | Brand moment while services init (§8) | App start → Consent or Home (≤ 3 s target) | Wordmark, bow-draw + arrow-impact animation (static fallback), subtle progress | M5 (static M2) | UI |
-| Consent | `ConsentPanel` | Host UMP form / ATT pre-context (no dark patterns) | Boot (first launch / consent change / EEA) → Home; Settings ▸ Privacy → back | Platform UMP form (native), our short pre-ATT explainer ("Allow personalised ads?" neutral wording), equal-weight buttons | M8 | MON [UI] |
-| Home | `HomeScreen` | Big PLAY + current world card (§8) | Splash/Consent → WorldMap / Gameplay (PLAY = next uncleared level) / Bow Forge / Settings / Daily / Shop | PLAY (dominant), world card with progress, Daily badge, Forge, Shop, Settings, coins | M5 (graybox M3) | UI |
-| World map | `WorldMapScreen`, `LevelNodeView` | Choose levels, see stars, locked-world teaser | Home → Gameplay / Home | Vertical scroll path, 20 nodes per world, chapter clusters, star pips, medal pips, locked teaser ("Clear 15 levels to unlock"), coins | M5 (W1), M8 (all) | UI [SYS] |
+| Splash / loading | `AppRoot` overlay (Boot) | Brand moment while services init (§8) | App start → Consent or Home (≤ 3 s target) | Wordmark + drawn bow (**static only**, animated splash cut — D-101), subtle progress | M2 (temp), M6 (final) | UI |
+| Consent | `ConsentPanel` | Host UMP form / ATT pre-context (no dark patterns). Consent-aware init (D-096): in UK/EEA, Firebase Analytics + Crashlytics collection and ad personalisation stay off until consent | Boot (first launch / consent change / UK-EEA) → Home; Settings ▸ Privacy → back | Platform UMP form (native), our short pre-ATT explainer ("Allow personalised ads?" neutral wording), equal-weight buttons, privacy-policy link (D-097) | M7 | MON [UI] |
+| Home | `HomeScreen` | Big PLAY + current world card (§8) | Splash/Consent → WorldMap / Gameplay (PLAY = next uncleared level) / Bow Forge / Settings / Daily / Shop | PLAY (dominant), world card with progress, Daily badge, Forge, Shop, Settings, coins | M6 (graybox M3) | UI |
+| World map | `WorldMapScreen`, `LevelNodeView` | Choose levels, see stars, locked-world teaser | Home → Gameplay / Home | Vertical scroll path, 20 nodes per world, chapter clusters, star pips, medal pips, locked teaser ("Clear 15 levels to unlock"), coins | M6 | UI [SYS] |
 | Gameplay HUD | `HudView`, `ObjectiveIconsView`, `QuiverView`, `ToastView` | Minimal in-level info (§8) | Gameplay load → panels | §14 layout | M2 graybox, M3 final | UI |
 | Tutorial overlays | `TutorialPromptController` (Gameplay) + `UI_TutorialHand`, `UI_Callout_Bubble` | L1 ghost-hand drag; callouts in designated levels ("Aim for the rope") | `LevelStarted` with `TutorialPromptData` → dismissed by `DrawStarted`/timeout | Hand, bubble anchored to a `TutorialAnchor` (world→screen), never covers the target | M3 | CORE [UI] |
-| Arrow reveal card | `ArrowRevealCard` (in `UI/`) | First appearance of a special arrow (D-014) | First `LevelStarted` with a new type → tap to continue → HUD | Card art, name, one-line effect ("Hits hard. Flies slow."), the arrow added to the codex | M4 | UI |
+| Arrow reveal card | `ArrowRevealCard` (in `UI/`) | First appearance of a special arrow (D-082: Heavyhead L13, Split L30, Fire L36, Bounce L47) | First `LevelStarted` with a new type → tap to continue → HUD | Card art, name, one-line effect ("Hits hard. Flies slow."), the arrow added to the codex | M6 | UI |
 | Pause | `PausePanel` | Pause the level | HUD pause → Resume / Restart / Map / Settings | Resume (dominant), Restart, World Map, sound/haptics quick toggles | M2 graybox, M3 | UI |
 | Win | `WinPanel` | Celebrate + reward + 1-tap Next (§8) | `LevelWon` → Next (Gameplay) / Replay / Map; optional 2× coins (rewarded) | Stars animate 1→3, arrows used vs par, coins (counter), medal if earned, **Next (dominant)**, Replay, Map, "2× coins ▶" (never blocks Next, §9) | M3 | UI [MON] |
-| Fail | `FailPanel` | Quick message + Retry (§8) | `LevelFailed` → Retry / Map; optional +1 arrow rewarded | Reason line ("Out of arrows" / "The vase broke!" / "You woke the fox!"), **Retry (dominant)**, Map, "+1 arrow ▶" only when `AdPolicy` allows | M3 | UI [MON] |
-| Rewarded flow states | `RewardedOfferButton` | Show offer, loading, unavailable, granted | Win/Fail → ad → reward toast | Loading spinner ≤ 5 s then "Not available right now" (no penalty) | M8 | MON [UI] |
-| Interstitial transition | (UIRouter hook) | Show capped interstitial only on Win → Next/Home (D-025) | Win Next/Home → (ad) → destination | Fade to the transition overlay; no UI of our own | M8 | MON |
-| Bow Forge | `BowForgeScreen` | Cosmetics collection grid (§8) + arrow codex + badges/medals | Home → back | Tabs: Bows / Trails / Badges / Arrows (codex); grid with owned/locked/price; preview bow at large size; Equip/Buy; no stats | M8 | UI [SYS] |
-| Shop | `ShopScreen` | IAPs: Remove Ads, Starter Pack; restore (iOS) | Home / Forge → back | Clear prices from the store, contents list, "Cosmetic only" note, Restore Purchases | M8 | MON [UI] |
-| Daily challenge | `DailyChallengePanel` | 3 selected levels with a challenge quiver (D-027) | Home badge → Gameplay (challenge mode) → back to the panel | 3 cards with done ticks, reward 100 coins, resets at local midnight (shows hours left), locked until L10 | M8 | SYS [UI] |
-| Settings | `SettingsPanel` | §8 settings | Home / Pause → back | Music, SFX, Haptics, Reduced particles, Reduced motion, Colour-assist outlines, Restore purchases, Privacy (consent form, policy link), Credits, version/build id | M3 (Music/SFX/Haptics toggles inside the Pause panel only, per `11` §3), M5 (Settings screen + accessibility toggles), M8 (full) | UI |
-| Purchase / error popups | `ModalDialog` | Purchase result, network issues, restore result | Any → dismiss | One primary button; no guilt copy | M8 | UI |
+| Fail | `FailPanel` | Quick message + Retry (§8) | `LevelFailed` → Retry / Map; optional +1 arrow rewarded | Reason line ("Out of arrows" / "The vase broke!" / "You woke the fox!"), **Retry (dominant)**, Map, "+1 arrow ▶" only when `AdPolicy` allows, always labelled **"Bonus Arrow Used — 1★ Max"** before the player accepts (D-084) | M3 | UI [MON] |
+| Rewarded flow states | `RewardedOfferButton` | Show offer, loading, unavailable, granted. On the Fail panel the button and the confirm step show **"Bonus Arrow Used — 1★ Max"** before the player accepts the ad (D-084, key `fail.bonus_arrow.star_cap`) | Win/Fail → ad → reward toast | Loading spinner ≤ 5 s then "Not available right now" (no penalty); 1★ disclosure always visible on the +1 arrow offer | M7 | MON [UI] |
+| Interstitial transition | (UIRouter hook) | Show capped interstitial only on Win → Next/Home (D-093) | Win Next/Home → (ad) → destination | Fade to the transition overlay; no UI of our own. Never after a fail, a purchase, a rewarded ad, during onboarding or on app resume (D-093) | M7 | MON |
+| Bow Forge | `BowForgeScreen` | Cosmetics collection grid (§8) + arrow codex + badges/medals | Home → back | Tabs: Bows / Trails / Badges / Arrows (codex); grid with owned/locked/price; preview bow at large size; Equip/Buy; no stats | M6 | UI [SYS] |
+| Shop | `ShopScreen` | IAPs: Remove Ads (£3.99 / USD 3.99), Cosmetic Starter Pack (£2.99 / USD 2.99) (D-091); restore (iOS) | Home / Forge → back | Localised store prices (never hard-coded), contents list, "Cosmetic only — no gameplay advantage" note, "Remove Ads removes interstitials only; optional rewarded videos stay" note, Restore Purchases | M7 | MON [UI] |
+| Daily challenge | `DailyChallengePanel` | 3 already-cleared levels with a gold-par quiver (D-094) — **cut-first** if it risks the 60-level campaign | Home badge → Gameplay (challenge mode) → back to the panel | 3 cards with done ticks, reward 100 coins, resets at local midnight (shows hours left), locked until global L10 is cleared | M6 | SYS [UI] |
+| Settings | `SettingsPanel` | §8 settings | Home / Pause → back | Music, SFX, Haptics, Reduced particles, Reduced motion, Colour-assist outlines, Restore purchases, Privacy (consent form, hosted policy link — D-097), Credits, version/build id | M3 (Music/SFX/Haptics toggles inside the Pause panel only, per `11` §3), M6 (Settings screen + accessibility toggles), M7 (Privacy + Restore) | UI |
+| Purchase / error popups | `ModalDialog` | Purchase result, network issues, restore result | Any → dismiss | One primary button; no guilt copy | M7 | UI |
 | Toasts | `ToastView` | "1 arrow left", "Out of arrows", "Bullseye!", "Saved" | Gameplay/UI events → auto-hide 1.2 s | Pill near the top-centre, never over the aim zone | M2 | UI |
 | Transition overlay | `TransitionOverlay` (AppRoot) | Scene/level fades (≤ 0.25 s) | Any scene change | Fade + small bow-spinner if load > 0.5 s | M2 | UI |
-| Credits | `CreditsPanel` | Attribution (fonts/SFX licences) | Settings → back | Scroll list from `ASSET_LICENSES.md` | M10 | UI [ART] |
+| Credits | `CreditsPanel` | Attribution (fonts/SFX licences) | Settings → back | Scroll list from `ASSET_LICENSES.md` | M8 | UI [ART] |
 
 ---
 
@@ -700,18 +705,18 @@ Verification: Unity Device Simulator profiles (iPhone SE 3, iPhone 11, iPhone 15
 | Feature | Spec | Setting / default | Needed |
 |---|---|---|---|
 | **Shape + icon, not colour only** (§8) | Required = crest/target glyph + ring silhouette; protected = shield/crown glyph + halo; interactive = spark/gear glyph; cursed orb = eye-rune; portal pairs = colour **+** glyph | Always on | M3 |
-| **Colour-assist outlines** (§8) | Thick (≈ 3 px at 1080 width) screen-consistent outlines: red/required, purple/protected, gold/interactive, + a category glyph billboard above each object. Implementation: inverted-hull outline pass in `SG_AB_StylizedLit` (cheap; works on Low) + world-space glyph sprites (D-054). Patterns are colour-blind-safe (checked with deuteranopia/protanopia/tritanopia simulators). | Off by default; prompted once in Settings | M4 (graybox), M5 |
-| **Reduced particles** (§8) | Particle counts ×0.4, no smoke/dust clouds, no UI confetti, no background ambient particles | Off; auto-on for the Low tier (visible in Settings) once tier selection exists (M9) | M5 |
-| **Reduced motion** | Disables camera shake, UI bounce/punch (fades instead), parallax drift, slow-mo focus beyond 0.25 s. Hit-stop capped at 40 ms. | Off; defaults on when the OS reduce-motion flag is set (iOS `UIAccessibility.isReduceMotionEnabled`, Android animator duration scale = 0) | M5 |
+| **Colour-assist outlines** (§8) | Thick (≈ 3 px at 1080 width) screen-consistent outlines: red/required, purple/protected, gold/interactive, + a category glyph billboard above each object. Implementation: inverted-hull outline pass in `SG_AB_StylizedLit` (cheap; works on Low) + world-space glyph sprites (D-054). Patterns are colour-blind-safe (checked with deuteranopia/protanopia/tritanopia simulators). | Off by default; prompted once in Settings | M4 (graybox outline pass), M6 (final) |
+| **Reduced particles** (§8) | Particle counts ×0.4, no smoke/dust clouds, no UI confetti, no background ambient particles | Off; auto-on for the Low tier (visible in Settings) once tier selection exists (M8) | M6 |
+| **Reduced motion** | Disables camera shake, UI bounce/punch (fades instead), parallax drift, slow-mo focus beyond 0.25 s. Hit-stop capped at 40 ms. | Off; defaults on when the OS reduce-motion flag is set (iOS `UIAccessibility.isReduceMotionEnabled`, Android animator duration scale = 0) | M6 |
 | **Haptics toggle** (§8) | Disables all haptics | On by default | M3 |
 | **Music / SFX toggles** (§8) | Independent | On | M3 |
 | **Audio not the sole signal** | Every SFX cue has a visual counterpart (§10). Fail reasons are shown as text. The fox's snore has a "Zz" visual. | Always | M3 |
 | **Text** | Min 34 px body / 44 px HUD numbers at reference. Dynamic text sizing beyond that is post-MVP (proposed: "Larger text" ×1.15 as P2). | — | M3 |
-| **Contrast** | UI text ≥ 4.5:1 (WCAG AA), large text/icons ≥ 3:1. Gameplay objects ≥ 30% luminance contrast vs. the local background (S-5). | — | M5 audit |
+| **Contrast** | UI text ≥ 4.5:1 (WCAG AA), large text/icons ≥ 3:1. Gameplay objects ≥ 30% luminance contrast vs. the local background (S-5). | — | M6 audit |
 | **One-handed / no multitouch** (§8) | Single-pointer draw anywhere in the aim zone (D-018). All buttons reachable by the thumb. Secondary touches are ignored. No gestures required beyond tap and drag. | Always | M1 |
 | **Forgiving input** | Releasing below `minFirePower` cancels without spending an arrow. Restart needs no confirm. Pause is always available. | Always | M1 |
-| **Timing** | No input timers. Moving shields/platforms are slow, periodic and telegraphed (track art). The aim window is 8–12% of screen width (§7). | Design rule | M6–M7 |
-| **Photosensitivity** | No more than 3 flashes per second; explosion flash ≤ 0.1 s and not full-screen | Always | M4 |
+| **Timing** | No input timers. Moving shields are slow, periodic and telegraphed (track art); moving ice platforms are cut (D-104). The aim window is 8–12% of screen width (§7). | Design rule | M4 |
+| **Photosensitivity** | No more than 3 flashes per second; explosion flash ≤ 0.1 s and not full-screen | Always | M6 |
 | **Screen readers** | Not supported in MVP (gameplay is visual). Menus use a standard button hierarchy so a later accessibility pass is feasible (post-MVP). | — | Post-MVP |
 
 QA checks are in `07` §Accessibility checks.
@@ -725,8 +730,9 @@ QA checks are in `07` §Accessibility checks.
    └─► BOOT (AppRoot: load save → init services)
          ├─ first launch / consent needed / consent version changed / EEA-UK
          │     └─► CONSENT (UMP form) ──► [iOS] ATT pre-context ──► ATT system prompt
-         │                                                          └─► (analytics/ads/crash init)
-         └─ consent known ──► (analytics/ads/crash init; remote config fetch ≤ 2 s)
+         │                                                          └─► consent-aware init (D-096): Analytics/Crashlytics collection +
+         │                                                              ad personalisation ON only if consented (UK/EEA)
+         └─ consent known ──► (consent-aware analytics/ads/crash init; remote config fetch ≤ 2 s)
    └─► SPLASH (≤ 3 s total) ─► HOME
                                   │
    HOME ──PLAY──────────────────────────────────────────► GAMEPLAY (next uncleared level)
@@ -747,39 +753,43 @@ GAMEPLAY
    HUD Restart ─► LevelLoader.Load (same level, attempt+1)
    ├─ all objectives cleared + settle ─► WIN PANEL
    │     ├─ "2× coins ▶" (optional) ─► rewarded ad ─► reward granted ─► coins doubled ─► WIN PANEL
-   │     ├─ Next ─► [AdPolicy: interstitial allowed?] ─yes─► interstitial ─► GAMEPLAY(next level)
+   │     ├─ Next ─► [AdPolicy (D-093): interstitial allowed? never after a rewarded ad/purchase/onboarding] ─yes─► interstitial ─► GAMEPLAY(next level)
    │     │                                            └─no──────────────────► GAMEPLAY(next level)
    │     │      (next level in a new world, or world just completed ─► WORLD MAP with unlock fanfare)
    │     ├─ Replay ─► GAMEPLAY(same level)
    │     └─ Map ─► [AdPolicy interstitial check] ─► WORLD MAP
    └─ protected lost ─► (0.5 s slow-mo focus, D-038) / out of arrows ─► ("Out of arrows" toast 0.6 s, D-015) ─► FAIL PANEL
-         ├─ Retry (dominant) ─► GAMEPLAY(same level)            (never an interstitial after a fail, D-025)
-         ├─ "+1 arrow ▶" (only if AdPolicy allows; max 1 per attempt)
-         │        └─► rewarded ad ─► granted ─► resume the same attempt with +1 arrow (clear capped 1★, D-024)
+         ├─ Retry (dominant) ─► GAMEPLAY(same level)            (never an interstitial after a fail, D-093)
+         ├─ "+1 arrow ▶ — Bonus Arrow Used — 1★ Max" (only if AdPolicy allows; max 1 per attempt; disclosure shown BEFORE accepting, D-084)
+         │        └─► rewarded ad ─► granted ─► resume the same attempt with +1 arrow (clear capped 1★, D-084)
          │                        └─ not granted / no fill ─► FAIL PANEL ("Not available right now")
          └─ Map ─► WORLD MAP
 
-App backgrounded (any state) ─► auto-PAUSE in Gameplay; save flush; audio paused ─► resume returns to PAUSE
+App backgrounded (any state) ─► auto-PAUSE in Gameplay; save flush; audio paused ─► resume returns to PAUSE (no interstitial on app resume, D-093)
 ```
 
 ---
 
-## 18. Asset production priority list (by milestone)
+## 18. Asset production priority list (by milestone, D-102 execution order)
+
+Order follows the owner's 12-step execution order: prove the five-level vertical slice with real feedback first, then build every system and all 60 levels in graybox, validate on devices, and only then produce final world art, audio, VFX, UI polish and cosmetics. SDK-facing UI comes after the core game is stable.
 
 | # | Milestone | Graybox (placeholder, colour-language materials) | Final / near-final art & audio | Owner |
 |---|---|---|---|---|
-| 1 | **M1** Graybox Core Feel | Bow (cylinder limbs + LineRenderer string), `Arrow_Oak` capsule, crates, ground, crest target, `M_Graybox_*` set, `PH_SFX_*` (2–3 generic clicks for release/impact) | — | ART (setup), CORE/PHYS (prefabs) |
-| 2 | **M2** Core Loop + VS Graybox | Vase, rope, kill zones, HUD/panels with `UI_Icon_*` placeholders, toasts | Fonts chosen + licensed (logged), `ASSET_LICENSES.md` created, `AssetImportRules` live | ART, UI |
-| 3 | **M3** Vertical Slice | Everything else still graybox | **Greenwood VS section:** `T_GW_Palette`, ground/platform/pillar/cliff/rope-anchor/bow-stand/tree, 1 background card + sky; **hero bow** `SM_Bow_OakRanger` + `AC_Bow`; `Arrow_Oak`; `Env_GW_Backdrop_TrainingGrounds` + `Env_GW_*` VS blocking variants; `Struct_Crate_Timber_*`, `Struct_Post_Timber_0.5x2`, `Struct_Plank_Timber_4x0.25`, `Struct_Beam_Timber_*`, `Obj_CrestTarget`, `Prop_Rope`, `Prot_RoyalVase`, `Haz_Pit`, `Haz_WaterPit`; timber/crest/vase debris; kill-zone splash/poof VFX + SFX; VFX: bow glow/release, trail, timber impact/break, objective cleared, rope snap, protected lost, star burst; SFX: bow set, whistle, timber set, objective, vase, rope, UI core, stars; `MUS_GW_Loop` + win/fail stings; haptics map; HUD + Win/Fail/Pause polished; tutorial hand + callout. **OR-1 originality gate.** | ART, UI |
-| 4 | **M4** World 1 Systems | Straw/stone/metal/ice graybox variants, barrel, lantern, orb, dummy, fox, hazards | `Obj_SupplyCrate_*`, `Obj_BannerRope`, straw + stone material art/SFX/VFX, `Arrow_Heavyhead`, `UI_ArrowRevealCard_Heavyhead`, powder barrel art + explosion VFX/SFX, lantern, orb, dummy, **fox (model + 3 anims)**, water/spikes/pit, `Marker_Bullseye` | ART |
-| 5 | **M5** W1 Content & **Art Lock** | — | Full Greenwood kit (25 pieces) + all 3 BG cards, ambience, colour-assist outlines, reduced motion, Home screen, W1 map backdrop + nodes, splash, `MUS_Menu_Theme`, chain-reaction percussion, set-piece layer. **OR-2 art lock gate** (style frozen; changes after this need a PO decision) | ART, UI |
-| 6 | **M6** Sunscar | Sunscar kit graybox first (days 1–2) | Sunscar kit, balloons, oil jar, fire VFX/SFX, `Arrow_Fire`, `Arrow_Split`, metal plates/shields + ricochet, boulder, levers, chain, spring plate (if built), `MUS_SC_Loop`, `AMB_SC_WindBed`, reveal cards | ART |
-| 7 | **M7** Frostspire | Frostspire kit graybox first | Frostspire kit, `SG_AB_Ice` + ice set, wind fan + streaks, portals (pair colours/glyphs), `Arrow_Bounce`, ice movers, relic, L60 tower, `MUS_FK_Loop`, `AMB_FK_Howl` | ART |
-| 8 | **M8** Meta & Monetisation | — | 4 more bow skins, 4 trails, badges, Forge thumbnails, all map backdrops + locked teasers, Shop/starter pack art, consent/ATT explainer, Daily panel, world unlock fanfare, purchase/equip SFX | ART, UI, MON |
-| 9 | **M9** Optimisation/QA/Accessibility | — | Per-tier URP assets/effects tuning, particle budget pass, texture memory pass, contrast audit, colour-blind check, placeholder purge (build check green) | ART, PLAT, UI |
-| 10 | **M10** Closed Test & Submission | — | Final wordmark/logo, app icon, screenshots, preview video, feature graphic, store key art, credits. **OR-3 store-asset originality gate.** | ART, MON, PO |
+| 1 | **M1** Foundations & Core Feel | Bow (cylinder limbs + LineRenderer string), `Arrow_Oak` capsule, crates, ground, crest target, `M_Graybox_*` set, `PH_SFX_*` (2–3 generic clicks for release/impact) | — | ART (setup), CORE/PHYS (prefabs) |
+| 2 | **M2** Core Loop + VS Graybox | Vase, rope, kill zones, HUD/panels with `UI_Icon_*` placeholders, toasts, temporary static splash | Fonts chosen + licensed (logged), `ASSET_LICENSES.md` created, `AssetImportRules` live | ART, UI |
+| 3 | **M3** Vertical Slice + External Playtest + Feel Lock | Everything outside the VS stays graybox | **Greenwood VS section only:** `T_GW_Palette`, ground/platform/pillar/cliff/rope-anchor/bow-stand/tree, 1 background card + sky; **hero bow** `SM_Bow_OakRanger` + `AC_Bow`; `Arrow_Oak`; `Env_GW_Backdrop_TrainingGrounds` + `Env_GW_*` VS blocking variants; `Struct_Crate_Timber_*`, `Struct_Post_Timber_0.5x2`, `Struct_Plank_Timber_4x0.25`, `Struct_Beam_Timber_*`, `Obj_CrestTarget`, `Prop_Rope`, `Prot_RoyalVase`, `Haz_Pit`, `Haz_WaterPit`; timber/crest/vase debris; kill-zone splash/poof VFX + SFX; VFX: bow glow/release, trail, timber impact/break, objective cleared, rope snap, protected lost, star burst; SFX: bow set, whistle, timber set, objective, vase, rope, UI core, stars; `MUS_GW_Loop` (original) + win/fail stings; haptics map; HUD + Win/Fail/Pause polished; tutorial hand + callout. Checked on an **iOS device build** (D-100) and Android. **OR-1 originality gate; OR-2 provisional art-direction lock at G0.** | ART, UI |
+| 4 | **M4** Systems Complete | Graybox variants for **every** remaining material (straw, stone, ice, metal, Earth), objective (supply crate, lantern, orb, dummy, banner rope), protected (fox, relic), prop (8; no spring plate), hazard, special arrow (Heavyhead/Split/Fire/Bounce incl. preview markers), `PH_` SFX for every `GameEvents` feedback hook, placeholder arrow reveal cards | None integrated. **Parallel track allowed (D-102):** Greenwood kit modelling may start after G0; it is not integrated into levels yet. | ART (graybox prefabs with PHYS/PROPS) |
+| 5 | **M5** Content Graybox + Device Validation | All 60 levels stay graybox (validation on devices uses graybox art) | **Parallel track:** Greenwood kit continues; Sunscar and Frostspire kit modelling may run. Nothing integrated. | ART |
+| 6 | **M6** Art, Audio, UI Polish & Meta | — | **OR-2 final art lock at start.** Then, world by world (GW → SC → FK): full kits + BG cards + ambience; all structure/objective/protected/prop/hazard final art and debris; fox model + 3 anims; all special-arrow art + reveal cards; full VFX table (§9.2, incl. `VFX_Arrow_SplitPulse`) and SFX list (§10.2); `MUS_Menu_Theme`, `MUS_SC_Loop`, `MUS_FK_Loop`, set-piece layer, chain-reaction percussion (all original); art passes to `Final` on all 60 levels; Home, world-map backdrops + nodes + locked teasers, Bow Forge + thumbnails, **launch cosmetic set: 3 bow skins (Oak Ranger, Moonwood, Royal Amethyst) + 2 trails (Gold Spark, Leaf Swirl)**, badges, Daily panel (cut-first), world-unlock fanfare, equip SFX, final static splash, colour-assist outlines, reduced motion/particles | ART, UI |
+| 7 | **M7** Platform Services & Monetisation | — | Consent/ATT explainer + privacy-policy link, Shop + Starter Pack art (`UI_Shop_StarterPack`), `RewardedOfferButton` states incl. the **"Bonus Arrow Used — 1★ Max"** disclosure, `ModalDialog` set, purchase SFX | UI, MON, ART |
+| 8 | **M8** Optimisation, Balance, QA & Release Prep | — | Per-tier URP assets/effects tuning, particle budget pass, texture memory pass, contrast audit, colour-blind check, placeholder purge (build check green, no AI placeholders left), final wordmark/logo (after name clearance, D-081), app icon, screenshots, feature graphic, key art, credits. **OR-3 store-asset originality gate.** | ART, PLAT, UI, MON, PO |
+| 9 | **M9** UK Closed Test & Submission | — | Preview video + screenshot refresh captured from the closed-test build; store listing art final | ART, MON, PO |
+| 10 | **M10** Soft Launch (Canada, Australia) | — | No new art; store listing variants for CA/AU only if required | MON, PO |
 
-Solo + AI contingency (`08`): the same order. If behind, cut in this order: P2 environment deco → gloved hand → set-piece music layer → chain combo VFX → `CD_Trail_EmberAsh` / `CD_Bow_Frostglass` (min viable 3 skins + 2 trails) → animated splash (static) → preview video (screenshots only). **Never cut:** colour language, silhouettes, material SFX per material (§15), outcome-first VFX, accessibility toggles listed in §8.
+**Already cut (D-086, D-101):** spring plate art/VFX/SFX, animated splash, bow skins beyond 3 and trails beyond 2 (Ember, Frostglass, Cyan Streak, Ember Ash → post-MVP content update), moving ice platform art (cut-first; static ice slides instead).
+
+Solo + AI contingency (`08`): the same order. If still behind, cut in this order: P2 environment deco → gloved hand → set-piece music layer → chain combo VFX → preview video (screenshots only). **Never cut:** colour language, silhouettes, material SFX per material (§15), outcome-first VFX, accessibility toggles listed in §8.
 
 ---
 

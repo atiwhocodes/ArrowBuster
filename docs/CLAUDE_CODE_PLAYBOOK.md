@@ -19,13 +19,15 @@
 - If something feels wrong, describe the *feel*: "arrow is too floaty", "tower falls too easily".
 
 ## Starter prompts (in order)
-The full plan lives in `docs/README.md`. Tickets AB-001…AB-025 in `docs/planning/09_BACKLOG.md` are the first 25 tasks in dependency order.
-1. `Read docs/README.md. Then do AB-001 (git baseline) — show me the commands first.`
-2. `Do AB-002 (project hygiene: packages, layers, physics settings, PlayMode test asmdef). Plan first, then implement and read the Console via MCP.`
-3. `Do AB-003 (Services, GameEvents, StaticReset, Log). Run the EditMode tests via MCP.`
-4. `Do AB-004 to AB-009 one ticket at a time: camera + play plane, tuning SOs, BallisticSolver, bow input, trajectory preview, Oak arrow.`
-5. `Do AB-010 to AB-015 and AB-047: materials, impact rules, breakables, structure prefabs, the physics stability spike (gates PG-1…PG-6), the DevOverlay, BuildScript + Android dev APK. Then run the M1 feel-gate (G-M1) playtest with me on the phone.`
-6. `Milestone 2: continue with AB-016 to AB-025 and AB-046 (level loading, quiver, objectives, settle/win/fail, ropes, HUD, analytics, vertical-slice levels + 5 more graybox levels).`
+The full plan lives in `docs/README.md`. Tickets in `docs/planning/09_BACKLOG.md` follow the owner-approved execution order (D-102). AB-001 (git baseline) is done — the repo is github.com/atiwhocodes/ArrowBuster.
+1. `Read docs/README.md. Then do AB-002 (project hygiene: packages, layers, physics settings, PlayMode test asmdef). Plan first, then implement and read the Console via MCP.`
+2. `Do AB-003 (Services, GameEvents, StaticReset, Log, TimeScaleController). Run the EditMode tests via MCP.`
+3. `Do AB-004 to AB-009 one ticket at a time: camera + play plane, tuning SOs, BallisticSolver, bow input, trajectory preview, Oak arrow.`
+4. `Do AB-010 to AB-015 and AB-047: materials, impact rules, breakables, structure prefabs, the physics stability spike (gates PG-1…PG-6), the DevOverlay, BuildScript + Android dev APK. Then run the M1 feel-gate (G-M1) playtest with me on the phone.`
+5. `Milestone 2: AB-016 to AB-025 — the five vertical-slice levels ONLY (level loading, quiver, objectives, settle/win/fail, ropes, HUD, analytics debug sink). No extra levels, special arrows, maps, cosmetics or ads yet.`
+6. `Milestone 3: AB-026 to AB-045 + AB-158 — slice art, feedback, polished HUD/Win/Fail, Android + iOS device builds, then the 5–10 external-player playtest and the G0 feel-lock decision.`
+
+Owner to-dos alongside: Google Play account/testing check in week 1, Mac + Apple Developer account by week 3, store accounts + IAP products by week 5.
 
 Delegating to specialist subagents: see `docs/agents/AGENT_SYSTEM.md` (roles live in `.claude/agents/`).
 
@@ -46,4 +48,4 @@ Then create a private GitHub repo and push. Commit after every working feature s
 
 ## Building to a phone
 - **Android:** enable Developer options + USB debugging on the phone, plug in, **File ▸ Build Profiles ▸ Android ▸ Build And Run**.
-- **iOS:** needs a Mac with Xcode + Apple Developer account. Switch to iOS, build → open the Xcode project on the Mac → run.
+- **iOS:** needs a Mac with Xcode + Apple Developer account — required by project week 3 so the vertical slice is tested on iPhone (D-100). Switch to iOS, build → open the Xcode project on the Mac → run.

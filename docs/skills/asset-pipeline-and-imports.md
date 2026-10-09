@@ -6,7 +6,7 @@
 Bring models, textures, sprites, fonts, audio and VFX into `Assets/_Project` with correct names, import settings, licences and prefab hookups, so that:
 - art can be swapped from placeholder to final **without code changes or collider changes**;
 - the build stays within the memory/download budgets (01 §11);
-- every asset is provably original or properly licensed (D-042).
+- every asset is provably original or properly licensed (D-089: licensed fonts and processed licensed SFX allowed and recorded in `docs/art/ASSET_LICENSES.md`; brand-defining visuals and music original).
 
 ## When to invoke
 - Any new or replaced file under `Art/`, `Audio/`, `UI/Sprites`, `UI/Fonts`.
@@ -25,7 +25,7 @@ Bring models, textures, sprites, fonts, audio and VFX into `Assets/_Project` wit
 1. **Originality gate:**
    - Is the asset made by us or the contractor, or licensed?
    - Is any part traced or derived from a reference-game asset or screenshot? If yes → **reject**.
-   - AI-generated → blocked until OWNER signs off (D-042).
+   - AI-generated → concept/temporary placeholder only (labelled `Placeholder`, D-056); never shipped unless the tool licence, commercial rights and an originality review are documented (D-089).
    - Log every third-party item in `docs/art/ASSET_LICENSES.md`: file, source, licence, URL, date, modifications.
 2. **Name and place** per 01 §8:
    - `SM_*.fbx` → `Art/Models/<World or Common>/`;

@@ -12,7 +12,7 @@ Wire feedback (SFX, music, VFX, hit-stop, camera micro-shake, haptics) to gamepl
 - particles only after the key outcome is readable (mvp §4).
 
 ## When to invoke
-- M3 (VS feedback basics), M5 (Greenwood full pass), M6/M7 (new prop/arrow feedback), M9 (polish + reduced-particles tier).
+- M3 (VS feedback basics), M4 (graybox feedback hooks for new props/arrows incl. the Split pre-split pulse `VFX_Arrow_SplitPulse`, D-088), M6 (full art/audio pass for all three worlds), M8 (polish + reduced-particles tier).
 - Whenever a new `GameEvents` payload kind, material, prop or arrow is added.
 
 **Do NOT invoke** for import settings (use [`asset-pipeline-and-imports.md`](asset-pipeline-and-imports.md)), or to add gameplay logic. Feedback code never changes outcomes.

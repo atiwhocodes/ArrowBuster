@@ -1,7 +1,7 @@
 # 11 — Vertical Slice Plan
 
 > Owner: `PO` (scope and the gate decision), `LEVEL` (levels), `INT` (integration). Status: Draft v1 — 2026-10-09.
-> Milestones: built across **M1 → M2 → M3**; the **VS gate** closes M3 ([`08_PRODUCTION_ROADMAP.md`](08_PRODUCTION_ROADMAP.md), D-033).
+> Milestones: built across **M1 → M2 → M3**; the **G0 Vertical Slice & Feel Lock** gate closes M3 ([`08_PRODUCTION_ROADMAP.md`](08_PRODUCTION_ROADMAP.md), D-102).
 > Level rules: [`04_LEVEL_PIPELINE.md`](04_LEVEL_PIPELINE.md). Systems: [`02_GAMEPLAY_SYSTEMS.md`](02_GAMEPLAY_SYSTEMS.md), [`03_PHYSICS_AND_OBJECTS.md`](03_PHYSICS_AND_OBJECTS.md). Art/audio: [`05_ART_AUDIO_UX.md`](05_ART_AUDIO_UX.md). The VS levels are real World 1 levels (D-050).
 
 ---
@@ -14,7 +14,9 @@ Prove the **north star** with the smallest polished build:
 
 **Gate question:** Do 5–10 casual players, given no instructions, (a) fire within 15 s, (b) discover weak points and the rope trick on their own, (c) enjoy the shot-to-collapse moment, and (d) voluntarily replay for 3★?
 
-If not, we iterate on feel and readability before building World 1 content (M4+).
+If not, we iterate on feel and readability before building anything else.
+
+**Hard order rule (D-102):** nothing beyond the vertical slice starts before the G0 GO — no special arrows, no world map, no cosmetics, no ads/IAP/SDKs and no levels beyond VS-01…VS-05. The only exceptions are OWNER admin tasks (Google Play account check in week 1, Mac + Apple Developer account by week 3, store accounts + IAP products by week 5; D-099, D-100). After GO, M4 builds all reusable systems, then M5 grayboxes all 60 levels.
 
 ---
 
@@ -24,7 +26,7 @@ If not, we iterate on feel and readability before building World 1 content (M4+)
 |---|---|---|---|
 | 1 | One polished Greenwood Range environment section | "Ranger Training Grounds": one backdrop diorama (grass valley, ruined stone arch, archery butts, fence, two tree clusters, pre-blurred hill cards, sky gradient) reused by all 5 levels with 2 backdrop variants. Final-quality lighting and palette. | AB-026, AB-027 |
 | 2 | Bow drag / draw / release | D-018 relative drag in the aim zone. String stretch, release snap, full-draw glow. Haptics per `05` §12: `Light` when the draw becomes fire-able, `Selection` at full draw. | AB-007, AB-028 |
-| 3 | Accurate trajectory preview | The same `BallisticSolver` as flight. Dots end at the first hit with an impact ring (D-040). Shown only while drawing. Scale 1.0. | AB-006, AB-008 |
+| 3 | Accurate trajectory preview | The same `BallisticSolver` as flight. Dots end at the first blocking hit with an impact ring; a predicted ricochet would show its first bounce (D-085; no metal in the VS). Shown only while drawing. Scale 1.0. | AB-006, AB-008 |
 | 4 | Standard Oak Arrow | Kinematic swept flight, embed in timber, deflect off stone, cut ropes and continue, pooled, cap 8. Tuning preset chosen at the M1 gate (D-036). | AB-005, AB-009, AB-011 |
 | 5 | Crates / timber structure | `Struct_Crate_Timber_1x1/2x1`, `Struct_Post_Timber_0.5x2`, `Struct_Plank_Timber_4x0.25`, plus `Env_*` static ledges. `MP_Timber` final-ish tuning. | AB-010, AB-012, AB-013 |
 | 6 | Required target | `Obj_CrestTarget` (red crest + icon + outline), breaks on an arrow hit or a heavy impact. | AB-018 |
@@ -41,7 +43,7 @@ If not, we iterate on feel and readability before building World 1 content (M4+)
 | 17 | Polished Win / Fail screens | Win: star reveal (sequenced, sound per star), "Next" dominant, "Replay". Fail: reason line, "Retry" dominant. The coin line is shown with placeholder values (not banked; economy is M8). | AB-037, AB-038 |
 | 18 | Analytics for the loop | `level_started`, `arrow_fired`, `object_triggered`, `level_completed`, `level_failed`, `level_restarted` + `level_quit` (defined in `06` §11) with §13 params, captured by `DebugAnalyticsService` into a per-session CSV. | AB-024, AB-042 |
 | 19 | VS flow | Boot → VS playlist (`LC_VerticalSlice`) → VS-01..05 → a "Slice complete" card listing stars → replay any. Progress saved locally. | AB-040, AB-022 |
-| 20 | Device build | Android dev APK on one Mid and one Low device (iOS if a Mac is available). | AB-043 |
+| 20 | Device builds | Android dev APK on one Mid and one Low device **and an iOS device build** (Mac + Apple Developer account ready by project week 3, D-100) on one iPhone (iPhone 11-class or newer) — checks perf, safe areas, haptics, touch feel and iOS build issues. | AB-043 (Android + iOS; the full SDK iOS path is AB-165 later) |
 
 ## 3. Explicitly out of scope (VS)
 
@@ -66,7 +68,7 @@ If not, we iterate on feel and readability before building World 1 content (M4+)
 
 `AB-001` … `AB-025` (see [`09_BACKLOG.md`](09_BACKLOG.md)) deliver the graybox VS: the full gameplay loop with graybox art and the 5 levels as graybox (AB-025).
 
-### 4.2 VS ticket list (M3) — AB-026 … AB-045 (+ AB-158)
+### 4.2 VS ticket list (M3) — AB-026 … AB-045 (+ AB-158, AB-162, AB-169)
 
 | ID | Title | Role | Size | Depends on | Acceptance (short) |
 |---|---|---|---|---|---|
@@ -87,10 +89,12 @@ If not, we iterate on feel and readability before building World 1 content (M4+)
 | AB-040 | VS playlist flow (`LC_VerticalSlice`) + slice-complete card | LEVEL + UI | S | AB-016, AB-022 | Boot → VS-01; Next advances; completion card shows per-level best stars; replay any |
 | AB-041 | VS levels art pass + final tuning + re-recorded shots | LEVEL | M | AB-026, AB-029, M1 gate | All 5 levels at status **Final** (`04` §5); bot P-01..P-07 green with art prefabs |
 | AB-042 | Analytics VS verification + CSV export + `level_quit` | MON | S | AB-024 | Every playtest session produces a CSV with session_id, attempt_number and full params; 0 missing/duplicate events in the QA script |
-| AB-043 | Android VS device build + perf smoke | PLAT | M | AB-041 | Mid: avg ≥ 58 FPS, 1% low ≥ 45; Low: ≥ 30 FPS; restart p95 < 1 s; memory < 450 MB |
+| AB-043 | VS device builds + device validation — **Android and iOS** | PLAT | M | AB-041, AB-169 | Android Mid ≥ 58 FPS avg (1% low ≥ 45), Android Low ≥ 30 FPS, **iPhone 11-class ≥ 58 FPS avg**; restart p95 < 1 s; memory < 450 MB; all 5 VS intended solutions reproduce on both devices; iOS safe areas/touch/haptics verified |
 | AB-044 | VS regression checklist + QA pass + bug triage | QA | M | AB-043 | Checklist in `docs/qa/VS_REGRESSION.md`; 0 open P0/P1 bugs |
 | AB-045 | VS playtest (5–10 players) + report + gate decision | QA + PO | M | AB-044 | Report in `docs/qa/VS_PLAYTEST_REPORT.md`; go/no-go entry added to `10_DECISION_LOG.md` |
 | AB-158 | AssetImportRules (AssetPostprocessor) + placeholder build check (D-055, D-056) | ART + PLAT | S | AB-047 | Import presets applied automatically to new art/audio; ClosedTest/Release builds fail on any `Placeholder`-labelled dependency |
+| AB-162 | **OWNER (by project week 5):** create the Apple Developer + Google Play Console app records and the IAP products `remove_ads` (£3.99 / USD 3.99) and `starter_pack` (£2.99 / USD 2.99) in both consoles (D-091, D-100) | OWNER + PLAT | S | AB-167, AB-168 | Both app records exist; both products are in "ready to submit"/draft state with the agreed price tiers; IDs match `IapCatalog` |
+| AB-169 | iOS VS device build on the Mac (touch feel, safe areas, haptics, perf smoke; no SDKs) (D-100) | PLAT | M | AB-041, AB-168 | VS playlist runs on an iPhone 11-class device at ≥ 58 FPS median; safe area correct; haptics fire; build steps documented |
 
 Critical path: AB-041 → AB-043 → AB-044 → AB-045. Art (AB-026/027/029) runs in parallel with feedback (AB-030–034) and UI (AB-035–039) from the M3 start.
 
@@ -238,19 +242,20 @@ The play area is 10 m wide (x −5 … +5) at z = 0. Origin is at bottom-centre,
 | A-5 | GC: 0 B/frame during aim and flight (Mid build, deep profile off) | Profiler GC Alloc column |
 | A-6 | Cold start → VS-01 playable ≤ 6 s on Mid | Stopwatch × 3 |
 | A-7 | Zero Console errors/exceptions in a 10-minute scripted soak (play all 5 levels twice, restart spam, pause/resume, app background/foreground) | `read_console` + device logcat |
-| A-8 | Every listed SFX event plays and is audible on device speakers; haptics fire on Android (and iOS if available) and can be toggled off | QA checklist |
+| A-8 | Every listed SFX event plays and is audible on device speakers; haptics fire on Android **and iOS** and can be toggled off | QA checklist |
 | A-9 | VFX never covers a remaining objective for > 0.3 s | QA visual check on all 5 levels |
 | A-10 | Analytics: for a scripted run (win, fail, restart, quit) the CSV contains exactly the expected events with correct params | AB-042 script diff |
 | A-11 | HUD/safe area correct at 9:16, 9:19.5, 9:21 (and 3:4 pillarbox if tested) | Screenshots in `docs/qa/` |
-| A-12 | No original-asset violations: every asset is custom or listed in `docs/art/ASSET_LICENSES.md` | ART check |
+| A-12 | No original-asset violations: every asset is custom or listed in `docs/art/ASSET_LICENSES.md`; no AI-generated asset ships (D-089) | ART check |
+| A-13 | iOS build: VS-01…VS-05 playable on an iPhone; A-3/A-4/A-11 thresholds also met on that iPhone; no iOS-only Console errors in the A-7 soak | Device log + screenshots |
 
 ---
 
 ## 8. VS gate — playtest protocol
 
-**Participants:** 5–10 casual mobile players (not team members, not game developers). At least 3 play mobile puzzle games weekly; a mix of ages 16–55; at least 3 have never seen the game. Remote sessions via screen-share are allowed if a physical device is used.
+**Participants:** 5–10 **external** casual mobile players — not team members, not game developers, and **not friends or family of the team where at all possible** (if unavoidable, max 2 and flagged in the report). At least 3 play mobile puzzle games weekly; a mix of ages 16–55; at least 3 have never seen the game. Remote sessions via screen-share are allowed if a physical device is used.
 
-**Device:** Android Mid-tier phone (primary), Low-tier phone for 2 sessions. Volume on, haptics on. DevOverlay hidden. Fresh install (save cleared).
+**Device:** Android Mid-tier phone (primary), Low-tier phone for 2 sessions, iPhone for ≥ 2 sessions. Volume on, haptics on. DevOverlay hidden. Fresh install (save cleared).
 
 **Script (≈ 20 min):**
 1. (1 min) Consent to observe and record notes. "We are testing the game, not you. Please think out loud."
@@ -278,10 +283,24 @@ The play area is 10 m wide (x −5 … +5) at z = 0. Origin is at bottom-centre,
 | VS-G8 | Median attempts per level | ≤ 3 on every level |
 
 **Decision rules:**
-- All of VS-G1…VS-G8 met → **GO**. Proceed to M4. Log a decision entry.
-- 1–2 misses outside VS-G4 → **GO with fixes**. Fix tickets are added to M4; no retest needed.
-- VS-G4 missed, or ≥ 3 misses → **NO-GO**. A one-week iteration on feel/readability: revisit D-036 (flight time), D-018 (draw mapping), D-040 (preview end-point), the hit-stop strength and level clarity. Then retest with 5 new players.
+- All of VS-G1…VS-G8 **and FL-1…FL-5** (§8.2) met → **GO**. Proceed to M4 (Systems Complete). Log a decision entry with the locked values.
+- 1–2 misses outside VS-G4 and outside FL-1…FL-5 → **GO with fixes**. Fix tickets are added to M4; no retest needed. (A missed FL criterion is never "GO with fixes": fix and re-measure it before M4 starts.)
+- VS-G4 missed, or ≥ 3 misses → **NO-GO**. A one-week iteration on feel/readability: revisit D-036 (flight time), D-018 (draw mapping), D-085 (preview end-point/first bounce), the hit-stop strength and level clarity. Then retest with 5 new players.
 - A second NO-GO → `PO` escalates to `OWNER` for a concept review (draw scheme alternatives, camera, physics fallback per D-004) before any further content work.
+
+### 8.2 Feel-lock criteria (all must be green for G0 GO, D-102)
+
+G0 = **"Vertical Slice & Feel Lock"**. Besides VS-G1…VS-G8, these five properties are measured and then **frozen** (later changes to `GameplayTuning`, `AD_Oak`, `DynamicsManager` or `MaterialProfile` need a PO decision entry and a full solvability re-run):
+
+| ID | Locked property | Measurable lock criterion |
+|---|---|---|
+| FL-1 | **Bow feel** | Mean "bow control feel" ≥ 5.0/7 (VS-G4) **and** ≤ 1 tester reports accidental/unintended releases; the D-036 flight-time preset, D-018 draw mapping and `renockCooldown` 0.35 s (D-083) are recorded as final values in the decision log |
+| FL-2 | **Trajectory accuracy** | `ArrowPreviewParityTests` ≤ 1 mm over 3 s (EditMode) and final impact ≤ 2 cm vs preview (PlayMode); on device, the intended shots of VS-01…05 land on the previewed impact ring (`IntendedSolutionRunner`, 5/5) |
+| FL-3 | **Arrow collision reliability** | `ArrowTunnellingTests`: 0 misses in 1,000 seeded shots at a 0.1 m plank at max speed; rope cut never missed when the swept arrow intersects the rope capsule (RP tests); 0 "arrow went through" reports in the playtest |
+| FL-4 | **Restart time** | Retry → playable p95 < 1.0 s on the Mid Android device **and** the iPhone (20 restarts each); editor ≤ 300 ms (`RestartPerfTests`) |
+| FL-5 | **Physics stability** | PG-1…PG-6 still green on the final VS build; `LevelIdleStabilityTests` green for VS-01…05; ≤ 1 tester reports "unfair/random physics" more than once (VS-G6); 9-sample solvability grid green (`07` §5.1) |
+
+The G0 decision entry in `10_DECISION_LOG.md` lists the locked values (flight preset, draw mapping, preview length, hit-stop range, key `MaterialProfile` numbers).
 
 The report goes in `docs/qa/VS_PLAYTEST_REPORT.md`: per-tester table, metric summary, top 5 issues with ticket IDs, and a recommendation.
 
@@ -301,8 +320,8 @@ The report goes in `docs/qa/VS_PLAYTEST_REPORT.md`: per-tester table, metric sum
 | Bow / arrow | `SM_Bow_OakRanger` + `AC_Bow` (hero bow, default skin `CD_Bow_OakRanger`), `Arrow_Oak` | Bow 4–6 k tris, string as a LineRenderer; arrow ≤ 250 tris + `VFX_Trail_Default` | ART |
 | Debris | `Debris_Timber_01…03`, `Debris_Crest_01…02`, `Debris_Vase_01…02` | 20–80 tris each, pooled (`05` §4.2) | ART + PHYS |
 | VFX | `VFX_Bow_FullDrawGlow`, `VFX_Bow_Release`, `VFX_Trail_Default`, `VFX_Impact_Timber`, `VFX_Break_Timber`, `VFX_Objective_Cleared`, `VFX_Protected_Lost`, `VFX_RopeSnap`, `VFX_Splash_Water`, `VFX_Pit_Poof`, `VFX_UI_StarBurst` | Particle budgets per `05` §9.2; mobile shaders | ART |
-| SFX | Draw creak (loop by power), full-draw tick, release snap, arrow whistle (pitch by speed), timber impact ×3, timber break ×2, arrow embed thunk ×2, crest shatter, rope snap, vase break, splash, win sting, fail sting, star pop ×3 (rising pitch), UI tap, objective cleared chime | Original or licensed + processed (D-042); `SE_*` events | ART |
+| SFX | Draw creak (loop by power), full-draw tick, release snap, arrow whistle (pitch by speed), timber impact ×3, timber break ×2, arrow embed thunk ×2, crest shatter, rope snap, vase break, splash, win sting, fail sting, star pop ×3 (rising pitch), UI tap, objective cleared chime | Original or licensed + processed (D-089); `SE_*` events | ART |
 | Music | `MUS_GW_Loop` + `MUS_Sting_Win`, `MUS_Sting_Fail` | 60–120 s seamless loop (`05` §11), light and adventurous; ducked during the win sting | ART |
 | UI | HUD icons (pause, restart, crest, vase, Oak arrow), star (empty/full), panel frames (original wood-and-leaf style), buttons, toast frame, ghost hand sprite, callout bubble | Original UI language (no purple frames; §11) | UI + ART |
-| Fonts | 1 display + 1 body font | OFL or licensed (D-042) | UI |
+| Fonts | 1 display + 1 body font | OFL or licensed, recorded in the licence register (D-089) | UI |
 | Strings | `UIStrings` entries: banners, tutorial callout, fail reasons, win tips, buttons | English, ≤ 32 chars for callouts | UI + LEVEL |

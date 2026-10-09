@@ -12,7 +12,7 @@ It produces a written test run with a clear go/no-go. It also owns bug triage.
 
 ## When to invoke
 - **Pre-merge (INT):** the automated subset on every branch before merging to `main`.
-- **Milestone gate:** the full regression at every formal gate (G-M1, G0, G1, G2, G3, G4, G-Release — `07` §16, D-078).
+- **Milestone gate:** the full regression at every formal gate (G-M1, G0, G1, G2, G3, G4, G5, G-Release — `07` §16, D-102).
 - **Release candidates:** the full regression + device matrix + monetisation/consent checks.
 - **Bug reports:** reproduce → triage → ticket.
 
@@ -116,7 +116,7 @@ Write the test run. A gate is **GO** only if:
 ```text
 Agent: ab-qa-playtest
 Skill: docs/skills/qa-regression-and-device-test.md (A–E)
-Ticket: AB-044 VS regression checklist + QA pass (G0 Vertical Slice gate)
+Ticket: AB-044 VS regression checklist + QA pass (G0 Vertical Slice & Feel Lock gate)
 Build: main@<sha>, Android-Dev 0.3.x (APK path), iOS TestFlight 0.3.x
 Devices: Pixel 6a, Galaxy A13, iPhone 11, iPhone 15 (Dynamic Island)
 Deliverables: docs/qa/test-runs/2026-10-xx_M3_regression.md with GO/NO-GO; BUGS.md rows for every defect; tickets for S1/S2.

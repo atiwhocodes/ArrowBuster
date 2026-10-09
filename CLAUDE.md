@@ -62,22 +62,49 @@ Everything we author lives under `Assets/_Project`. Never edit `Library/`, `Temp
    files in `docs/agents/FILE_LOCKS.md`, hand off with `docs/agents/HANDOFF_TEMPLATE.md`. No new packages
    or scope changes without an entry in `docs/planning/10_DECISION_LOG.md`.
 
-## Milestones (docs/planning/08_PRODUCTION_ROADMAP.md, D-033 — tick as completed)
-- [x] 0. Project setup: URP, Android/iOS modules, portrait/IL2CPP settings, folders, asmdefs, LevelData, MCP
-- [ ] 1. Graybox core feel: repo hygiene, layers/physics settings, bow drag input, trajectory preview, kinematic Oak arrow,
-        materials + breakables, fixed camera, crate tower — gate: arrow feel + physics stability spike
-- [ ] 2. Core loop: LevelData v2 + loader, quiver, objectives, protected vase, ropes, kill zones, settle/win/fail,
-        stars, one-tap restart, graybox HUD, analytics debug sink, 10 graybox levels (incl. 5 vertical-slice levels)
-- [ ] 3. Vertical slice: Greenwood section art, SFX/VFX/haptics, hit-stop, tutorial prompt, polished HUD + win/fail,
-        device build, 5–10 player playtest — gate: VS go/no-go
-- [ ] 4. World 1 systems + tooling: all 5 materials, Heavyhead, powder barrel, lantern/orb/dummy/fox, level editor +
-        validator + solvability bot, World 1 levels 1–20 graybox
-- [ ] 5. World 1 content + art lock: Greenwood kit, W1 final, world map v1, save/progression, Home, first-session flow
-- [ ] 6. World 2 Sunscar (21–40): balloons, oil/fire, Fire + Split arrows, moving shields, boulders, levers
-- [ ] 7. World 3 Frostspire (41–60): ice, wind, Bounce arrow, portals, moving platforms; SDK integration spike
-- [ ] 8. Meta + monetisation: world map, coins, cosmetics, daily, ads/IAP/analytics/crash/remote config + consent
-- [ ] 9. Device optimization, quality tiers, balance, QA, accessibility
-- [ ] 10. Closed test build, store assets, submission candidate
+## Canonical delivery order (owner-approved, D-102 / D-104 — do not reorder)
+- **Phase 1:** git/project baseline → project settings, physics layers, test assemblies, foundations → the five-level
+  vertical slice ONLY → 5–10 external casual-player playtest gate.
+- **Phase 2:** lock bow feel, arrow flight, preview accuracy, collision reliability, restart time, physics stability →
+  reusable materials, objectives, destruction and interactive-object systems → graybox all 60 levels (prefabs + LevelData).
+- **Phase 3:** validate every intended solution on target devices → final world art, UI, SFX, VFX, music, cosmetics, polish.
+- **Phase 4:** consent, analytics, Crashlytics, Remote Config, ads, IAP → optimisation/QA → UK internal test, then closed
+  test → Canada + Australia soft launch → optimise monetisation/balance only after real retention and funnel data.
+No special arrows, maps, cosmetics, ads or extra levels before the vertical-slice gate (G0) says GO.
+
+## Locked decisions (D-080…D-104)
+- Unity 6000.6.5f1 for the whole MVP — never upgrade the editor (D-080). Public name "Arrow Buster"; technical identifiers `ArrowBuster` (D-081).
+- Vendors: Firebase (Analytics, Crashlytics, Remote Config) + Unity LevelPlay + Unity IAP, only behind `IAnalyticsService`,
+  `ICrashReportingService`, `IRemoteConfigService`, `IAdsService`, `IIapService`, `IConsentService`; vendor code only in
+  `ArrowBuster.Integrations`, integrated in M7 (D-090). UK/EEA consent gates analytics, ad personalisation and crash reporting (D-096).
+- Special arrows first appear at Heavyhead W1_L13 (L13), Split W2_L10 (L30), Fire W2_L16 (L36), Bounce W3_L07 (L47) (D-082).
+- Bonus-arrow clears are capped at 1★ (D-084). Cosmetics are cosmetic-only: never aim, damage, quiver, stars or progression (D-104).
+- Cut from MVP: Spring Plates, moving ice platforms, choice levels, animated splash; launch cosmetics = 3 bow skins + 2 trails (D-101, D-104).
+
+## Milestones (docs/planning/08_PRODUCTION_ROADMAP.md — tick as completed)
+- [x] 0. Project setup + AB-001 git baseline (private repo github.com/atiwhocodes/ArrowBuster, branch `main`)
+- [ ] 1. Foundations & core feel: project hygiene, layers/physics settings, services skeleton, camera, bow input, BallisticSolver,
+        trajectory preview, kinematic Oak arrow, materials + breakables, crate tower, DevOverlay — gate **G-M1** (PG-1…PG-6).
+        OWNER: Play account rules (week 1), Mac + Apple Developer account (week 3)
+- [ ] 2. Core loop + vertical-slice graybox: LevelData v2 + loader, quiver, objectives, vase, ropes, kill zones, settle/win/fail,
+        stars, restart, graybox HUD, analytics debug sink — the 5 VS levels ONLY
+- [ ] 3. Vertical slice + external playtest + feel lock: Greenwood section art, SFX/VFX/haptics, hit-stop, tutorial prompt,
+        polished HUD + win/fail, Android + iOS device builds, 5–10 external casual players — gate **G0** (VS-G1…VS-G8 + feel lock).
+        OWNER: store accounts + IAP products (week 5)
+- [ ] 4. Systems complete: all materials, objectives, protected objects, 8 props, hazards, Heavyhead/Split/Fire/Bounce,
+        interaction-matrix tests, level editor + validator + solvability bot v2 — gate **G1**
+- [ ] 5. Content graybox + device validation: all 60 levels graybox with intended shots, bot green, every intended solution
+        validated on target devices — gate **G2**
+- [ ] 6. Art, audio, UI polish & meta: 3 world art kits, VFX/SFX/music, levels to Final, Home, world map, progression, coins,
+        3 skins + 2 trails, Bow Forge, Bullseye, daily challenge (cut-first), settings/accessibility — gate **G3**
+- [ ] 7. Platform services & monetisation: privacy policy hosted first; UMP + ATT consent; Firebase; LevelPlay rewarded +
+        interstitial with AdPolicy; Unity IAP (remove_ads, starter_pack, restore) — gate **G4**
+- [ ] 8. Optimisation, QA & release prep: quality tiers, device-matrix profiling, regression, playtest-driven difficulty tuning,
+        accessibility, store assets, name clearance — gate **G5** Release Candidate
+- [ ] 9. UK internal test, then closed test, then submission — gate **G-Release**
+- [ ] 10. Soft launch in Canada + Australia; data-driven optimisation only afterwards
+
+Next ticket: **AB-002** (docs/planning/09_BACKLOG.md), then AB-003… in dependency order.
 
 ## Build notes
 - Android builds on this Windows PC (File ▸ Build Profiles ▸ Android). iOS: Unity exports an Xcode project; compile/sign on a Mac.
