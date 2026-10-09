@@ -85,11 +85,13 @@ No special arrows, maps, cosmetics, ads or extra levels before the vertical-slic
 - [x] 0. Project setup + AB-001 git baseline (private repo github.com/atiwhocodes/ArrowBuster, branch `main`)
 - [ ] 1. Foundations & core feel: project hygiene, layers/physics settings, services skeleton, camera, bow input, BallisticSolver,
         trajectory preview, kinematic Oak arrow, materials + breakables, crate tower, DevOverlay — gate **G-M1** (PG-1…PG-6).
+        STATUS: all built except DevOverlay (AB-015); device feel gate AB-014 not yet run.
         OWNER: Play account rules (week 1), Mac + Apple Developer account (week 3)
-- [ ] 2. Core loop + vertical-slice graybox: LevelData v2 + loader, quiver, objectives, vase, ropes, kill zones, settle/win/fail,
-        stars, restart, graybox HUD, analytics debug sink — the 5 VS levels ONLY
+- [x] 2. Core loop + vertical-slice graybox: LevelData v2 + loader, quiver, objectives, vase, ropes, kill zones, settle/win/fail,
+        stars, restart, graybox HUD, analytics debug sink — the 5 VS levels ONLY (done 2026-10-09, docs/qa/handoffs/VS-BUILD.md)
 - [ ] 3. Vertical slice + external playtest + feel lock: Greenwood section art, SFX/VFX/haptics, hit-stop, tutorial prompt,
         polished HUD + win/fail, Android + iOS device builds, 5–10 external casual players — gate **G0** (VS-G1…VS-G8 + feel lock).
+        STATUS: procedural Greenwood art, SFX/VFX/haptics, hit-stop, prompts, HUD/panels and an Android dev APK done; playtest pending.
         OWNER: store accounts + IAP products (week 5)
 - [ ] 4. Systems complete: all materials, objectives, protected objects, 8 props, hazards, Heavyhead/Split/Fire/Bounce,
         interaction-matrix tests, level editor + validator + solvability bot v2 — gate **G1**

@@ -34,6 +34,7 @@ Thumbs.db
 *.VC.db
 
 # Builds
+/[Bb]uilds/
 *.apk
 *.aab
 *.unitypackage
@@ -48,3 +49,10 @@ crashlytics-build.properties
 # MCP / editor screenshots
 /[Aa]ssets/[Ss]creenshots/
 /[Aa]ssets/[Ss]creenshots.meta
+
+# Performance Testing package run artefacts
+/[Aa]ssets/[Rr]esources/PerformanceTestRun*
+/[Aa]ssets/[Rr]esources.meta
+
+# Android native build scratch (Gradle/CMake)
+/.utmp/

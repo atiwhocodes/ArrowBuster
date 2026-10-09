@@ -143,7 +143,9 @@ A ticket may be picked up by an agent only when all of these are true:
 **Approved execution order (D-102) — governs all scheduling:**
 1. Git baseline ✅ (AB-001) → 2. settings, layers, physics, test assemblies, folders (AB-002…) → 3. build the five-level vertical slice only → 4. 5–10 **external** casual-player tests before any special arrows, maps, cosmetics, ads or 60-level content → 5. lock bow feel, trajectory accuracy, arrow collision reliability, restart time, physics stability → 6. reusable material + interactive-object systems → 7. graybox all 60 levels → 8. validate every intended solution on target devices → 9. final art, sound, VFX, UI polish, cosmetics → 10. ads, IAP, consent, analytics, crash, Remote Config → 11. UK closed test, then Canada/Australia soft launch → 12. post-soft-launch optimisation only.
 
-**Next ticket: AB-002.** No ticket in M1–M3 depends on special arrows, the world map, cosmetics, ads or content beyond the five VS levels. OWNER tasks run in parallel: AB-167 (Play account verification, week 1), AB-168 (Mac + Apple Developer account, by week 3), AB-162 (store accounts + IAP products, by week 5).
+**Status 2026-10-09:** AB-002 done. AB-003…AB-013 and AB-016…AB-025 implemented on `core/vertical-slice-build` (playable 5-level slice, bot 5/5 at par). Open items per ticket are listed in `docs/qa/handoffs/VS-BUILD.md` §6. **Next:** AB-014 (device feel gate) + AB-015, then the D-102 external playtest.
+
+**Original note:** No ticket in M1–M3 depends on special arrows, the world map, cosmetics, ads or content beyond the five VS levels. OWNER tasks run in parallel: AB-167 (Play account verification, week 1), AB-168 (Mac + Apple Developer account, by week 3), AB-162 (store accounts + IAP products, by week 5).
 
 ### AB-001 — Version control baseline ✅ DONE
 `[INT][P0][M0][R-L][S][tech]` · depends on: none · **Done 2026-10-09:** commit `7a06460`, pushed to `github.com/atiwhocodes/ArrowBuster` (private), LFS + UnityYAMLMerge configured.

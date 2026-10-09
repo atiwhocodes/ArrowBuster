@@ -384,7 +384,7 @@ namespace ArrowBuster
                 star.transform.localScale = Vector3.one;
                 if (!earned) continue;
                 int index = i;
-                UiTween.Delay(0.25f + i * 0.28f, () =>
+                UiTween.Delay(0.25f + i * 0.28f, star, () =>
                 {
                     star.color = UiTheme.Gold;
                     UiTween.Scale(star.transform, Vector3.one * 1.6f, Vector3.one, 0.35f, Ease.OutBack);
@@ -465,7 +465,7 @@ namespace ArrowBuster
             UiFactory.SetVisible(_banner, true);
             _banner.blocksRaycasts = false;
             UiTween.Scale(_banner.transform, Vector3.one * 0.6f, Vector3.one, 0.35f, Ease.OutBack);
-            UiTween.Delay(1.7f, () => UiTween.Fade(_banner, 1f, 0f, 0.35f, 0f, () => _banner.gameObject.SetActive(false)));
+            UiTween.Delay(1.7f, _banner, () => UiTween.Fade(_banner, 1f, 0f, 0.35f, 0f, () => _banner.gameObject.SetActive(false)));
         }
 
         private void ShowToast(string text, float seconds)
@@ -474,7 +474,7 @@ namespace ArrowBuster
             UiFactory.SetVisible(_toast, true);
             _toast.blocksRaycasts = false;
             UiTween.Scale(_toast.transform, Vector3.one * 0.7f, Vector3.one, 0.25f, Ease.OutBack);
-            UiTween.Delay(seconds, () => UiTween.Fade(_toast, 1f, 0f, 0.3f, 0f, () => _toast.gameObject.SetActive(false)));
+            UiTween.Delay(seconds, _toast, () => UiTween.Fade(_toast, 1f, 0f, 0.3f, 0f, () => _toast.gameObject.SetActive(false)));
         }
 
         private void ShowPanel(CanvasGroup panel)

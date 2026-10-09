@@ -15,6 +15,7 @@ namespace ArrowBuster
         {
             public Kind Kind;
             public UnityEngine.Object Target;
+            public bool HasTarget;
             public Transform Transform;
             public CanvasGroup Group;
             public RectTransform Rect;
@@ -79,8 +80,16 @@ namespace ArrowBuster
             tw.To = new Vector3(0f, 0f, toDeg);
         }
 
-        /// <summary>Delayed callback on unscaled time.</summary>
-        public static void Delay(float seconds, Action done) => Add(Kind.Fade, null, seconds, Ease.Linear, 0f, done);
+        /// <summary>
+        /// Delayed callback on unscaled time. The callback is dropped if <paramref name="owner"/> is destroyed first
+        /// (scene change, retry), so closures never touch dead UI.
+        /// </summary>
+        public static void Delay(float seconds, UnityEngine.Object owner, Action done)
+        {
+            Tween tw = Add(Kind.Fade, null, seconds, Ease.Linear, 0f, done);
+            tw.Target = owner;
+            tw.HasTarget = owner != null;
+        }
 
         public static void Kill(UnityEngine.Object target)
         {
@@ -114,6 +123,7 @@ namespace ArrowBuster
             Tween tw = Free.Count > 0 ? Free.Pop() : new Tween();
             tw.Kind = kind;
             tw.Target = target;
+            tw.HasTarget = target != null;
             tw.Transform = null;
             tw.Group = null;
             tw.Rect = null;
@@ -134,8 +144,8 @@ namespace ArrowBuster
                 if (now < tw.Start) continue;
                 float raw = (now - tw.Start) / tw.Duration;
                 float k = Evaluate(tw.Ease, raw);
-                bool alive = tw.Target == null || (tw.Target as UnityEngine.Object) != null;
-                if (tw.Target != null && !alive)
+                // Unity's == treats a destroyed object as null, so a tween that had a target is dead when it reads null.
+                if (tw.HasTarget && tw.Target == null)
                 {
                     Recycle(i);
                     continue;
@@ -165,6 +175,7 @@ namespace ArrowBuster
             Tween tw = Active[index];
             Active.RemoveAt(index);
             tw.Target = null;
+            tw.HasTarget = false;
             tw.Done = null;
             Free.Push(tw);
         }

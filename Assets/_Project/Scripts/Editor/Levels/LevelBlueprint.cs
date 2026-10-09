@@ -29,32 +29,4 @@ namespace ArrowBuster.Editor
         public BlueprintObject[] objects = Array.Empty<BlueprintObject>();
         public BlueprintShot[] shots = Array.Empty<BlueprintShot>();
     }
-
-    [Serializable]
-    public sealed class BlueprintQuiver
-    {
-        public string type = "Oak";
-        public int count = 1;
-    }
-
-    [Serializable]
-    public sealed class BlueprintObject
-    {
-        public string prefab = "";
-        public float x;
-        public float y;
-        public float rot;
-        public float sx = 1f;
-        public float sy = 1f;
-        public string name = "";
-        public string anchorId = "";
-    }
-
-    [Serializable]
-    public sealed class BlueprintShot
-    {
-        public float angle;
-        public float power;
-        public float delay;
-    }
 }

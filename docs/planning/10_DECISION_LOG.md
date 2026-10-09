@@ -129,6 +129,10 @@
 | D-102 | Execution order and milestone restructure | OWNER | Accepted |
 | D-103 | Locked technical direction | OWNER | Accepted |
 | D-104 | Final owner confirmations: Starter Pack positioning, cosmetic-only rule, hard cuts, four delivery phases | OWNER | Accepted |
+| D-105 | Oak impact tuning and the timber "weak point" pole | CORE / PHYS | Proposed |
+| D-106 | Vertical-slice layouts deviate from the 11 sketches (approach-path rule) | LEVEL | Proposed |
+| D-107 | Procedural placeholder art, synthesised audio and code-built UI for the vertical slice | ART / UI | Proposed |
+| D-108 | Implementation conventions adopted during the VS build | ARCH | Proposed |
 
 ---
 
@@ -1379,3 +1383,51 @@
 | Consequences | Closes the D-101 confirmation note. AB-093 and AB-108 status = Cut. 05/06 shop copy must avoid exclusivity wording. M8 "balance pass" is renamed "playtest-driven difficulty tuning". |
 | Owner | OWNER |
 | Status | Accepted |
+
+### D-105 — Oak impact tuning and the timber "weak point" pole
+| Field | Value |
+|---|---|
+| Decision ID | D-105 |
+| Date | 2026-10-09 |
+| Context | Building the VS on the 02 §6.4 spec values (Oak impactImpulse 6 Ns, max 10 Ns) produced hits that barely moved a loaded timber stilt; the "one clean shot" collapse in VS-02/VS-05 did not happen. |
+| Decision | `AD_Oak` impactImpulse **15 Ns**, maxImpulse **20 Ns** (minSpeed 4, maxSpeed 13 m/s unchanged). New prefab `Struct_Pole_Timber_0.25x2` with a Breakable HP override of **4**: one solid Oak hit snaps it. It is the readable weak point used as the weak leg in VS-02 and VS-05. |
+| Alternatives considered | Lower the timber density (makes every structure floaty). Raise only the impulse (the loaded post still did not move enough). Use explosive props in the VS (out of scope for M3). |
+| Consequences | 02 §6.4 example values are superseded by the `AD_Oak` asset. Re-check at the M1 feel gate (AB-014) on device. The weak pole joins the structure library (AB-013). |
+| Owner | CORE / PHYS |
+| Status | Proposed (PO to confirm at the VS playtest gate) |
+
+### D-106 — Vertical-slice layouts deviate from the 11 sketches (approach-path rule)
+| Field | Value |
+|---|---|
+| Decision ID | D-106 |
+| Date | 2026-10-09 |
+| Context | The aim-space scan (`AimFinder`, every angle × power through the real preview simulation) showed that several 11 §3 sketches were unsolvable: the bow sits bottom-centre and arrows never curve back, so targets resting on ledges were unreachable from below. |
+| Decision | Level design rule: **every required target needs a clear approach path** (a gap beside the ledge, or an exposed inward-facing side). VS-01 crest moved onto a slim post. VS-02/VS-05 use the weak pole. VS-04 "Market Shelf" redesigned as a precision shot (hit the crest, not the crates, or the crates topple into the vase). VS-05 rig lowered so the rope cut zone is reachable. Layouts are authored as JSON blueprints and imported (04 §4). |
+| Alternatives considered | Moving the bow per level (breaks the fixed-camera/bow contract). Allowing arrows through ledges. |
+| Consequences | 11 §3 sketches are now illustrative; the blueprints in `Assets/_Project/Levels/Blueprints/` are the source of truth. The rule is added to the level-design checklist. `AimFinder` becomes part of the level validator (AB-059). |
+| Owner | LEVEL |
+| Status | Proposed (PO to confirm at the VS playtest gate) |
+
+### D-107 — Procedural placeholder art, synthesised audio and code-built UI for the vertical slice
+| Field | Value |
+|---|---|
+| Decision ID | D-107 |
+| Date | 2026-10-09 |
+| Context | The owner asked for a fully playable game with assets. No AI 3D/2D generation provider is configured in the editor tooling, and D-089 allows AI assets only as placeholders anyway. |
+| Decision | All VS art is **original and procedural**: meshes, materials and gradients from `ArtKit` (Arrow Buster ▸ Build ▸ Generate Content), UI sprites generated at runtime (`ProceduralTextures`), SFX and the music loop synthesised by `SfxSynth`. The UI is built in code by `GameplayUI` + `UiFactory` (no UI prefabs yet). The only third-party asset is the OFL font Lilita One (logged in `docs/art/ASSET_LICENSES.md`). |
+| Alternatives considered | Asset Store packs (licence review and style lock-in before the M5 art direction lock). AI generators (not configured; placeholder-only per D-089). |
+| Consequences | Satisfies graybox-first (CLAUDE.md rule 4) with a readable Greenwood palette. Final art replaces the generated assets in M6 (Phase 3). AB-023's `Prefabs/UI/*` deliverable is replaced by code-built views until the UI art pass. |
+| Owner | ART / UI |
+| Status | Proposed (PO to confirm at the VS playtest gate) |
+
+### D-108 — Implementation conventions adopted during the VS build
+| Field | Value |
+|---|---|
+| Decision ID | D-108 |
+| Date | 2026-10-09 |
+| Context | Small structural choices made while implementing AB-003…AB-025 that differ from the ticket text. |
+| Decision | (1) Hit-stop policy lives in `FeedbackDirector` (no separate `HitStop` class); it still requests time scale only through `TimeScaleController` (D-061). (2) `IntendedSolutionRunner` and `LevelAudit` may set `Time.timeScale` for faster bot runs — dev/test-only exception to D-061. (3) `PlayerSettings.runInBackground = true` so editor/MCP play sessions keep ticking unfocused (no effect on mobile). (4) Levels are authored as JSON blueprints → `LevelData` + layout prefab via `LevelBlueprintImporter` (the ShotRecorder of AB-025 is replaced by recorded shots in the blueprint). (5) `UiTween.Delay` takes an owner object so delayed UI callbacks are dropped when their UI is destroyed (scene reload). |
+| Alternatives considered | Separate HitStop component. Recording shots via an editor window. |
+| Consequences | AGENT_SYSTEM ownership for hit-stop stays with FEEL. Bot runs restore `Time.timeScale = 1` when they finish (`IntendedSolutionRunner`). |
+| Owner | ARCH |
+| Status | Proposed (PO to confirm at the VS playtest gate) |

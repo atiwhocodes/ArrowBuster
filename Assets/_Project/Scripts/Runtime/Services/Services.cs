@@ -29,6 +29,9 @@ namespace ArrowBuster
             IsInstalled = true;
         }
 
+        /// <summary>Tests only: swap the save service (e.g. a temp-folder save) so test runs never touch the player's save.</summary>
+        internal static void OverrideSave(ISaveService save) => Save = save;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         public static void ResetStatics()
         {
