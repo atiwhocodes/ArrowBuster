@@ -1,0 +1,43 @@
+{
+  "world": 1,
+  "number": 1,
+  "shots": [
+    {
+      "angle": 65,
+      "power": 0.92,
+      "delay": 0
+    }
+  ],
+  "name": "First Mark",
+  "banner": "Break the target!",
+  "quiver": [
+    {
+      "type": "Oak",
+      "count": 3
+    }
+  ],
+  "goldPar": 1,
+  "ghostHand": true,
+  "difficulty": 1,
+  "objects": [
+    {
+      "prefab": "Env_GW_Ground",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "prefab": "Env_GW_Beam",
+      "x": 2.4,
+      "y": 2.75,
+      "sx": 5.5,
+      "rot": 90,
+      "name": "TargetPost"
+    },
+    {
+      "prefab": "Obj_CrestTarget",
+      "x": 2.4,
+      "y": 5.95,
+      "name": "Crest"
+    }
+  ]
+}

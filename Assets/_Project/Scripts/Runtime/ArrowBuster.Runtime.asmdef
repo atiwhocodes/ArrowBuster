@@ -2,7 +2,9 @@
     "name": "ArrowBuster.Runtime",
     "rootNamespace": "ArrowBuster",
     "references": [
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

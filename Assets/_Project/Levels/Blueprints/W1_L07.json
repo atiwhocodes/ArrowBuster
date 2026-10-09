@@ -1,0 +1,75 @@
+{
+  "world": 1,
+  "number": 7,
+  "shots": [
+    {
+      "angle": 94,
+      "power": 0.84,
+      "delay": 0
+    }
+  ],
+  "name": "Crate Drop",
+  "banner": "Break both targets!",
+  "quiver": [
+    {
+      "type": "Oak",
+      "count": 2
+    }
+  ],
+  "goldPar": 1,
+  "difficulty": 2,
+  "calloutText": "Aim for the rope",
+  "calloutAnchor": "rope",
+  "calloutReshowAfterMisses": 2,
+  "objects": [
+    {
+      "prefab": "Env_GW_Ground",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "prefab": "Env_GW_Beam",
+      "x": -3.0,
+      "y": 16.6,
+      "sx": 3.6,
+      "name": "Gantry"
+    },
+    {
+      "prefab": "Prop_Rope",
+      "x": -2.6,
+      "y": 16.4,
+      "name": "Rope"
+    },
+    {
+      "prefab": "Struct_Crate_Timber_2x1",
+      "x": -2.6,
+      "y": 12.2,
+      "name": "Load"
+    },
+    {
+      "prefab": "Marker_TutorialAnchor",
+      "x": -2.6,
+      "y": 14.6,
+      "anchorId": "rope"
+    },
+    {
+      "prefab": "Env_GW_Ledge",
+      "x": -3.0,
+      "y": 7.0,
+      "sx": 3.2,
+      "name": "Shelf"
+    },
+    {
+      "prefab": "Obj_CrestTarget",
+      "x": -3.2,
+      "y": 7.45,
+      "name": "CrestA"
+    },
+    {
+      "prefab": "Obj_CrestTarget",
+      "x": -2.0,
+      "y": 7.45,
+      "name": "CrestB"
+    }
+  ]
+}

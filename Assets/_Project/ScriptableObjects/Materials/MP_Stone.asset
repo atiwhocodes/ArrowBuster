@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf2233395fa84384baa8b41c60bac653, type: 3}
+  m_Name: MP_Stone
+  m_EditorClassIdentifier: ArrowBuster.Runtime::ArrowBuster.MaterialProfile
+  _kind: 2
+  _color: {r: 0.49019608, g: 0.5411765, b: 0.627451, a: 1}
+  _massPerCell: 12
+  _staticFriction: 0.8
+  _dynamicFriction: 0.7
+  _frictionCombine: 0
+  _bounciness: 0.02
+  _unbreakable: 0
+  _maxHP: 80
+  _damageThreshold: 6
+  _collisionDamageScale: 0.3
+  _breakImpulse: 120
+  _arrowEmbeds: 0
+  _embedMaxIncidenceDeg: 0
+  _embedMinSpeed: 0
+  _deflectFactor: 0.25
+  _ricochetMaxGrazingDeg: 0
+  _ricochetSpeedFactor: 0.6
+  _impulseTransfer: 0.7
+  _arrowDamageMultiplier: 0.5
+  _debrisMedium: 3
+  _debrisLifetime: 2

@@ -1,0 +1,71 @@
+{
+  "world": 1,
+  "number": 10,
+  "shots": [
+    {
+      "angle": 84,
+      "power": 0.62,
+      "delay": 0
+    }
+  ],
+  "name": "Market Shelf",
+  "banner": "Protect the vase!",
+  "quiver": [
+    {
+      "type": "Oak",
+      "count": 3
+    }
+  ],
+  "goldPar": 1,
+  "setPiece": true,
+  "difficulty": 3,
+  "objects": [
+    {
+      "prefab": "Env_GW_Ground",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "prefab": "Env_GW_Ledge",
+      "x": 3.1,
+      "y": 8.0,
+      "sx": 3.8,
+      "name": "Shelf"
+    },
+    {
+      "prefab": "Env_GW_Awning",
+      "x": 3.1,
+      "y": 12.6,
+      "sx": 3.8,
+      "name": "Awning"
+    },
+    {
+      "prefab": "Env_GW_Pedestal",
+      "x": 4.3,
+      "y": 8.3,
+      "name": "Pedestal"
+    },
+    {
+      "prefab": "Prot_RoyalVase",
+      "x": 4.3,
+      "y": 9.06,
+      "name": "Vase"
+    },
+    {
+      "prefab": "Struct_Crate_Timber_1x1",
+      "x": 2.4,
+      "y": 8.5
+    },
+    {
+      "prefab": "Struct_Crate_Timber_1x1",
+      "x": 2.4,
+      "y": 9.5
+    },
+    {
+      "prefab": "Obj_CrestTarget",
+      "x": 2.4,
+      "y": 10.45,
+      "name": "Crest"
+    }
+  ]
+}

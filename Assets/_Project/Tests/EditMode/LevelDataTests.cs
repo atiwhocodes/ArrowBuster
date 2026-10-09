@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -11,10 +12,8 @@ namespace ArrowBuster.Tests
         public void SetUp()
         {
             _level = ScriptableObject.CreateInstance<LevelData>();
-            _level.goldPar = 2;
-            _level.quiver.Clear();
-            _level.quiver.Add(new QuiverEntry(ArrowType.Oak, 3));
-            _level.quiver.Add(new QuiverEntry(ArrowType.Heavyhead, 1));
+            _level.GoldPar = 2;
+            _level.SetQuiver(new List<QuiverEntry> { new QuiverEntry(ArrowType.Oak, 3), new QuiverEntry(ArrowType.Heavyhead, 1) });
         }
 
         [TearDown]
@@ -33,11 +32,12 @@ namespace ArrowBuster.Tests
         public void TotalArrows_SumsQuiver() => Assert.AreEqual(4, _level.TotalArrows);
 
         [Test]
-        public void GlobalIndex_World2Level8_Is28()
+        public void GlobalIndex_World2Level10_Is30()
         {
-            _level.worldId = 2;
-            _level.levelNumber = 8;
-            Assert.AreEqual(28, _level.GlobalIndex);
+            _level.WorldId = 2;
+            _level.LevelNumber = 10;
+            Assert.AreEqual(30, _level.GlobalIndex);
+            Assert.AreEqual("W2_L10", _level.LevelId);
         }
     }
 }

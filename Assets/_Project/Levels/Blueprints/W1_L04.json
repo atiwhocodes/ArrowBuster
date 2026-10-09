@@ -1,0 +1,87 @@
+{
+  "world": 1,
+  "number": 4,
+  "shots": [
+    {
+      "angle": 78,
+      "power": 0.7,
+      "delay": 0
+    }
+  ],
+  "name": "Shaky Stilts",
+  "banner": "Break both targets!",
+  "quiver": [
+    {
+      "type": "Oak",
+      "count": 3
+    }
+  ],
+  "goldPar": 1,
+  "difficulty": 2,
+  "objects": [
+    {
+      "prefab": "Env_GW_Ground",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "prefab": "Env_GW_Ledge",
+      "x": 3.0,
+      "y": 5.5,
+      "sx": 4.0,
+      "name": "RightLedge"
+    },
+    {
+      "prefab": "Env_GW_Ledge",
+      "x": -1.9,
+      "y": 5.5,
+      "sx": 3.4,
+      "name": "LeftLedge"
+    },
+    {
+      "prefab": "Struct_Pole_Timber_0.25x2",
+      "x": 1.6,
+      "y": 6.5,
+      "name": "StiltLeft"
+    },
+    {
+      "prefab": "Struct_Post_Timber_0.5x2",
+      "x": 3.6,
+      "y": 6.5,
+      "name": "StiltRight"
+    },
+    {
+      "prefab": "Struct_Plank_Timber_4x0.25",
+      "x": 2.6,
+      "y": 7.625,
+      "name": "Plank"
+    },
+    {
+      "prefab": "Struct_Crate_Timber_1x1",
+      "x": 2.6,
+      "y": 8.25
+    },
+    {
+      "prefab": "Struct_Crate_Timber_1x1",
+      "x": 2.6,
+      "y": 9.25
+    },
+    {
+      "prefab": "Struct_Crate_Timber_1x1",
+      "x": 2.6,
+      "y": 10.25
+    },
+    {
+      "prefab": "Obj_CrestTarget",
+      "x": 2.6,
+      "y": 11.2,
+      "name": "CrestA"
+    },
+    {
+      "prefab": "Obj_CrestTarget",
+      "x": -0.9,
+      "y": 5.95,
+      "name": "CrestB"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf2233395fa84384baa8b41c60bac653, type: 3}
+  m_Name: MP_Straw
+  m_EditorClassIdentifier: ArrowBuster.Runtime::ArrowBuster.MaterialProfile
+  _kind: 0
+  _color: {r: 0.9098039, g: 0.8235294, b: 0.47843137, a: 1}
+  _massPerCell: 1.2
+  _staticFriction: 0.6
+  _dynamicFriction: 0.5
+  _frictionCombine: 0
+  _bounciness: 0.05
+  _unbreakable: 0
+  _maxHP: 12
+  _damageThreshold: 0.8
+  _collisionDamageScale: 1
+  _breakImpulse: 8
+  _arrowEmbeds: 1
+  _embedMaxIncidenceDeg: 80
+  _embedMinSpeed: 0
+  _deflectFactor: 0.3
+  _ricochetMaxGrazingDeg: 0
+  _ricochetSpeedFactor: 0.6
+  _impulseTransfer: 1
+  _arrowDamageMultiplier: 1.5
+  _debrisMedium: 3
+  _debrisLifetime: 1.2

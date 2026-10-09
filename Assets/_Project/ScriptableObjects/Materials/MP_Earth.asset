@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf2233395fa84384baa8b41c60bac653, type: 3}
+  m_Name: MP_Earth
+  m_EditorClassIdentifier: ArrowBuster.Runtime::ArrowBuster.MaterialProfile
+  _kind: 5
+  _color: {r: 0.41960785, g: 0.5568628, b: 0.30588236, a: 1}
+  _massPerCell: 1
+  _staticFriction: 0.8
+  _dynamicFriction: 0.7
+  _frictionCombine: 0
+  _bounciness: 0
+  _unbreakable: 1
+  _maxHP: 0
+  _damageThreshold: 0
+  _collisionDamageScale: 0
+  _breakImpulse: 0
+  _arrowEmbeds: 1
+  _embedMaxIncidenceDeg: 89
+  _embedMinSpeed: 0
+  _deflectFactor: 0.3
+  _ricochetMaxGrazingDeg: 0
+  _ricochetSpeedFactor: 0.6
+  _impulseTransfer: 0
+  _arrowDamageMultiplier: 0
+  _debrisMedium: 0
+  _debrisLifetime: 1

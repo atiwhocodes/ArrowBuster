@@ -2,7 +2,10 @@
     "name": "ArrowBuster.Editor",
     "rootNamespace": "ArrowBuster.Editor",
     "references": [
-        "ArrowBuster.Runtime"
+        "ArrowBuster.Runtime",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf2233395fa84384baa8b41c60bac653, type: 3}
+  m_Name: MP_Timber
+  m_EditorClassIdentifier: ArrowBuster.Runtime::ArrowBuster.MaterialProfile
+  _kind: 1
+  _color: {r: 0.6039216, g: 0.41960785, b: 0.24705882, a: 1}
+  _massPerCell: 4
+  _staticFriction: 0.65
+  _dynamicFriction: 0.55
+  _frictionCombine: 0
+  _bounciness: 0.05
+  _unbreakable: 0
+  _maxHP: 20
+  _damageThreshold: 2.5
+  _collisionDamageScale: 0.5
+  _breakImpulse: 25
+  _arrowEmbeds: 1
+  _embedMaxIncidenceDeg: 60
+  _embedMinSpeed: 5
+  _deflectFactor: 0.3
+  _ricochetMaxGrazingDeg: 0
+  _ricochetSpeedFactor: 0.6
+  _impulseTransfer: 0.9
+  _arrowDamageMultiplier: 1
+  _debrisMedium: 4
+  _debrisLifetime: 1.6

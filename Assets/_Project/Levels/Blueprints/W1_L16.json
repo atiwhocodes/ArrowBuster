@@ -1,0 +1,133 @@
+{
+  "world": 1,
+  "number": 16,
+  "shots": [
+    {
+      "angle": 82,
+      "power": 0.74,
+      "delay": 0
+    },
+    {
+      "angle": 97,
+      "power": 0.76,
+      "delay": 0.5
+    }
+  ],
+  "name": "Ranger's Reckoning",
+  "banner": "Three targets. Save the vase!",
+  "quiver": [
+    {
+      "type": "Oak",
+      "count": 4
+    }
+  ],
+  "goldPar": 2,
+  "difficulty": 4,
+  "objects": [
+    {
+      "prefab": "Env_GW_Ground",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "prefab": "Haz_WaterPit",
+      "x": 4.6,
+      "y": 1.2,
+      "sx": 2.4,
+      "sy": 1.2,
+      "name": "Water"
+    },
+    {
+      "prefab": "Env_GW_Ledge",
+      "x": 3.2,
+      "y": 3.0,
+      "sx": 3.6,
+      "name": "RightLedge"
+    },
+    {
+      "prefab": "Env_GW_Ledge",
+      "x": -2.8,
+      "y": 3.0,
+      "sx": 3.6,
+      "name": "LeftLedge"
+    },
+    {
+      "prefab": "Prot_RoyalVase",
+      "x": -1.6,
+      "y": 3.46,
+      "name": "Vase"
+    },
+    {
+      "prefab": "Struct_Pole_Timber_0.25x2",
+      "x": 1.9,
+      "y": 4.0,
+      "name": "StiltLeft"
+    },
+    {
+      "prefab": "Struct_Post_Timber_0.5x2",
+      "x": 3.6,
+      "y": 4.0,
+      "name": "StiltRight"
+    },
+    {
+      "prefab": "Struct_Plank_Timber_4x0.25",
+      "x": 2.75,
+      "y": 5.125,
+      "name": "Plank"
+    },
+    {
+      "prefab": "Obj_CrestTarget",
+      "x": 1.4,
+      "y": 5.7,
+      "name": "CrestB"
+    },
+    {
+      "prefab": "Struct_Crate_Timber_1x1",
+      "x": 3.0,
+      "y": 5.75
+    },
+    {
+      "prefab": "Struct_Crate_Timber_1x1",
+      "x": 3.0,
+      "y": 6.75
+    },
+    {
+      "prefab": "Obj_CrestTarget",
+      "x": 3.0,
+      "y": 7.7,
+      "name": "CrestA"
+    },
+    {
+      "prefab": "Env_GW_Beam",
+      "x": 4.0,
+      "y": 14.2,
+      "sx": 2.6,
+      "name": "Gantry"
+    },
+    {
+      "prefab": "Prop_Rope",
+      "x": 4.0,
+      "y": 14.0,
+      "name": "Rope"
+    },
+    {
+      "prefab": "Struct_Crate_Timber_2x1",
+      "x": 4.0,
+      "y": 10.6,
+      "name": "Load"
+    },
+    {
+      "prefab": "Env_GW_Ledge",
+      "x": -3.6,
+      "y": 12.0,
+      "sx": 1.6,
+      "name": "Perch"
+    },
+    {
+      "prefab": "Obj_CrestTarget",
+      "x": -3.6,
+      "y": 12.45,
+      "name": "CrestC"
+    }
+  ]
+}

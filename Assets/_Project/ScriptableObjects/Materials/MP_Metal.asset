@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf2233395fa84384baa8b41c60bac653, type: 3}
+  m_Name: MP_Metal
+  m_EditorClassIdentifier: ArrowBuster.Runtime::ArrowBuster.MaterialProfile
+  _kind: 4
+  _color: {r: 0.22745098, g: 0.24705882, b: 0.2784314, a: 1}
+  _massPerCell: 16
+  _staticFriction: 0.4
+  _dynamicFriction: 0.3
+  _frictionCombine: 0
+  _bounciness: 0.15
+  _unbreakable: 1
+  _maxHP: 0
+  _damageThreshold: 0
+  _collisionDamageScale: 0
+  _breakImpulse: 0
+  _arrowEmbeds: 0
+  _embedMaxIncidenceDeg: 0
+  _embedMinSpeed: 0
+  _deflectFactor: 0.3
+  _ricochetMaxGrazingDeg: 25
+  _ricochetSpeedFactor: 0.6
+  _impulseTransfer: 0.5
+  _arrowDamageMultiplier: 0
+  _debrisMedium: 0
+  _debrisLifetime: 1

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b6250503f8e8944bacbf958d88b9421, type: 3}
+  m_Name: AppConfig
+  m_EditorClassIdentifier: ArrowBuster.Runtime::ArrowBuster.AppConfig
+  _soundLibrary: {fileID: 11400000, guid: be5368862522c8a48b5b58b3aafc09de, type: 2}
+  _tuning: {fileID: 11400000, guid: b114ee0322119894db378edf917b05de, type: 2}
+  _mainCatalog: {fileID: 11400000, guid: 5977045de4fac6846ae74e1d21b5c6f3, type: 2}
+  _particleMaterial: {fileID: 2100000, guid: b53c19a8d2fb67f4b92b31f8fceadab0, type: 2}
+  _debrisMaterial: {fileID: 2100000, guid: d045b2d490794b1439f2ecc8a6dd88c2, type: 2}
+  _debrisMesh: {fileID: 4300000, guid: 866fbda2354a841458f4ca0ff2438640, type: 2}
+  _uiFont: {fileID: 11400000, guid: 4436182c1b5c99b4db2732f9ab29110d, type: 2}

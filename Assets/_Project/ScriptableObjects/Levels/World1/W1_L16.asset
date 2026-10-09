@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5006771934969b348a0a903d0b485a77, type: 3}
+  m_Name: W1_L16
+  m_EditorClassIdentifier: ArrowBuster.Runtime::ArrowBuster.LevelData
+  _worldId: 1
+  _levelNumber: 16
+  _displayName: Ranger's Reckoning
+  _banner: Three targets. Save the vase!
+  _layoutPrefab: {fileID: 234133286443520229, guid: 2955afb1a10e269468b761c55fb689cf, type: 3}
+  _quiver:
+  - type: 0
+    count: 4
+  _goldPar: 2
+  _tutorialPrompt:
+    text: 
+    anchorId: 
+    reshowAfterMisses: 0
+  _showGhostHand: 0
+  _trajectoryPreviewScale: 1
+  _intendedShots:
+  - angleDeg: 82
+    power01: 0.74
+    delayAfterPrevious: 0
+  - angleDeg: 97
+    power01: 0.76
+    delayAfterPrevious: 0.5
+  _isSetPiece: 0
+  _difficulty: 4
+  _designerNotes: 
