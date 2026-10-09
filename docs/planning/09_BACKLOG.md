@@ -152,7 +152,7 @@ A ticket may be picked up by an agent only when all of these are true:
 - **Files:** `.gitattributes`, `.gitignore`, `.git/config` (local), `docs/README.md` (git section — INT owns).
 - **Tests:** manual checklist from skill `git-worktree-and-integration.md`.
 
-### AB-002 — Project hygiene + layers + physics settings
+### AB-002 — Project hygiene + layers + physics settings — ✅ Done 2026-10-09 (handoff: `docs/qa/handoffs/AB-002.md`)
 `[ARCH+PHYS][P0][M1][R-M][M][tech]` · depends on: AB-001
 - **Description:** Remove `com.unity.visualscripting`, `com.unity.collab-proxy`, `com.unity.ai.navigation`. Delete template leftovers (`Assets/Scenes/SampleScene.unity`, `Assets/TutorialInfo/`, `Assets/Readme.asset`, `Assets/InputSystem_Actions.inputactions`, `Settings/SampleSceneProfile.asset`). Create `ArrowBuster.Tests.PlayMode` asmdef. Add editor tools `LayerSetup` (D-048 layers + collision matrix) and `PhysicsSetup` (D-006 settings), plus `PhysicsLayers` constants. Verify the MCP package is excluded from player builds.
 - **Acceptance criteria:** packages removed and the project compiles with 0 errors/warnings. Layers 6–16 named exactly as in D-048. Matrix matches `03` §2. Fixed Δt 0.0166667, max Δt 0.1, solver 8/2, enhanced determinism on. Both menu items idempotent.
@@ -522,7 +522,7 @@ Parallel-track allowance: environment-kit modelling (AB-070, AB-096, AB-110) may
 | ID | Title | Role | Size | Priority | Depends on | Risk |
 |---|---|---|---|---|---|---|
 | AB-151 | App Privacy nutrition labels, Play Data safety form, SDK privacy manifests verified against the final policy (`07` §13) | MON + OWNER | M | P0 | AB-132, AB-163, AB-165 | R-H |
-| AB-152 | Release build pipeline: signing (upload key off-repo), AAB, Xcode archive checklist, versioning | PLAT | M | P0 | AB-047 | R-M |
+| AB-152 | Release build pipeline: signing (upload key off-repo), AAB, Xcode archive checklist, versioning. Also: keep the MCP for Unity package out of store builds — its `MCPForUnity.Runtime` assembly targets all platforms (found in AB-002); remove the package for ClosedTest/Release builds or prove via the build report that it is stripped | PLAT | M | P0 | AB-047 | R-M |
 | AB-153 | UK closed test distribution (TestFlight + Play closed track, UK testers; ≥ 14 days or the store-required tester count/duration if longer; continues AB-166 if it started earlier) | PLAT + QA | M | P0 | AB-152 | R-M |
 | AB-154 | Closed-test funnel review (L1 ≥ 95%, W1 ≥ 45% of L5 reachers, retries, abandonment spikes) + fixes | MON + PO | L | P0 | AB-153 | R-M |
 | AB-155 | Store compliance + age-rating questionnaires (IARC / App Store) | PLAT + PO | S | P0 | AB-150 | R-L |

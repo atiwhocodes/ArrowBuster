@@ -61,4 +61,4 @@ Editing these **always** requires an active lock row, even by the permanent owne
 
 | File / glob | Role | Ticket | Since | Released | Note |
 |---|---|---|---|---|---|
-| — | — | — | — | — | — |
+| `Packages/manifest.json`, `packages-lock.json`; `ProjectSettings/TagManager.asset`, `DynamicsManager.asset`, `TimeManager.asset`, `EditorBuildSettings.asset` (input config); `Assets/Settings/Mobile_RPAsset.asset`, `PC_RPAsset.asset` (`m_VolumeProfile`); `Physics/PhysicsLayers.cs`; `Tests/PlayMode/*.asmdef` | ARCH + PHYS | AB-002 | 2026-10-09T17:00 | 2026-10-09T18:00 | Released at merge |

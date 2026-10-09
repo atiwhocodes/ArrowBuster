@@ -167,7 +167,7 @@ Assets/_Project/
                    ImpactKind, SplitArrowBehaviour,
                    FireArrowBehaviour, BounceArrowBehaviour
       Physics/     IFlightEnvironment, IArrowHittable, ArrowHitInfo, IExplosionReactive (contracts that
-                   Props/Objectives implement), PhysicsLayers, PlanarBody, MaterialProfile, MaterialBody, Breakable, ImpactDamage,
+                   Props/Objectives implement), PhysicsLayers, PhysicsSettingsSpec (D-006 values), PlanarBody, MaterialProfile, MaterialBody, Breakable, ImpactDamage,
                    DebrisPool, DebrisPiece, SettleMonitor, PhysicsBodyRegistry, BodyKind, ExplosionSolver,
                    Explosion, PhysicsDebugDraw + PhysicsStatsLogger (AB_DEV)
       Objectives/  Objective, ObjectiveClearRule, ObjectiveTracker, ProtectedObject, ProtectedTracker,
